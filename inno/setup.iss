@@ -33,8 +33,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\user\Desktop\FreelanceProjects\BlockPadBin\BlockPad.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\user\Desktop\FreelanceProjects\BlockPadBin\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\BlockPadBin\BlockPad.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\BlockPadBin\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
