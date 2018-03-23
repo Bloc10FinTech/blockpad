@@ -7,5 +7,6 @@
         <file>Icons/settings.png</file>
         <file>Icons/Block10_Logo.png</file>
         <file>Icons/Save.png</file>
+        <file>Icons/Password.png</file>
     </qresource>
 </RCC>

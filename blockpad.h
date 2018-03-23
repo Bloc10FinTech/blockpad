@@ -7,6 +7,7 @@
 #include "tablewidgetaccounts.h"
 #include "tablewidgetcoinrecords.h"
 #include "settingswgt.h"
+#include "generatepassword.h"
 #include "highlighter.h"
 
 namespace Ui {
@@ -22,9 +23,11 @@ public:
     ~BlockPad();
     void Init();
     bool needSaving();
-    QPointer<SettingsWgt> setWgt;
+    void closeChildWgts();
 private:
     Ui::BlockPad *ui;
+    QPointer<SettingsWgt> setWgt;
+    QPointer<GeneratePassword> genPasswWgt;
     QSettings settings;
     Highlighter *highlighter;
 public slots:
@@ -36,6 +39,7 @@ private slots:
     void slotRowSuccessfullyCompleted();
     void slotCurrentWgtChanged();
     void slotBlockPadNewChanges();
+    void slotPasswGenClicked();
 signals:
     void sigScreenLock_Time(bool on);
 };

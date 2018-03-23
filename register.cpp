@@ -44,7 +44,6 @@ Register::Register(QWidget *parent) :
         connect(ui->lineEditCode, &QLineEdit::returnPressed,
                 this, &Register::slotFinishEditingCode2FA);
     }
-    qsrand(QTime(0,0,0).secsTo(QTime::currentTime().addSecs(24)));
 }
 
 void Register::Init()

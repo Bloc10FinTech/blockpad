@@ -18,7 +18,6 @@ public:
 private:
     Ui::SettingsWgt *ui;
     QSettings settings;
-    void setAppFamilyFont(QWidget * wgt, int pointSize, int weight = -1, bool italic = false);
 private slots:
     void slotFontAppChanged(QString newFamily);
     void slotPasswordVisibleClicked(bool bCheck);

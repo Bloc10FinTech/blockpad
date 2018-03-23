@@ -25,7 +25,6 @@ private:
     Ui::PasswordWidget *ui;
     QPalette paletteEditable;
     QString _text;
-    QString GetPassword();
 public slots:
     void slotAllwaysVisible(bool allways);
 private slots:

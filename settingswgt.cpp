@@ -16,7 +16,7 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
     auto families = database.families();
     ui->comboBoxFonts->addItems(families);
     ui->comboBoxFonts->setCurrentText(qApp->font().family());
-    setAppFamilyFont(ui->labelSettingsTitle, 16,QFont::Bold);
+    Utilities::setAppFamilyFont(ui->labelSettingsTitle, 16,QFont::Bold);
     setAttribute(Qt::WA_DeleteOnClose);
     //load settings
     {
@@ -74,18 +74,6 @@ void SettingsWgt::slotFontAppChanged(QString newFamily)
     qApp->setFont (QFont (newFamily, appFontPointSize, appFontWeight));
     settings.setValue("Font", newFamily);
     settings.sync();
-}
-
-void SettingsWgt::setAppFamilyFont( QWidget * wgt,
-                                  int pointSize,
-                                  int weight,
-                                  bool italic)
-{
-    auto font = qApp->font();
-    font.setPointSize(pointSize);
-    font.setWeight(weight);
-    font.setItalic(italic);
-    wgt->setFont(font);
 }
 
 void SettingsWgt::slotPasswordVisibleClicked(bool bCheck)

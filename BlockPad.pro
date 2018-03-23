@@ -12,18 +12,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = BlockPad
 TEMPLATE = app
-QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
-# The following define makes your compiler emit warnings if you use
-# any feature of Qt which has been marked as deprecated (the exact warnings
-# depend on your compiler). Please consult the documentation of the
-# deprecated API in order to know how to port your code away from it.
+#QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
+
 DEFINES += QT_DEPRECATED_WARNINGS
-
-# You can also make your code fail to compile if you use deprecated APIs.
-# In order to do so, uncomment the following line.
-# You can also select to disable deprecated APIs only up to a certain version of Qt.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-
 
 SOURCES += \
         main.cpp \
@@ -50,7 +41,9 @@ SOURCES += \
     stmp/src/mimetext.cpp \
     stmp/src/quotedprintable.cpp \
     stmp/src/smtpclient.cpp \
-    highlighter.cpp
+    highlighter.cpp \
+    generatepassword.cpp \
+    global.cpp
 
 HEADERS += \
     global.h \
@@ -79,14 +72,16 @@ HEADERS += \
     stmp/src/smtpclient.h \
     stmp/src/smtpexports.h \
     highlighter.h \
-    adswebpage.h
+    adswebpage.h \
+    generatepassword.h
 
 FORMS += \
     passwordwidget.ui \
     register.ui \
     mainwidget.ui \
     blockpad.ui \
-    settingswgt.ui
+    settingswgt.ui \
+    generatepassword.ui
 
 RESOURCES += \
     fonts.qrc \

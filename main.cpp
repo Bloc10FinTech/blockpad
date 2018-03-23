@@ -9,7 +9,7 @@
 
 int main(int argc, char *argv[])
 {
-    qDebug() << QLibraryInfo::location(QLibraryInfo::DataPath);
+    qsrand(QTime(0,0,0).secsTo(QTime::currentTime().addSecs(24)));
     QApplication a(argc, argv);
     QCoreApplication::setOrganizationName("Bloc10");
     QCoreApplication::setOrganizationDomain("www.bloc10.com");

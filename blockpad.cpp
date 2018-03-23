@@ -31,6 +31,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotCompleteRowClicked);
         connect(ui->pushButtonSettings, &QPushButton::clicked,
                 this, &BlockPad::slotSettingsClicked);
+        connect(ui->pushButtonGeneratePassword, &QPushButton::clicked,
+                this, &BlockPad::slotPasswGenClicked);
         connect(ui->pushButtonSave, &QPushButton::clicked,
                 this, &BlockPad::slotSaveEncrypt);
         connect(ui->tableWidgetAccounts, &TableWidgetAccounts::sigCompetingRow,
@@ -63,12 +65,22 @@ bool BlockPad::needSaving()
     return ui->pushButtonSave->isEnabled();
 }
 
+void BlockPad::slotPasswGenClicked()
+{
+    if(genPasswWgt.isNull())
+    {
+        genPasswWgt = new GeneratePassword(nullptr);
+        //genPasswWgt->setAttribute(Qt::WA_QuitOnClose, true);
+        genPasswWgt->show();
+    }
+}
+
 void BlockPad::slotSettingsClicked()
 {
     if(setWgt.isNull())
     {
         setWgt = new SettingsWgt(nullptr);
-        setWgt->setAttribute(Qt::WA_QuitOnClose, true);
+        //setWgt->setAttribute(Qt::WA_QuitOnClose, true);
         setWgt->show();
         connect(setWgt, &SettingsWgt::sigScreenLock_Time,
                 this, &BlockPad::sigScreenLock_Time);
@@ -82,6 +94,14 @@ void BlockPad::Init()
     slotLoadDecrypt();
     slotSaveEncrypt();
     ui->codeEdit->setFocus();
+}
+
+void BlockPad::closeChildWgts()
+{
+    if(!setWgt.isNull())
+        setWgt->close();
+    if(!genPasswWgt.isNull())
+        genPasswWgt->close();
 }
 
 void BlockPad::slotCompleteRowClicked()

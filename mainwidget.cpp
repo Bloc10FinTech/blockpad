@@ -63,8 +63,7 @@ void MainWidget::closeEvent(QCloseEvent *event)
 
     if(bClose)
     {
-        if(!ui->blockPad->setWgt.isNull())
-            ui->blockPad->setWgt->close();
+        ui->blockPad->closeChildWgts();
         event->accept();
         //QWidget::closeEvent(event);
     }
@@ -75,8 +74,7 @@ void MainWidget::slotLockScreen()
     if(ui->stackedWidget->currentWidget() == ui->blockPad)
     {
         ui->stackedWidget->setCurrentWidget(ui->regist);
-        if(!ui->blockPad->setWgt.isNull())
-            ui->blockPad->setWgt->close();
+        ui->blockPad->closeChildWgts();
         ui->regist->onLock();
         showNormal();
         ui->blockPad->setMinimumWidth(0);
