@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Icons/locked.png</file>
+        <file>Icons/visibleOff.png</file>
+        <file>Icons/visibleOn.png</file>
+        <file>Icons/addRow.png</file>
+        <file>Icons/settings.png</file>
+        <file>Icons/Block10_Logo.png</file>
+        <file>Icons/Save.png</file>
+    </qresource>
+</RCC>
