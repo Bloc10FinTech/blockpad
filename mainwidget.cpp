@@ -15,10 +15,6 @@ MainWidget::MainWidget(QWidget *parent) :
     setWindowIcon(icon);
 #endif
     ui->stackedWidget->setCurrentWidget(ui->regist);
-    //create defPathBlockpads
-    if(!QDir(QCoreApplication::applicationDirPath()
-             + "/"+ defPathBlockpads).exists())
-        QDir(QCoreApplication::applicationDirPath()).mkdir(defPathBlockpads);
     //connect signals/slots
     {
         connect(ui->regist, &Register::successRegister,
@@ -78,7 +74,7 @@ void MainWidget::slotLockScreen()
         ui->regist->onLock();
         showNormal();
         ui->blockPad->setMinimumWidth(0);
-        ui->blockPad->setMaximumHeight(0);
+        ui->blockPad->setMinimumHeight(0);
         ui->regist->setFixedSize(400, 180);
         ui->stackedWidget->setFixedSize(400, 180);
         adjustSize();

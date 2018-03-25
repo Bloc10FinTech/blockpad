@@ -50,15 +50,15 @@ void Register::Init()
 {
     //fill nameFiles
     {
-        nameFiles = QDir(QCoreApplication::applicationDirPath()
+        nameFiles = QDir(Utilities::appFilesDirectory()
                          + "/"+ defPathBlockpads).entryList();
         for(int i=0; i<nameFiles.size(); i++)
         {
-            nameFiles[i] = QCoreApplication::applicationDirPath()
+            nameFiles[i] = Utilities::appFilesDirectory()
                     + "/" + defPathBlockpads + QString("/")
                             + nameFiles[i];
         }
-        QFile extBlocksFile(QCoreApplication::applicationDirPath()
+        QFile extBlocksFile(Utilities::appFilesDirectory()
                             + "/"+ defExternalBlockpads);
         if(!extBlocksFile.open(QIODevice::ReadOnly))
         {
@@ -125,7 +125,7 @@ void Register::Init()
 void Register::slotOpenFile()
 {
     QString blockpad = QFileDialog::getOpenFileName(this, tr("Open BlockPad"),
-                                        QCoreApplication::applicationDirPath(),
+                                        Utilities::appFilesDirectory(),
                                         "*.bloc");
     if(!blockpad.isEmpty())
     {
@@ -144,7 +144,7 @@ void Register::slotOpenFile()
             ui->comboBoxEmail->setCurrentText(pair.first);
             //add to external blockpads
             {
-                QFile extBlocksFile(QCoreApplication::applicationDirPath()
+                QFile extBlocksFile(Utilities::appFilesDirectory()
                                     + "/"+ defExternalBlockpads);
                 if(!extBlocksFile.open(QIODevice::Append))
                 {
@@ -320,10 +320,11 @@ void Register::sendEmailToGetResponse()
     {
         QNetworkRequest request(QUrl("https://api.getresponse.com/v3/campaigns"));
         request.setRawHeader(QByteArray("X-Auth-Token"), apiKey);
-        auto reply = nam.get(request);
         QEventLoop loop;
         connect(&nam, SIGNAL(finished(QNetworkReply *)), &loop, SLOT(quit()));
-        loop.exec();
+        auto reply = nam.get(request);
+        if(!reply->isFinished())
+            loop.exec();
         auto data = reply->readAll();
         qDebug() << data;
         QJsonDocument document = QJsonDocument::fromJson(data);
@@ -359,10 +360,11 @@ void Register::sendEmailToGetResponse()
         request.setRawHeader(QByteArray("X-Auth-Token"), apiKey);
         request.setHeader(QNetworkRequest::ContentTypeHeader,
                           "application/json");
-        nam.post(request, data);
         QEventLoop loop;
         connect(&nam, SIGNAL(finished(QNetworkReply *)), &loop, SLOT(quit()));
-        loop.exec();
+        auto reply = nam.post(request, data);
+        if(!reply->isFinished())
+            loop.exec();
     }
 }
 
@@ -421,7 +423,7 @@ void Register::slotLoginClicked()
                 {
                     auto email = ui->lineEditEmail->text();
                     auto name_email = email.split("@")[0];
-                    fileName = QCoreApplication::applicationDirPath()
+                    fileName = Utilities::appFilesDirectory()
                             + "/" + defPathBlockpads + QString("/")
                             + name_email + "_blockpad.bloc";
                 }

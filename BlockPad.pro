@@ -12,10 +12,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = BlockPad
 TEMPLATE = app
-#QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
+QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
 
 DEFINES += QT_DEPRECATED_WARNINGS
-
+DEFINES += QT_NO_DEBUG_OUTPUT
 SOURCES += \
         main.cpp \
     tablewidgetbase.cpp \
@@ -121,4 +121,3 @@ PRE_TARGETDEPS += $$PWD/../../openssl/openssl-1.0.2n/lib/libssl.a
 
 ICON = BlockPad.icns
 }
-

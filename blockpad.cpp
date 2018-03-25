@@ -10,7 +10,18 @@
 #include "codeeditor.h"
 #include <QWebEngineView>
 #include <QWebEnginePage>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #include "adswebpage.h"
+#include <QtConcurrent>
+#include <QNetworkReply>
+#include <QProgressDialog>
+#include <QNetworkAccessManager>
+#include <QCoreApplication>
+#include <QProcess>
+#include <QDesktopWidget>
+
 BlockPad::BlockPad(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::BlockPad)
@@ -21,8 +32,8 @@ BlockPad::BlockPad(QWidget *parent) :
     {
         if(settings.value("MakePasswordsHidden").type() != QVariant::Invalid)
         {
-            auto allways = !settings.value("MakePasswordsHidden").toBool();
-            ui->tableWidgetAccounts->slotAllwaysChecked(!allways);
+            ui->tableWidgetAccounts->slotAllwaysChecked(
+                        settings.value("MakePasswordsHidden").toBool());
         }
     }
     //signals-slots connects
@@ -43,6 +54,10 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotCurrentWgtChanged);
         connect(ui->codeEdit, &CodeEditor::newChanges,
                 this, &BlockPad::slotBlockPadNewChanges);
+        connect(this, &BlockPad::sigUpdateAvailable,
+                this, &BlockPad::slotUpdateAvailable);
+        connect(this, &BlockPad::sigErrorParsing,
+                this, &BlockPad::slotErrorUpdateParsing);
     }
     slotCurrentWgtChanged();
     highlighter = new Highlighter(ui->codeEdit->document());
@@ -55,9 +70,171 @@ BlockPad::BlockPad(QWidget *parent) :
         webEngineView->setPage(page);
         ui->mainVerticalLayout->addWidget(webEngineView);
         webEngineView->setUrl(QUrl("http://blockpad.io/adserv1.php"));
-        //webEngineView->setUrl(QUrl("https://www.google.ru"));
         webEngineView->setFixedHeight(110);
     }
+}
+
+void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
+{
+    auto error = reply->error();
+    if(error != QNetworkReply::NoError)
+    {
+        auto data = QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(error);
+        QMessageBox::critical(nullptr, windowTitle(), data);
+        return;
+    }
+    //redirect
+    {
+        QVariant redirectUrl =
+                 reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+
+        if(!redirectUrl.toUrl().isEmpty())
+        {
+            auto reply = namUpdate->get(QNetworkRequest(redirectUrl.toUrl()));
+            connect(reply, &QNetworkReply::downloadProgress,
+                    this, &BlockPad::slotDownloadUpdateProgress);
+            return;
+        }
+    }
+    auto dataReply = reply->readAll();
+
+    QFile file(Utilities::appFilesDirectory() + "/SetupBlockPad.exe");
+    file.open(QIODevice::WriteOnly);
+    file.write(dataReply);
+    file.close();
+
+    if(QMessageBox::Yes == QMessageBox::question(nullptr, "BlockPad update",
+    "BlockPad is opened\r\nUpdater will close it in order to process installiation\r\nContinue?"))
+    {
+        QProcess procFinishUpdate;
+        procFinishUpdate.startDetached(Utilities::appFilesDirectory()+ "/SetupBlockPad.exe");
+        exit(0);
+    }
+}
+
+void BlockPad::slotDownloadUpdateProgress(qint64 bytesReceived,
+                                    qint64 bytesTotal)
+{
+    if(bytesTotal != 0)
+        progressUpdates->setValue((bytesReceived*100)/bytesTotal);
+}
+
+void BlockPad::slotUpdateAvailable(QString link, QString version)
+{
+    QMessageBox mesBox;
+    mesBox.setText("An update package is available, do you want to download it?");
+    mesBox.setWindowTitle("BlockPad update");
+    QPushButton * yesButton = mesBox.addButton("Yes", QMessageBox::YesRole);
+    QPushButton * noButton = mesBox.addButton("No", QMessageBox::NoRole);
+    QPushButton * noRemindButton = mesBox.addButton("No remind", QMessageBox::NoRole);
+    mesBox.setIcon(QMessageBox::Question);
+    mesBox.exec();
+    if (mesBox.clickedButton() == yesButton)
+    {
+        downloadUpdateVersion(link, version);
+    }
+    if (mesBox.clickedButton() == noRemindButton)
+    {
+        settings.setValue("noUpdating", true);
+    }
+}
+
+void BlockPad::downloadUpdateVersion( QString link, QString version)
+{
+    progressUpdates = new QProgressDialog(this);
+    progressUpdates->setAttribute(Qt::WA_DeleteOnClose);
+    progressUpdates->setLabelText("Downloading BlockPad " + version + ":");
+    progressUpdates->setWindowTitle("BlockPad update");
+    progressUpdates->setGeometry(
+                QStyle::alignedRect(
+                    Qt::LeftToRight,
+                    Qt::AlignCenter,
+                    QSize(500,90),
+                    qApp->desktop()->availableGeometry()
+                )
+            );
+    progressUpdates->show();
+    connect(progressUpdates, &QProgressDialog::canceled,
+            progressUpdates, &QProgressDialog::close);
+    namUpdate = new QNetworkAccessManager(progressUpdates);
+    connect(namUpdate, &QNetworkAccessManager::finished,
+            this, &BlockPad::slotDownloadUpdateFinished);
+    updatingReply = namUpdate->get(QNetworkRequest(QUrl(link)));
+    connect(updatingReply, &QNetworkReply::downloadProgress,
+            this, &BlockPad::slotDownloadUpdateProgress);
+}
+
+void BlockPad::checkUpdates()
+{
+    QNetworkAccessManager nam;
+    QUrl url;
+#if defined(WIN32) || defined(WIN64)
+    url = QUrl("https://bintray.com/package/info/bloc10fintech/BlockPad/BlockPad_stable_windows");
+#endif
+    QNetworkRequest request(url);
+    QEventLoop loop;
+    connect(&nam, SIGNAL(finished(QNetworkReply *)), &loop, SLOT(quit()));
+    auto reply = nam.get(request);
+    if(!reply->isFinished())
+         loop.exec();
+    auto data = (QString)(reply->readAll());
+    bool bSuccessParsing = false;
+    QString latestVersion;
+    QString downloadLink;
+    //parsing data
+    {
+        auto indexStartDownloads = data.indexOf("<div id=\"downloads\" class=\"section\">");
+        if(indexStartDownloads != -1)
+        {
+            auto indexVer = data.indexOf("<span class=\"small\">(ver:",
+                                         indexStartDownloads);
+            if(indexVer != -1)
+            {
+                auto indexEndLine = data.indexOf("\n", indexVer);
+                latestVersion = data.mid(indexVer, indexEndLine-indexVer)
+                        .remove("<span class=\"small\">(ver:")
+                        .remove(" ")
+                        .remove(")</span>")
+                        .remove("\r");
+                auto indexGlyphButton = data.indexOf("<div class=\"thumb glyph-button\">");
+                if(indexGlyphButton != -1)
+                {
+                    auto indexHref = data.indexOf("<a href=");
+                    auto indexEndHref = data.indexOf("\">", indexHref);
+                    if (indexHref != -1 && indexEndHref != -1)
+                    {
+                        downloadLink = "https://bintray.com" +
+                                data.mid(indexHref, indexEndHref-indexHref)
+                                .remove("<a href=\"");
+                        bSuccessParsing = true;
+                    }
+                }
+            }
+        }
+    }
+    if(!data.contains("No direct downloads selected for this package"))
+    {
+        bool noUpdate = settings.value("noUpdating").toBool();
+        if(!noUpdate)
+        {
+            if(!bSuccessParsing)
+                emit sigErrorParsing();
+            else
+            {
+                if(latestVersion != defVersionDB)
+                    emit sigUpdateAvailable(downloadLink, latestVersion);
+            }
+        }
+    }
+}
+
+void BlockPad::slotErrorUpdateParsing()
+{
+    QString mess;
+#if defined(WIN32) || defined(WIN64)
+    mess = "Error of check new updates. Please try new version in <a href=\"https://bintray.com/bloc10fintech/BlockPad/BlockPad_stable_windows\">BlockPad Windows Version</a>";
+#endif
+    QMessageBox::critical(nullptr, "BlockPad update",mess);
 }
 
 bool BlockPad::needSaving()
@@ -70,7 +247,6 @@ void BlockPad::slotPasswGenClicked()
     if(genPasswWgt.isNull())
     {
         genPasswWgt = new GeneratePassword(nullptr);
-        //genPasswWgt->setAttribute(Qt::WA_QuitOnClose, true);
         genPasswWgt->show();
     }
 }
@@ -80,7 +256,6 @@ void BlockPad::slotSettingsClicked()
     if(setWgt.isNull())
     {
         setWgt = new SettingsWgt(nullptr);
-        //setWgt->setAttribute(Qt::WA_QuitOnClose, true);
         setWgt->show();
         connect(setWgt, &SettingsWgt::sigScreenLock_Time,
                 this, &BlockPad::sigScreenLock_Time);
@@ -94,6 +269,7 @@ void BlockPad::Init()
     slotLoadDecrypt();
     slotSaveEncrypt();
     ui->codeEdit->setFocus();
+    QtConcurrent::run(this, &BlockPad::checkUpdates);
 }
 
 void BlockPad::closeChildWgts()
@@ -190,7 +366,7 @@ void BlockPad::slotSaveEncrypt()
     QFile file(fileName);
     if(!file.open(QIODevice::WriteOnly))
     {
-        QMessageBox::critical(this, windowTitle(), "Can not open file to write - " + fileName);
+        QMessageBox::critical(nullptr, windowTitle(), "Can not open file to write - " + fileName);
         return;
     }
     file.write(cryptoAllData);
@@ -237,7 +413,7 @@ void BlockPad::slotLoadDecrypt()
                                                          (QByteArray)defHashKey,QCryptographicHash::Sha256);
             if(hash!= hashLoad)
             {
-                QMessageBox::critical(this, windowTitle(), "File " + fileName + " was damaged");
+                QMessageBox::critical(nullptr, windowTitle(), "File " + fileName + " was damaged");
                 return;
             }
         }

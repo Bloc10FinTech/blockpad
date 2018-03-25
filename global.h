@@ -1,7 +1,10 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
+#include <QString>
 
 class QWidget;
+
+#define defVersionDB "0.0"
 
 #define appFontPointSize 10
 #define appFontWeight QFont::Normal
@@ -24,5 +27,6 @@ namespace Utilities {
                             int pointSize,
                             int weight = -1,
                             bool italic = false);
+    QString appFilesDirectory();
 }
 #endif // GLOBAL_H

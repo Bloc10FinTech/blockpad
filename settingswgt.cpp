@@ -38,6 +38,8 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
             auto time = settings.value("LockScreen_Time").toInt();
             ui->spinBoxXMinutesLockScreen->setValue(time);
         }
+
+        ui->checkBoxCheckUpdates->setChecked(!settings.value("noUpdating").toBool());
     }
     //add pixmap to label
     {
@@ -49,7 +51,7 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
                                           Qt::KeepAspectRatio,
                                           Qt::SmoothTransformation));
     }
-
+    ui->labelVersion->setText(defVersionDB + QString(" (Qt 5.10)"));
     //signals-slots connects
     {
         connect(ui->comboBoxFonts, SIGNAL(currentIndexChanged(QString)),
@@ -58,9 +60,17 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
                 this, &SettingsWgt::slotPasswordVisibleClicked);
         connect(ui->checkBox2FA_On, &QCheckBox::toggled,
                 this, &SettingsWgt::slot2FA_On_Clicked);
+        connect(ui->checkBoxCheckUpdates, &QCheckBox::toggled,
+                this, &SettingsWgt::slotCheckUpdatesStartUp);
         connect(ui->spinBoxXMinutesLockScreen, &QSpinBox::editingFinished,
                 this, &SettingsWgt::slotLockScreen_Time_FinishEditing);
     }
+}
+
+void SettingsWgt::slotCheckUpdatesStartUp(bool bCheck)
+{
+    settings.setValue("noUpdating", !bCheck);
+    settings.sync();
 }
 
 void SettingsWgt::slotFontAppChanged(QString newFamily)

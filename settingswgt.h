@@ -22,6 +22,7 @@ private slots:
     void slotFontAppChanged(QString newFamily);
     void slotPasswordVisibleClicked(bool bCheck);
     void slot2FA_On_Clicked(bool bCheck);
+    void slotCheckUpdatesStartUp(bool bCheck);
     void slotLockScreen_Time_FinishEditing();
 signals:
     void sigScreenLock_Time(int time);

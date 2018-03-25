@@ -252,6 +252,58 @@
         </item>
        </layout>
       </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_11">
+        <item>
+         <widget class="QLabel" name="labelCheckUpdates">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Check for updates at startup</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxCheckUpdates">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_15">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>
@@ -334,7 +386,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="labelProgrammingTitle_2">
+          <widget class="QLabel" name="labelProjectManagementTytle">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -359,7 +411,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="labelProgrammer_2">
+          <widget class="QLabel" name="labelProjectManagement">
            <property name="text">
             <string>Joseph Gelet</string>
            </property>
@@ -619,7 +671,7 @@
       <item>
        <widget class="QLabel" name="labelVersion">
         <property name="text">
-         <string>0.9 (Qt 5.10)</string>
+         <string/>
         </property>
         <property name="textFormat">
          <enum>Qt::RichText</enum>

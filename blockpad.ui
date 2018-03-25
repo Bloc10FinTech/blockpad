@@ -20,7 +20,7 @@
    <string>BlockPad</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QPushButton{background-color: white; border: none; }
+   <string notr="true">
 Development
 {
 background-color: white 
@@ -55,7 +55,7 @@ background-color: white
 </string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="Development">
       <attribute name="title">
@@ -386,7 +386,7 @@ QHeaderView::section{
    <item>
     <widget class="QWidget" name="ToolsWgtAddMargins" native="true">
      <property name="styleSheet">
-      <string notr="true"/>
+      <string notr="true">QPushButton{background-color: white; border: none; }</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <property name="spacing">

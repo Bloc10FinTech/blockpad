@@ -14,6 +14,14 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("Bloc10");
     QCoreApplication::setOrganizationDomain("www.bloc10.com");
     QCoreApplication::setApplicationName("BlockPad");
+    //create application files directories
+    {
+        QDir().mkpath(Utilities::appFilesDirectory());
+        //create defPathBlockpads
+        if(!QDir(Utilities::appFilesDirectory()
+                 + "/"+ defPathBlockpads).exists())
+            QDir(Utilities::appFilesDirectory()).mkdir(defPathBlockpads);
+    }
     //fonts
     {
         QDir dir("://Fonts");
