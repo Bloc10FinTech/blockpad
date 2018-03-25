@@ -4,9 +4,14 @@
 
 class QWidget;
 
-#define defVersionDB "0.2"
+#define defVersionDB "0.1"
 
+#if defined(WIN32) || defined(WIN64)
 #define appFontPointSize 10
+#endif
+#ifdef __APPLE__
+#define appFontPointSize 13
+#endif
 #define appFontWeight QFont::Normal
 #define defColorNoEditable "#f8f8f8"
 #define defHashKey "cmpsv"
