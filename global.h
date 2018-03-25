@@ -4,7 +4,7 @@
 
 class QWidget;
 
-#define defVersionDB "0.2"
+#define defVersionDB "0.0"
 
 #define appFontPointSize 10
 #define appFontWeight QFont::Normal

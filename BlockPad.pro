@@ -13,8 +13,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = BlockPad
 TEMPLATE = app
 
-QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
-
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_NO_DEBUG_OUTPUT
 SOURCES += \
@@ -89,6 +87,8 @@ RESOURCES += \
     icons.qrc \
     passwords.qrc
 win32{
+QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
+
 INCLUDEPATH += C:\OpenSSL-Win32\include
 #LIBS += -L$$PWD/../../../../../OpenSSL-Win32/lib/MinGW/ -leay32
 

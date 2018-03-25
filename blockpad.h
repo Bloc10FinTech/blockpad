@@ -36,6 +36,7 @@ private:
     QPointer<QNetworkReply> updatingReply;
     QSettings settings;
     QNetworkAccessManager * namUpdate;
+    QNetworkAccessManager * namCheckUpdates;
     Highlighter *highlighter;
     void checkUpdates(bool bManually = false);
     void downloadUpdateVersion(QString link, QString version);
@@ -57,6 +58,7 @@ private slots:
     void slotUpdateClicking();
     void slotDownloadUpdateFinished(QNetworkReply *reply);
     void slotDownloadUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void slotCheckUpdateFinished(QNetworkReply *reply);
 signals:
     void sigScreenLock_Time(bool on);
     void sigUpdateAvailable(QString link, QString version, bool bManually);
