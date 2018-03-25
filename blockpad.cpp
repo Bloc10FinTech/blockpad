@@ -40,6 +40,8 @@ BlockPad::BlockPad(QWidget *parent) :
     {
         connect(ui->pushButtonCompleteRow, &QPushButton::clicked,
                 this, &BlockPad::slotCompleteRowClicked);
+        connect(ui->pushButtonUpdate, &QPushButton::clicked,
+                this, &BlockPad::slotUpdateClicking);
         connect(ui->pushButtonSettings, &QPushButton::clicked,
                 this, &BlockPad::slotSettingsClicked);
         connect(ui->pushButtonGeneratePassword, &QPushButton::clicked,
@@ -56,6 +58,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotBlockPadNewChanges);
         connect(this, &BlockPad::sigUpdateAvailable,
                 this, &BlockPad::slotUpdateAvailable);
+        connect(this, &BlockPad::sig_No_UpdateAvailable,
+                this, &BlockPad::slot_No_UpdateAvailable);
         connect(this, &BlockPad::sigErrorParsing,
                 this, &BlockPad::slotErrorUpdateParsing);
     }
@@ -72,6 +76,18 @@ BlockPad::BlockPad(QWidget *parent) :
         webEngineView->setUrl(QUrl("http://blockpad.io/adserv1.php"));
         webEngineView->setFixedHeight(110);
     }
+}
+
+void BlockPad::slotUpdateClicking()
+{
+    QtConcurrent::run(this, &BlockPad::checkUpdates, true);
+    ui->pushButtonUpdate->setEnabled(false);
+}
+
+void BlockPad::slot_No_UpdateAvailable()
+{
+    QMessageBox::information(nullptr, "BlockPad update","No updates available");
+    ui->pushButtonUpdate->setEnabled(true);
 }
 
 void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
@@ -110,6 +126,7 @@ void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
         procFinishUpdate.startDetached(Utilities::appFilesDirectory()+ "/SetupBlockPad.exe");
         exit(0);
     }
+    ui->pushButtonUpdate->setEnabled(true);
 }
 
 void BlockPad::slotDownloadUpdateProgress(qint64 bytesReceived,
@@ -119,23 +136,32 @@ void BlockPad::slotDownloadUpdateProgress(qint64 bytesReceived,
         progressUpdates->setValue((bytesReceived*100)/bytesTotal);
 }
 
-void BlockPad::slotUpdateAvailable(QString link, QString version)
+void BlockPad::slotUpdateAvailable(QString link, QString version, bool bManually)
 {
     QMessageBox mesBox;
     mesBox.setText("An update package is available, do you want to download it?");
     mesBox.setWindowTitle("BlockPad update");
     QPushButton * yesButton = mesBox.addButton("Yes", QMessageBox::YesRole);
     QPushButton * noButton = mesBox.addButton("No", QMessageBox::NoRole);
-    QPushButton * noRemindButton = mesBox.addButton("No remind", QMessageBox::NoRole);
+    QPushButton * noRemindButton;
+    if(!bManually)
+        noRemindButton = mesBox.addButton("No remind", QMessageBox::NoRole);
     mesBox.setIcon(QMessageBox::Question);
     mesBox.exec();
     if (mesBox.clickedButton() == yesButton)
     {
         downloadUpdateVersion(link, version);
     }
-    if (mesBox.clickedButton() == noRemindButton)
+    else
     {
-        settings.setValue("noUpdating", true);
+        if(!bManually)
+        {
+            if (mesBox.clickedButton() == noRemindButton)
+            {
+                settings.setValue("noUpdating", true);
+            }
+        }
+        ui->pushButtonUpdate->setEnabled(true);
     }
 }
 
@@ -156,6 +182,8 @@ void BlockPad::downloadUpdateVersion( QString link, QString version)
     progressUpdates->show();
     connect(progressUpdates, &QProgressDialog::canceled,
             progressUpdates, &QProgressDialog::close);
+    connect(progressUpdates, &QProgressDialog::canceled,
+            this, [this](){ui->pushButtonUpdate->setEnabled(true);});
     namUpdate = new QNetworkAccessManager(progressUpdates);
     connect(namUpdate, &QNetworkAccessManager::finished,
             this, &BlockPad::slotDownloadUpdateFinished);
@@ -164,7 +192,7 @@ void BlockPad::downloadUpdateVersion( QString link, QString version)
             this, &BlockPad::slotDownloadUpdateProgress);
 }
 
-void BlockPad::checkUpdates()
+void BlockPad::checkUpdates(bool bManually)
 {
     QNetworkAccessManager nam;
     QUrl url;
@@ -214,17 +242,27 @@ void BlockPad::checkUpdates()
     }
     if(!data.contains("No direct downloads selected for this package"))
     {
-        bool noUpdate = settings.value("noUpdating").toBool();
-        if(!noUpdate)
+        if(!bSuccessParsing)
+            emit sigErrorParsing();
+        else
         {
-            if(!bSuccessParsing)
-                emit sigErrorParsing();
+            if(latestVersion != defVersionDB)
+                emit sigUpdateAvailable(downloadLink, latestVersion, bManually);
             else
             {
-                if(latestVersion != defVersionDB)
-                    emit sigUpdateAvailable(downloadLink, latestVersion);
+                if (bManually)
+                    emit sig_No_UpdateAvailable();
+                else
+                    ui->pushButtonUpdate->setEnabled(true);
             }
         }
+    }
+    else
+    {
+        if (bManually)
+            emit sig_No_UpdateAvailable();
+        else
+            ui->pushButtonUpdate->setEnabled(true);
     }
 }
 
@@ -235,6 +273,7 @@ void BlockPad::slotErrorUpdateParsing()
     mess = "Error of check new updates. Please try new version in <a href=\"https://bintray.com/bloc10fintech/BlockPad/BlockPad_stable_windows\">BlockPad Windows Version</a>";
 #endif
     QMessageBox::critical(nullptr, "BlockPad update",mess);
+    ui->pushButtonUpdate->setEnabled(true);
 }
 
 bool BlockPad::needSaving()
@@ -269,7 +308,11 @@ void BlockPad::Init()
     slotLoadDecrypt();
     slotSaveEncrypt();
     ui->codeEdit->setFocus();
-    QtConcurrent::run(this, &BlockPad::checkUpdates);
+    bool noUpdate = settings.value("noUpdating").toBool();
+    if(!noUpdate)
+        QtConcurrent::run(this, &BlockPad::checkUpdates, false);
+    else
+        ui->pushButtonUpdate->setEnabled(true);
 }
 
 void BlockPad::closeChildWgts()

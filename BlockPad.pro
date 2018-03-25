@@ -12,6 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = BlockPad
 TEMPLATE = app
+
 QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
 
 DEFINES += QT_DEPRECATED_WARNINGS
@@ -120,4 +121,11 @@ LIBS += -L$$PWD/../../openssl/openssl-1.0.2n/lib/ -lssl
 PRE_TARGETDEPS += $$PWD/../../openssl/openssl-1.0.2n/lib/libssl.a
 
 ICON = BlockPad.icns
+}
+
+win32{
+install.path = C:/Users/user/Documents/GitHub/BlockPadBin
+CONFIG(release, debug|release):install.files += $$OUT_PWD/release/BlockPad.exe
+CONFIG(debug, debug|release):install.files += $$OUT_PWD/debug/BlockPad.exe
+INSTALLS +=install
 }

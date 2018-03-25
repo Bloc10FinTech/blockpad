@@ -37,7 +37,7 @@ private:
     QSettings settings;
     QNetworkAccessManager * namUpdate;
     Highlighter *highlighter;
-    void checkUpdates();
+    void checkUpdates(bool bManually = false);
     void downloadUpdateVersion(QString link, QString version);
 public slots:
     void slotLoadDecrypt();
@@ -49,16 +49,19 @@ private slots:
     void slotCurrentWgtChanged();
     void slotBlockPadNewChanges();
     void slotPasswGenClicked();
-    void slotUpdateAvailable(QString link, QString version);
-    void slotErrorUpdateParsing();
 
-    //network
+    //updates
+    void slotUpdateAvailable(QString link, QString version, bool bManually = false);
+    void slot_No_UpdateAvailable();
+    void slotErrorUpdateParsing();
+    void slotUpdateClicking();
     void slotDownloadUpdateFinished(QNetworkReply *reply);
     void slotDownloadUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
 signals:
     void sigScreenLock_Time(bool on);
-    void sigUpdateAvailable(QString link, QString version);
+    void sigUpdateAvailable(QString link, QString version, bool bManually);
     void sigErrorParsing();
+    void sig_No_UpdateAvailable();
 };
 
 #endif // BlockPad_H

@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "BlockPad"
-#define MyAppVersion "0.0"
+#define MyAppVersion "0.2"
 #define MyAppPublisher "Bloc10"
 #define MyAppURL "http://www.bloc10.com/"
 #define MyAppExeName "BlockPad.exe"
@@ -21,11 +21,11 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
-OutputBaseFilename=BlockPadSetup_{#MyAppVersion}
+OutputBaseFilename=BlockPadSetup
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
-DirExistsWarning=auto
+DirExistsWarning=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
