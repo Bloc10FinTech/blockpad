@@ -200,8 +200,9 @@ void TableWidgetBase::slotFinishEditing()
     qDebug() << "slotFinishEditing";
     auto curColumn = this->currentColumn();
     auto curRow = this->currentRow();
+    auto curItem = item(curRow, curColumn);
     bool bCompleteRow = false;
-    if(curRow == 0 && this->hasFocus())
+    if(curRow == 0 && (this->hasFocus() || curItem == nullptr))
     {
         bCompleteRow = completingRow();
     }

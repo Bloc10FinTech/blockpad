@@ -14,13 +14,13 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include "adswebpage.h"
-#include <QtConcurrent>
 #include <QNetworkReply>
 #include <QProgressDialog>
 #include <QNetworkAccessManager>
 #include <QCoreApplication>
 #include <QProcess>
 #include <QDesktopWidget>
+#include <QMetaEnum>
 
 BlockPad::BlockPad(QWidget *parent) :
     QWidget(parent),
@@ -36,6 +36,20 @@ BlockPad::BlockPad(QWidget *parent) :
                         settings.value("MakePasswordsHidden").toBool());
         }
     }
+    slotCurrentWgtChanged();
+    highlighter = new Highlighter(ui->codeEdit->document());
+    ui->pushButtonSave->setEnabled(false);
+    //add ads
+    {
+        ui->mainVerticalLayout->setAlignment(Qt::AlignCenter);
+        QWebEngineView * webEngineView = new QWebEngineView(this);
+        AdsWebEnginePage * page = new AdsWebEnginePage(this);
+        webEngineView->setPage(page);
+        ui->mainVerticalLayout->addWidget(webEngineView);
+        webEngineView->setUrl(QUrl("http://blockpad.io/adserv1.php"));
+        webEngineView->setFixedHeight(110);
+    }
+    namCheckUpdates = new QNetworkAccessManager(this);
     //signals-slots connects
     {
         connect(ui->pushButtonCompleteRow, &QPushButton::clicked,
@@ -58,29 +72,91 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotBlockPadNewChanges);
         connect(this, &BlockPad::sigUpdateAvailable,
                 this, &BlockPad::slotUpdateAvailable);
+        connect(namCheckUpdates, &QNetworkAccessManager::finished,
+                this, &BlockPad::slotCheckUpdateFinished);
         connect(this, &BlockPad::sig_No_UpdateAvailable,
                 this, &BlockPad::slot_No_UpdateAvailable);
         connect(this, &BlockPad::sigErrorParsing,
                 this, &BlockPad::slotErrorUpdateParsing);
     }
-    slotCurrentWgtChanged();
-    highlighter = new Highlighter(ui->codeEdit->document());
-    ui->pushButtonSave->setEnabled(false);
-    //add ads
+
+}
+
+void BlockPad::slotCheckUpdateFinished(QNetworkReply *reply)
+{
+    auto error = reply->error();
+    if(error != QNetworkReply::NoError)
     {
-        ui->mainVerticalLayout->setAlignment(Qt::AlignCenter);
-        QWebEngineView * webEngineView = new QWebEngineView(this);
-        AdsWebEnginePage * page = new AdsWebEnginePage(this);
-        webEngineView->setPage(page);
-        ui->mainVerticalLayout->addWidget(webEngineView);
-        webEngineView->setUrl(QUrl("http://blockpad.io/adserv1.php"));
-        webEngineView->setFixedHeight(110);
+        auto data = QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(error);
+        QMessageBox::critical(nullptr, windowTitle(), data);
+        ui->pushButtonUpdate->setEnabled(true);
+        return;
+    }
+    auto data = (QString)(reply->readAll());
+    bool bManually = reply->property("Manually").toBool();
+    bool bSuccessParsing = false;
+    QString latestVersion;
+    QString downloadLink;
+    //parsing data
+    {
+        auto indexStartDownloads = data.indexOf("<div id=\"downloads\" class=\"section\">");
+        if(indexStartDownloads != -1)
+        {
+            auto indexVer = data.indexOf("<span class=\"small\">(ver:",
+                                         indexStartDownloads);
+            if(indexVer != -1)
+            {
+                auto indexEndLine = data.indexOf("\n", indexVer);
+                latestVersion = data.mid(indexVer, indexEndLine-indexVer)
+                        .remove("<span class=\"small\">(ver:")
+                        .remove(" ")
+                        .remove(")</span>")
+                        .remove("\r");
+                auto indexGlyphButton = data.indexOf("<div class=\"thumb glyph-button\">");
+                if(indexGlyphButton != -1)
+                {
+                    auto indexHref = data.indexOf("<a href=");
+                    auto indexEndHref = data.indexOf("\">", indexHref);
+                    if (indexHref != -1 && indexEndHref != -1)
+                    {
+                        downloadLink = "https://bintray.com" +
+                                data.mid(indexHref, indexEndHref-indexHref)
+                                .remove("<a href=\"");
+                        bSuccessParsing = true;
+                    }
+                }
+            }
+        }
+    }
+    if(!data.contains("No direct downloads selected for this package"))
+    {
+        if(!bSuccessParsing)
+            emit sigErrorParsing();
+        else
+        {
+            if(latestVersion != defVersionDB)
+                emit sigUpdateAvailable(downloadLink, latestVersion, bManually);
+            else
+            {
+                if (bManually)
+                    emit sig_No_UpdateAvailable();
+                else
+                    ui->pushButtonUpdate->setEnabled(true);
+            }
+        }
+    }
+    else
+    {
+        if (bManually)
+            emit sig_No_UpdateAvailable();
+        else
+            ui->pushButtonUpdate->setEnabled(true);
     }
 }
 
 void BlockPad::slotUpdateClicking()
 {
-    QtConcurrent::run(this, &BlockPad::checkUpdates, true);
+    checkUpdates(true);
     ui->pushButtonUpdate->setEnabled(false);
 }
 
@@ -194,76 +270,13 @@ void BlockPad::downloadUpdateVersion( QString link, QString version)
 
 void BlockPad::checkUpdates(bool bManually)
 {
-    QNetworkAccessManager nam;
     QUrl url;
 #if defined(WIN32) || defined(WIN64)
     url = QUrl("https://bintray.com/package/info/bloc10fintech/BlockPad/BlockPad_stable_windows");
 #endif
     QNetworkRequest request(url);
-    QEventLoop loop;
-    connect(&nam, SIGNAL(finished(QNetworkReply *)), &loop, SLOT(quit()));
-    auto reply = nam.get(request);
-    if(!reply->isFinished())
-         loop.exec();
-    auto data = (QString)(reply->readAll());
-    bool bSuccessParsing = false;
-    QString latestVersion;
-    QString downloadLink;
-    //parsing data
-    {
-        auto indexStartDownloads = data.indexOf("<div id=\"downloads\" class=\"section\">");
-        if(indexStartDownloads != -1)
-        {
-            auto indexVer = data.indexOf("<span class=\"small\">(ver:",
-                                         indexStartDownloads);
-            if(indexVer != -1)
-            {
-                auto indexEndLine = data.indexOf("\n", indexVer);
-                latestVersion = data.mid(indexVer, indexEndLine-indexVer)
-                        .remove("<span class=\"small\">(ver:")
-                        .remove(" ")
-                        .remove(")</span>")
-                        .remove("\r");
-                auto indexGlyphButton = data.indexOf("<div class=\"thumb glyph-button\">");
-                if(indexGlyphButton != -1)
-                {
-                    auto indexHref = data.indexOf("<a href=");
-                    auto indexEndHref = data.indexOf("\">", indexHref);
-                    if (indexHref != -1 && indexEndHref != -1)
-                    {
-                        downloadLink = "https://bintray.com" +
-                                data.mid(indexHref, indexEndHref-indexHref)
-                                .remove("<a href=\"");
-                        bSuccessParsing = true;
-                    }
-                }
-            }
-        }
-    }
-    if(!data.contains("No direct downloads selected for this package"))
-    {
-        if(!bSuccessParsing)
-            emit sigErrorParsing();
-        else
-        {
-            if(latestVersion != defVersionDB)
-                emit sigUpdateAvailable(downloadLink, latestVersion, bManually);
-            else
-            {
-                if (bManually)
-                    emit sig_No_UpdateAvailable();
-                else
-                    ui->pushButtonUpdate->setEnabled(true);
-            }
-        }
-    }
-    else
-    {
-        if (bManually)
-            emit sig_No_UpdateAvailable();
-        else
-            ui->pushButtonUpdate->setEnabled(true);
-    }
+    auto reply = namCheckUpdates->get(request);
+    reply->setProperty("Manually", bManually);
 }
 
 void BlockPad::slotErrorUpdateParsing()
@@ -310,7 +323,7 @@ void BlockPad::Init()
     ui->codeEdit->setFocus();
     bool noUpdate = settings.value("noUpdating").toBool();
     if(!noUpdate)
-        QtConcurrent::run(this, &BlockPad::checkUpdates, false);
+        checkUpdates();
     else
         ui->pushButtonUpdate->setEnabled(true);
 }
