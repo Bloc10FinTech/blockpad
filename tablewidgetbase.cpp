@@ -127,7 +127,14 @@ void TableWidgetBase::lockedRow(int iR)
             item(iR,iCol)->setBackgroundColor(defColorNoEditable);
             item(iR,iCol)->setIcon(QIcon("://Icons/locked.png"));
             if(!neverEditableColumns.contains(iCol))
+            {
+#if defined(WIN32) || defined(WIN64)
                 item(iR,iCol)->setToolTip("to make editable item click it and input Ctrl+Y");
+#endif
+#ifdef __APPLE__
+                item(iR,iCol)->setToolTip("to make editable item click it and input Cmd+Y");
+#endif
+            }
         }
         else
         {
