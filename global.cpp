@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QStandardPaths>
 #include <QCoreApplication>
+#include <QDebug>
 void Utilities::setAppFamilyFont(   QWidget * wgt,
                                     int pointSize,
                                     int weight,
@@ -15,12 +16,7 @@ void Utilities::setAppFamilyFont(   QWidget * wgt,
     wgt->setFont(font);
 }
 
-QString Utilities::appFilesDirectory()
+QString Utilities::filesDirectory()
 {
-#if defined(WIN32) || defined(WIN64)
     return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-#endif
-#ifdef __APPLE__
-    return QCoreApplication::applicationDirPath();
-#endif
 }

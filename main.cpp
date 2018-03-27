@@ -6,6 +6,8 @@
 #include "mainwidget.h"
 #include "eventswaiting.h"
 #include <QLibraryInfo>
+#include <QStandardPaths>
+
 
 int main(int argc, char *argv[])
 {
@@ -16,11 +18,11 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("BlockPad");
     //create application files directories
     {
-        QDir().mkpath(Utilities::appFilesDirectory());
+        QDir().mkpath(Utilities::filesDirectory());
         //create defPathBlockpads
-        if(!QDir(Utilities::appFilesDirectory()
+        if(!QDir(Utilities::filesDirectory()
                  + "/"+ defPathBlockpads).exists())
-            QDir(Utilities::appFilesDirectory()).mkdir(defPathBlockpads);
+            QDir(Utilities::filesDirectory()).mkdir(defPathBlockpads);
     }
     //fonts
     {

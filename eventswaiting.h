@@ -18,7 +18,7 @@ protected:
     void timerEvent(QTimerEvent *event);
 private:
     int idTimer {0};
-    int iTimeLockScreen {5};
+    int iTimeLockScreen {30};
     void restartTimer();
     QSettings settings;
 public slots:

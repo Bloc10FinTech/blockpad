@@ -14,7 +14,7 @@ TARGET = BlockPad
 TEMPLATE = app
 
 DEFINES += QT_DEPRECATED_WARNINGS
-DEFINES += QT_NO_DEBUG_OUTPUT
+#DEFINES += QT_NO_DEBUG_OUTPUT
 SOURCES += \
         main.cpp \
     tablewidgetbase.cpp \
@@ -126,5 +126,11 @@ win32{
 install.path = C:/Users/user/Documents/GitHub/BlockPadBin
 CONFIG(release, debug|release):install.files += $$OUT_PWD/release/BlockPad.exe
 CONFIG(debug, debug|release):install.files += $$OUT_PWD/debug/BlockPad.exe
+INSTALLS +=install
+}
+
+macx{
+install.path = $$OUT_PWD/BlockPad.app/Contents/UpdateTools/
+install.files += /Users/admin/Desktop/build-UpdateBlockPad-Desktop_Qt_5_10_0_clang_64bit-Release/UpdateBlockPad.app
 INSTALLS +=install
 }

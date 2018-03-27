@@ -50,15 +50,15 @@ void Register::Init()
 {
     //fill nameFiles
     {
-        nameFiles = QDir(Utilities::appFilesDirectory()
+        nameFiles = QDir(Utilities::filesDirectory()
                          + "/"+ defPathBlockpads).entryList();
         for(int i=0; i<nameFiles.size(); i++)
         {
-            nameFiles[i] = Utilities::appFilesDirectory()
+            nameFiles[i] = Utilities::filesDirectory()
                     + "/" + defPathBlockpads + QString("/")
                             + nameFiles[i];
         }
-        QFile extBlocksFile(Utilities::appFilesDirectory()
+        QFile extBlocksFile(Utilities::filesDirectory()
                             + "/"+ defExternalBlockpads);
         if(!extBlocksFile.open(QIODevice::ReadOnly))
         {
@@ -125,7 +125,7 @@ void Register::Init()
 void Register::slotOpenFile()
 {
     QString blockpad = QFileDialog::getOpenFileName(this, tr("Open BlockPad"),
-                                        Utilities::appFilesDirectory(),
+                                        Utilities::filesDirectory(),
                                         "*.bloc");
     if(!blockpad.isEmpty())
     {
@@ -144,7 +144,7 @@ void Register::slotOpenFile()
             ui->comboBoxEmail->setCurrentText(pair.first);
             //add to external blockpads
             {
-                QFile extBlocksFile(Utilities::appFilesDirectory()
+                QFile extBlocksFile(Utilities::filesDirectory()
                                     + "/"+ defExternalBlockpads);
                 if(!extBlocksFile.open(QIODevice::Append))
                 {
@@ -423,7 +423,7 @@ void Register::slotLoginClicked()
                 {
                     auto email = ui->lineEditEmail->text();
                     auto name_email = email.split("@")[0];
-                    fileName = Utilities::appFilesDirectory()
+                    fileName = Utilities::filesDirectory()
                             + "/" + defPathBlockpads + QString("/")
                             + name_email + "_blockpad.bloc";
                 }
