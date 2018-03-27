@@ -32,7 +32,6 @@ QString Utilities::applicationPath()
     dir.cdUp();
     dir.cdUp();
     dir.cdUp();
-    qDebug() << "dir.path(): " << dir.path();
     return dir.path();
 #endif
 }

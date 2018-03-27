@@ -30,7 +30,6 @@ TableWidgetBase::TableWidgetBase(QWidget *parent):
 
 void TableWidgetBase::addRow(QStringList initTexts)
 {
-    qDebug() << "TableWidgetBase::addRow";
 }
 
 void TableWidgetBase::slotLoadData(QByteArray allLoadData, int & pos)
@@ -204,7 +203,6 @@ TableWidgetBase::~TableWidgetBase()
 
 void TableWidgetBase::slotFinishEditing()
 {
-    qDebug() << "slotFinishEditing";
     auto curColumn = this->currentColumn();
     auto curRow = this->currentRow();
     auto curItem = item(curRow, curColumn);

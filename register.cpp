@@ -326,7 +326,6 @@ void Register::sendEmailToGetResponse()
         if(!reply->isFinished())
             loop.exec();
         auto data = reply->readAll();
-        qDebug() << data;
         QJsonDocument document = QJsonDocument::fromJson(data);
         auto array = document.array();
         for(int i=0; i<array.size(); i++)
@@ -335,7 +334,6 @@ void Register::sendEmailToGetResponse()
             if("blockpad2fa" == object.value("name").toString())
             {
                 campaignId = object.value("campaignId").toString();
-                qDebug() << "campaignId: " + campaignId;
                 break;
             }
         }

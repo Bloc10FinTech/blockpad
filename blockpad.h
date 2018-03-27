@@ -60,7 +60,7 @@ private slots:
     void slotDownloadUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
     void slotCheckUpdateFinished(QNetworkReply *reply);
 signals:
-    void sigScreenLock_Time(bool on);
+    void sigScreenLock_Time(int time);
     void sigUpdateAvailable(QString link, QString version, bool bManually);
     void sigErrorParsing();
     void sig_No_UpdateAvailable();
