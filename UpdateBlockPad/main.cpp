@@ -78,7 +78,6 @@ int main(int argc, char **argv)
         return 1;
     }
     QString pathApp = QString::fromUtf8(argv[2]);
-
     std::atomic_bool bSuccess;
     bSuccess.store(true);
     QString strUnSuccess;

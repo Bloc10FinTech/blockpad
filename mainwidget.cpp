@@ -59,7 +59,7 @@ MainWidget::MainWidget(QWidget *parent) :
         //remove new version to appPath
         {
             QProcess pros;
-            pros.start("sh -c \"cp -R ../UpdateTools/UpdateBlockPad.app "
+            pros.start("sh -c \"cp -R " +Utilities::applicationPath().replace(" ", "\\ ") +"/BlockPad.app/Contents/UpdateTools/UpdateBlockPad.app "
                        + Utilities::filesDirectory().replace(" ", "\\ ")  + "/UpdateBlockPad.app\"");
             pros.waitForFinished(10*60*1000);
         }

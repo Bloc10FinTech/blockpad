@@ -32,5 +32,6 @@ namespace Utilities {
                             int weight = -1,
                             bool italic = false);
     QString filesDirectory();
+    QString applicationPath();
 }
 #endif // GLOBAL_H

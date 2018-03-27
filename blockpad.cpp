@@ -221,7 +221,7 @@ void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
         procFinishUpdate.startDetached("open -a \"" + Utilities::filesDirectory()
                                        + "/UpdateBlockPad.app\" --args \""
                                        + Utilities::filesDirectory() + "\" \""
-                                       + QCoreApplication::applicationDirPath() + "\"");
+                                       + Utilities::applicationPath() + "\"");
 #endif
         exit(0);
     }
