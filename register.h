@@ -29,6 +29,7 @@ private:
     void setMode(ModeRegistr newMode);
     void login2FA();
     void sendEmailToGetResponse();
+    void OpenFile(QString blockpad);
 private slots:
     void slotCreateNewBlockPad();
     void slotLoginClicked();

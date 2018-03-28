@@ -14,6 +14,8 @@
 #include <QFuture>
 #include "stmp/src/SmtpMime"
 #include "math.h"
+
+extern QString fileInit;
 Register::Register(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Register)
@@ -120,6 +122,8 @@ void Register::Init()
     //login
     else
         setMode(ModeRegistr::OpenBlockPad);
+    if(!fileInit.isEmpty())
+        OpenFile(fileInit);
 }
 
 void Register::slotOpenFile()
@@ -127,6 +131,11 @@ void Register::slotOpenFile()
     QString blockpad = QFileDialog::getOpenFileName(this, tr("Open BlockPad"),
                                         Utilities::filesDirectory(),
                                         "*.bloc");
+    OpenFile(blockpad);
+}
+
+void Register::OpenFile(QString blockpad)
+{
     if(!blockpad.isEmpty())
     {
         bool bSuccess = true;
@@ -163,6 +172,7 @@ void Register::slotOpenFile()
         }
     }
     setMode(ModeRegistr::OpenBlockPad);
+
 }
 
 void Register::slotFinishEditingPassword()

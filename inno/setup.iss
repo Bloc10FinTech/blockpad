@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "BlockPad"
-#define MyAppVersion "0.3"
+#define MyAppVersion "0.0"
 #define MyAppPublisher "Bloc10"
 #define MyAppURL "http://www.bloc10.com/"
 #define MyAppExeName "BlockPad.exe"
@@ -30,6 +30,19 @@ DirExistsWarning=no
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Registry]
+Root: HKCU; Subkey: "Software\Classes\.bloc"; ValueType: string; ValueName: ""; ValueData: "_BlockPad"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\_BlockPad"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\_BlockPad\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "C:\Program Files (x86)\BlockPad\BlockPad.exe"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\_BlockPad\Shell"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\_BlockPad\Shell\Open"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\_BlockPad\Shell\Open\Command"; ValueType: string; ValueName: ""; ValueData: "C:\Program Files (x86)\BlockPad\BlockPad.exe ""%1"""; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\.bloc"; ValueType: string; ValueName: ""; ValueData: "_BlockPad"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\_BlockPad"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\_BlockPad\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "C:\Program Files (x86)\BlockPad\BlockPad.exe"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\_BlockPad\Shell"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\_BlockPad\Shell\Open"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\_BlockPad\Shell\Open\Command"; ValueType: string; ValueName: ""; ValueData: "C:\Program Files (x86)\BlockPad\BlockPad.exe ""%1"""; Flags: uninsdeletekey
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
