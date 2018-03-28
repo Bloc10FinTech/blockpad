@@ -4,7 +4,7 @@
 
 class QWidget;
 
-#define defVersionDB "0.1"
+#define defVersionDB "0.3"
 #if defined(WIN32) || defined(WIN64)
 #define appFontPointSize 10
 #endif
