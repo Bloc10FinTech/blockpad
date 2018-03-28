@@ -86,7 +86,7 @@ void Register::Init()
                 else
                 {
                     nameFiles.append(blockPad);
-                    files.append(blockPad);
+                    files.append(blockPad + "\r\n");
                 }
             }
             extBlocksFile.close();
@@ -147,27 +147,35 @@ void Register::OpenFile(QString blockpad)
         }
         else
         {
-            nameFiles.append(blockpad);
-            _listEmailPassws.append(pair);
-            ui->comboBoxEmail->addItem(pair.first);
-            ui->comboBoxEmail->setCurrentText(pair.first);
-            //add to external blockpads
+            if(!nameFiles.contains(blockpad)
+                    &&
+               !nameFiles.contains(QString(blockpad).replace("/", "\\"))
+                    &&
+               !nameFiles.contains(QString(blockpad).replace("\\", "/")))
             {
-                QFile extBlocksFile(Utilities::filesDirectory()
-                                    + "/"+ defExternalBlockpads);
-                if(!extBlocksFile.open(QIODevice::Append))
+                nameFiles.append(blockpad);
+                _listEmailPassws.append(pair);
+                ui->comboBoxEmail->addItem(pair.first);
+                ui->comboBoxEmail->setCurrentText(pair.first);
+                //add to external blockpads
                 {
-                    QMessageBox::critical(nullptr, windowTitle(),
-                                          QString("Can not open file ")
-                                          + defExternalBlockpads);
+                    QFile extBlocksFile(Utilities::filesDirectory()
+                                        + "/"+ defExternalBlockpads);
+                    if(!extBlocksFile.open(QIODevice::Append))
+                    {
+                        QMessageBox::critical(nullptr, windowTitle(),
+                                              QString("Can not open file ")
+                                              + defExternalBlockpads);
+                    }
+                    else
+                    {
+                        QByteArray ba;
+                        ba.append(blockpad + "\r\n");
+                        extBlocksFile.seek(extBlocksFile.size());
+                        extBlocksFile.write(ba);
+                    }
+                    extBlocksFile.close();
                 }
-                else
-                {
-                    QByteArray ba;
-                    ba.append(blockpad + "\r\n");
-                    extBlocksFile.write(ba);
-                }
-                extBlocksFile.close();
             }
         }
     }
