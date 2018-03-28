@@ -62,6 +62,12 @@ QPair<QString, QString> Crypto::pairEmailPassw(QString fileName, bool & bSuccess
     bSuccess = true;
     QPair<QString, QString> pair;
     QFile file(fileName);
+    if(QFileInfo(fileName).suffix() != "bloc")
+    {
+        qDebug() << "wrong suffix of " + fileName;
+        bSuccess = false;
+        return pair;
+    }
     if(!file.open(QIODevice::ReadOnly))
     {
         qDebug() << "can not open file " + fileName + " to write";
