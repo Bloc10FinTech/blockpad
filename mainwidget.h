@@ -21,6 +21,9 @@ protected:
 private:
     Ui::MainWidget *ui;
     QSettings settings;
+#ifdef __APPLE__
+    void updateUpdateTools();
+#endif
 public slots:
     void slotLockScreen();
 private slots:

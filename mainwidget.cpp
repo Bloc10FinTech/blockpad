@@ -4,6 +4,9 @@
 #include <QIcon>
 #include <QMessageBox>
 #include <QDesktopWidget>
+#include <QProcess>
+#include <QtConcurrent>
+
 MainWidget::MainWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWidget)
@@ -36,7 +39,33 @@ MainWidget::MainWidget(QWidget *parent) :
     ui->regist->setFixedSize(400, heigth);
     ui->stackedWidget->setFixedSize(400, heigth);
     adjustSize();
+#ifdef __APPLE__
+    if(settings.value("updateToolsVersion").toString()
+            != defVersionDB
+       || !QFile(Utilities::filesDirectory()
+            + "/UpdateBlockPad.app").exists())
+        QtConcurrent::run(this, &MainWidget::updateUpdateTools);
+#endif
 }
+
+#ifdef __APPLE__
+    void MainWidget::updateUpdateTools()
+    {
+        //clean
+        {
+            QDir dir(Utilities::filesDirectory()+ "/UpdateBlockPad.app");
+            dir.removeRecursively();
+        }
+        //remove new version to appPath
+        {
+            QProcess pros;
+            pros.start("sh -c \"cp -R " +Utilities::applicationPath().replace(" ", "\\ ") +"/BlockPad.app/Contents/UpdateTools/UpdateBlockPad.app "
+                       + Utilities::filesDirectory().replace(" ", "\\ ")  + "/UpdateBlockPad.app\"");
+            pros.waitForFinished(10*60*1000);
+        }
+        settings.setValue("updateToolsVersion", defVersionDB);
+    }
+#endif
 
 void MainWidget::closeEvent(QCloseEvent *event)
 {

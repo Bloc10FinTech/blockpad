@@ -1,7 +1,9 @@
 BlockPad.pro.user
+UpdateBlockPad/UpdateBlockPad.pro.user
 *autosave
 inno/Output
 inno/Output/*
 crt
 crt/*
 SigningComands.txt
+.DS_Store

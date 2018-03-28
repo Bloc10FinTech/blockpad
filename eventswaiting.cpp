@@ -27,7 +27,6 @@ bool EventsWaiting::eventFilter(QObject *obj, QEvent *event)
 
 void EventsWaiting::slotSetTimeLockScreen(int time)
 {
-    qDebug() << "EventsWaiting::slotSetTimeLockScreen";
     iTimeLockScreen = time;
     restartTimer();
 }
@@ -37,8 +36,6 @@ void EventsWaiting::restartTimer()
     if(idTimer)
         killTimer(idTimer);
     idTimer = startTimer(iTimeLockScreen * 60 * 1000);
-    //Test
-    //idTimer = startTimer(10 * 1000);
 }
 
 void EventsWaiting::timerEvent(QTimerEvent *event)

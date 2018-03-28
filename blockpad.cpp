@@ -190,16 +190,39 @@ void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
     }
     auto dataReply = reply->readAll();
 
-    QFile file(Utilities::appFilesDirectory() + "/SetupBlockPad.exe");
+    QFile file;
+#if defined(WIN32) || defined(WIN64)
+    file.setFileName(Utilities::filesDirectory() + "/SetupBlockPad.exe");
+#endif
+#ifdef __APPLE__
+    file.setFileName(Utilities::filesDirectory() + "/BlockPad.zip");
+#endif
     file.open(QIODevice::WriteOnly);
     file.write(dataReply);
     file.close();
 
-    if(QMessageBox::Yes == QMessageBox::question(nullptr, "BlockPad update",
-    "BlockPad is opened\r\nUpdater will close it in order to process installiation\r\nContinue?"))
+    QMessageBox mesBox;
+    mesBox.setText("BlockPad is opened\r\nUpdater will close it in order to process installiation\r\nContinue?");
+    mesBox.setWindowTitle("BlockPad update");
+
+    QPushButton * yesButton = mesBox.addButton("Yes", QMessageBox::YesRole);
+    yesButton->setDefault(true);
+    QPushButton * noButton = mesBox.addButton("No", QMessageBox::NoRole);
+
+    mesBox.setIcon(QMessageBox::Question);
+    mesBox.exec();
+    if (yesButton == mesBox.clickedButton())
     {
         QProcess procFinishUpdate;
-        procFinishUpdate.startDetached(Utilities::appFilesDirectory()+ "/SetupBlockPad.exe");
+#if defined(WIN32) || defined(WIN64)
+        procFinishUpdate.startDetached(Utilities::filesDirectory()+ "/SetupBlockPad.exe");
+#endif
+#ifdef __APPLE__
+        procFinishUpdate.startDetached("open -a \"" + Utilities::filesDirectory()
+                                       + "/UpdateBlockPad.app\" --args \""
+                                       + Utilities::filesDirectory() + "\" \""
+                                       + Utilities::applicationPath() + "\"");
+#endif
         exit(0);
     }
     ui->pushButtonUpdate->setEnabled(true);
@@ -217,11 +240,14 @@ void BlockPad::slotUpdateAvailable(QString link, QString version, bool bManually
     QMessageBox mesBox;
     mesBox.setText("An update package is available, do you want to download it?");
     mesBox.setWindowTitle("BlockPad update");
+
     QPushButton * yesButton = mesBox.addButton("Yes", QMessageBox::YesRole);
+    mesBox.setDefaultButton(yesButton);
     QPushButton * noButton = mesBox.addButton("No", QMessageBox::NoRole);
     QPushButton * noRemindButton;
     if(!bManually)
         noRemindButton = mesBox.addButton("No remind", QMessageBox::NoRole);
+
     mesBox.setIcon(QMessageBox::Question);
     mesBox.exec();
     if (mesBox.clickedButton() == yesButton)
@@ -273,6 +299,9 @@ void BlockPad::checkUpdates(bool bManually)
     QUrl url;
 #if defined(WIN32) || defined(WIN64)
     url = QUrl("https://bintray.com/package/info/bloc10fintech/BlockPad/BlockPad_stable_windows");
+#endif
+#ifdef __APPLE__
+    url = QUrl("https://bintray.com/package/info/bloc10fintech/BlockPad/BlockPad_stable_mac");
 #endif
     QNetworkRequest request(url);
     auto reply = namCheckUpdates->get(request);

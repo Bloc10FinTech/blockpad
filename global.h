@@ -4,7 +4,8 @@
 
 class QWidget;
 
-#define defVersionDB "0.3"
+#define defVersionDB "0.0"
+
 #if defined(WIN32) || defined(WIN64)
 #define appFontPointSize 10
 #endif
@@ -31,6 +32,7 @@ namespace Utilities {
                             int pointSize,
                             int weight = -1,
                             bool italic = false);
-    QString appFilesDirectory();
+    QString filesDirectory();
+    QString applicationPath();
 }
 #endif // GLOBAL_H
