@@ -21,6 +21,7 @@
 #include <QProcess>
 #include <QDesktopWidget>
 #include <QMetaEnum>
+#include <QtConcurrent>
 
 BlockPad::BlockPad(QWidget *parent) :
     QWidget(parent),
@@ -353,6 +354,7 @@ void BlockPad::Init()
     bool noUpdate = settings.value("noUpdating").toBool();
     if(!noUpdate)
         checkUpdates();
+        //    QtConcurrent::run(this, &BlockPad::checkUpdates, false);
     else
         ui->pushButtonUpdate->setEnabled(true);
 }

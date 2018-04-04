@@ -41,6 +41,7 @@ PasswordWidget::PasswordWidget(QWidget *parent) :
     //event filters
     {
         ui->lineEditPassword->installEventFilter(this);
+        ui->checkBoxVisible->installEventFilter(this);
     }
 }
 
@@ -112,7 +113,16 @@ bool PasswordWidget::eventFilter(QObject *obj, QEvent *event)
         }
         if(event->type() == QEvent::FocusOut)
         {
-            setFrameShape(QFrame::NoFrame);
+            if(!ui->checkBoxVisible->hasFocus())
+                setFrameShape(QFrame::NoFrame);
+        }
+    }
+    if(obj == ui->checkBoxVisible)
+    {
+        if(event->type() == QEvent::FocusOut)
+        {
+            if(!ui->lineEditPassword->hasFocus())
+                setFrameShape(QFrame::NoFrame);
         }
     }
     return QWidget::eventFilter(obj, event);

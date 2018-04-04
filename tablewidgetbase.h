@@ -23,12 +23,15 @@ protected:
     QSet <int> neverEditableColumns;
 private:
     void lockedRow(int iR);
+    bool bClearContents {false};
     bool completingRow(bool clickButton = false);
 public slots:
     void slotCompletingRow();
 protected slots:
     void slotFinishEditing();
     void slotEditedShortcut();
+    void slotCurrentCellChanged(int currentRow, int currentColumn,
+                                int previousRow, int previousColumn);
 signals:
     void sigCompetingRow();
 };

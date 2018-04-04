@@ -2,6 +2,12 @@
 #include <QHeaderView>
 #include "passwordwidget.h"
 #include <QApplication>
+#include <QLabel>
+#include <richitemdelegate.h>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QMouseEvent>
 
 TableWidgetAccounts::TableWidgetAccounts(QWidget *parent):
     TableWidgetBase(parent)
@@ -35,6 +41,75 @@ TableWidgetAccounts::TableWidgetAccounts(QWidget *parent):
         HeaderView->setSectionResizeMode(QHeaderView::Stretch);
     }
     addRow();
+    setItemDelegateForColumn(columnsAccount::WebSite, new RichItemDelegate(this));
+
+//    connect(this, &TableWidgetAccounts::cellClicked,
+//            this, &TableWidgetAccounts::slotCellClicked);
+    setMouseTracking(true);
+    //connect signals/slots
+    {
+        auto webSiteDelegate = itemDelegateForColumn(columnsAccount::WebSite);
+        connect(webSiteDelegate, &QAbstractItemDelegate::closeEditor,
+                this, &TableWidgetAccounts::slotFinishEditing);
+    }
+}
+
+void TableWidgetAccounts::mousePressEvent(QMouseEvent *event)
+{
+    auto x = event->pos().x();
+    auto y = event->pos().y();
+    int column = columnAt(x);
+    int row = rowAt(y);
+    if(columnsAccount::WebSite == column && clickHyperLink)
+    {
+        auto editData = item(row, column)->text();
+        QDesktopServices::openUrl(QUrl(RichItemDelegate::nameWebSite(editData)));
+    }
+    TableWidgetBase::mousePressEvent(event);
+}
+
+void TableWidgetAccounts::mouseMoveEvent(QMouseEvent *event)
+{
+    auto x = event->pos().x();
+    auto y = event->pos().y();
+    int column = columnAt(x);
+    int row = rowAt(y);
+    if(column == columnsAccount::WebSite)
+    {
+        int xItem = x;
+        for(int i=0; i<column; i++)
+        {
+            xItem -= columnWidth(i);
+        }
+        int widthLink = model()->data(model()->index(row, column),
+                                      RichItemDelegate::textWidthRole).toInt();
+        int widthIcon = iconSize().width();
+
+        bool bClickable = false;
+
+        if(row == 0
+            &&
+           xItem < widthLink)
+            bClickable = true;
+        if(row > 0
+            &&
+           xItem < widthLink + widthIcon
+            &&
+           xItem > widthIcon)
+            bClickable = true;
+
+        if(bClickable)
+        {
+            setCursor(QCursor(Qt::PointingHandCursor));
+            clickHyperLink = true;
+        }
+        else
+        {
+            setCursor(QCursor(Qt::ArrowCursor));
+            clickHyperLink = false;
+        }
+    }
+    TableWidgetBase::mouseMoveEvent(event);
 }
 
 void TableWidgetAccounts::slotFocusInPassword(QWidget *wgt)
@@ -71,6 +146,15 @@ TableWidgetAccounts::~TableWidgetAccounts()
 
 }
 
+//void TableWidgetAccounts::slotCellClicked(int row, int column)
+//{
+//    if(columnsAccount::WebSite == column && clickHyperLink)
+//    {
+//        auto editData = item(row, column)->text();
+//        QDesktopServices::openUrl(QUrl(RichItemDelegate::nameWebSite(editData)));
+//    }
+//}
+
 void TableWidgetAccounts::addRow(QStringList initTexts)
 {
     insertRow(0);
@@ -93,9 +177,18 @@ void TableWidgetAccounts::addRow(QStringList initTexts)
         else
         {
             QTableWidgetItem * it = new QTableWidgetItem();
-            if(!initTexts.isEmpty())
-                it->setText(initTexts[i]);
             setItem(0, i,it);
+            if(!initTexts.isEmpty())
+            {
+                it->setText(initTexts[i]);
+                if(columnsAccount::WebSite == i)
+                {
+                    QFontMetrics fm(qApp->font());
+                    model()->setData(model()->index(0,columnsAccount::WebSite),
+                                     fm.width(RichItemDelegate::nameWebSite(initTexts[i])),
+                                     RichItemDelegate::textWidthRole);
+                }
+            }
         }
     }
     setCurrentIndex(model()->index(0, 0));

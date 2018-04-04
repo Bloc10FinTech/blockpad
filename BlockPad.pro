@@ -13,6 +13,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = BlockPad
 TEMPLATE = app
 
+DEFINES +=
 DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_NO_DEBUG_OUTPUT
 SOURCES += \
@@ -42,7 +43,8 @@ SOURCES += \
     stmp/src/smtpclient.cpp \
     highlighter.cpp \
     generatepassword.cpp \
-    global.cpp
+    global.cpp \
+    richitemdelegate.cpp
 
 HEADERS += \
     global.h \
@@ -72,7 +74,8 @@ HEADERS += \
     stmp/src/smtpexports.h \
     highlighter.h \
     adswebpage.h \
-    generatepassword.h
+    generatepassword.h \
+    richitemdelegate.h
 
 FORMS += \
     passwordwidget.ui \

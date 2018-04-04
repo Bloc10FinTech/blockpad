@@ -9,6 +9,7 @@
 #include <QCursor>
 #include <QPoint>
 #include <QApplication>
+#include <QMetaEnum>
 
 TableWidgetBase::TableWidgetBase(QWidget *parent):
     QTableWidget(parent)
@@ -23,10 +24,25 @@ TableWidgetBase::TableWidgetBase(QWidget *parent):
                                              this);
         connect(shortcut, &QShortcut::activated,
                 this, &TableWidgetBase::slotEditedShortcut);
+
+        connect(this, &TableWidgetBase::currentCellChanged,
+                this, &TableWidgetBase::slotCurrentCellChanged);
     }
     setSelectionMode(QAbstractItemView::NoSelection);
 }
 
+void TableWidgetBase::slotCurrentCellChanged(int currentRow, int currentColumn,
+                            int previousRow, int previousColumn)
+{
+    if(currentRow >= 0 && currentColumn>= 0)
+    {
+        if(!item(currentRow, currentColumn) && !bClearContents)
+        {
+            cellWidget(currentRow, currentColumn)->setFocus();
+            setCurrentIndex(model()->index(currentRow, currentColumn));
+        }
+    }
+}
 
 void TableWidgetBase::addRow(QStringList initTexts)
 {
@@ -34,8 +50,10 @@ void TableWidgetBase::addRow(QStringList initTexts)
 
 void TableWidgetBase::slotLoadData(QByteArray allLoadData, int & pos)
 {
+    bClearContents = true;
     setRowCount(0);
     clearContents();
+    bClearContents = false;
     int rows = 0;
     //rows
     {
@@ -140,7 +158,6 @@ void TableWidgetBase::lockedRow(int iR)
             cellWidget(iR,iCol)->setProperty("locked", true);
         }
     }
-
 }
 
 void TableWidgetBase::slotCompletingRow()

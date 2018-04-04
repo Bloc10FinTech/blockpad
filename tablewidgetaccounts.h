@@ -12,12 +12,16 @@ public:
     ~TableWidgetAccounts();
 protected:
     void addRow(QStringList initTexts = QStringList());
+    void mouseMoveEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
 private:
     bool allwaysVisible {true};
+    bool clickHyperLink {false};
 public slots:
     void slotAllwaysChecked(bool allways);
 private slots:
     void slotFocusInPassword(QWidget * wgt);
+    //void slotCellClicked(int row, int column);
 signals:
     void allwaysChecked(bool allways);
 };

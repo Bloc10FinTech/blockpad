@@ -40,6 +40,7 @@ private:
     Highlighter *highlighter;
     void checkUpdates(bool bManually = false);
     void downloadUpdateVersion(QString link, QString version);
+protected:
 public slots:
     void slotLoadDecrypt();
     void slotSaveEncrypt();
