@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
         {
             QSettings settings;
             font = settings.value("Font").toString();
-            fontSize = settings.value("FontSize").toInt();
             if(font == "")
                 font = "Roboto";
             if(fontSize == 0)
@@ -51,8 +50,6 @@ int main(int argc, char *argv[])
             #ifdef __APPLE__
                 fontSize = 14;
             #endif
-                settings.setValue("FontSize", fontSize);
-                settings.sync();
             }
         }
         a.setFont (QFont (font, fontSize, appFontWeight));

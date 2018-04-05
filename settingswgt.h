@@ -28,6 +28,7 @@ private slots:
 signals:
     void sigScreenLock_Time(int time);
     void sigPasswordVisible(bool on);
+    void sigFontSizeChanged(int pointSize);
 };
 
 #endif // SETTINGSWGT_H

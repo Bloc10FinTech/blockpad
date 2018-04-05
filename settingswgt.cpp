@@ -99,16 +99,7 @@ void SettingsWgt::slotFontSizeFinishEditing()
 {
     auto text = ui->spinBoxFontSize->text();
     int size = text.toInt();
-    foreach (QWidget *widget, QApplication::allWidgets())
-    {
-        QFont font = widget->font();
-        font.setPointSize(size);
-        widget->setFont(font);
-    }
-    auto family = qApp->font().family();
-    qApp->setFont (QFont (family, size, appFontWeight));
-    settings.setValue("FontSize", size);
-    settings.sync();
+    emit sigFontSizeChanged(size);
 }
 
 void SettingsWgt::slotPasswordVisibleClicked(bool bCheck)

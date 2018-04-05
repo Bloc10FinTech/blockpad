@@ -80,7 +80,20 @@ BlockPad::BlockPad(QWidget *parent) :
         connect(this, &BlockPad::sigErrorParsing,
                 this, &BlockPad::slotErrorUpdateParsing);
     }
-
+    //change font size
+    {
+        auto fontSize = settings.value("FontSize").toInt();
+        if(fontSize == 0)
+        {
+        #if defined(WIN32) || defined(WIN64)
+            fontSize = 12;
+        #endif
+        #ifdef __APPLE__
+            fontSize = 14;
+        #endif
+        }
+        slotFontSizeChanged(fontSize);
+    }
 }
 
 void BlockPad::slotCheckUpdateFinished(QNetworkReply *reply)
@@ -341,6 +354,8 @@ void BlockPad::slotSettingsClicked()
         setWgt->show();
         connect(setWgt, &SettingsWgt::sigScreenLock_Time,
                 this, &BlockPad::sigScreenLock_Time);
+        connect(setWgt, &SettingsWgt::sigFontSizeChanged,
+                this, &BlockPad::slotFontSizeChanged);
         connect(setWgt, &SettingsWgt::sigPasswordVisible,
                 ui->tableWidgetAccounts, &TableWidgetAccounts::slotAllwaysChecked);
     }
@@ -409,6 +424,19 @@ void BlockPad::slotCurrentWgtChanged()
         ui->tableWidgetCoinRecords->setCurrentItem(item);
         ui->tableWidgetCoinRecords->editItem(item);
     }
+}
+
+void BlockPad::slotFontSizeChanged(int pointSize)
+{
+    auto wgts = findChildren<QWidget *>();
+    foreach (QWidget *widget, wgts)
+    {
+        QFont font = widget->font();
+        font.setPointSize(pointSize);
+        widget->setFont(font);
+    }
+    settings.setValue("FontSize", pointSize);
+    settings.sync();
 }
 
 void BlockPad::slotSaveEncrypt()

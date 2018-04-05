@@ -51,6 +51,7 @@ private slots:
     void slotCurrentWgtChanged();
     void slotBlockPadNewChanges();
     void slotPasswGenClicked();
+    void slotFontSizeChanged(int pointSize);
 
     //updates
     void slotUpdateAvailable(QString link, QString version, bool bManually = false);
