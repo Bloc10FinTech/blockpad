@@ -508,9 +508,9 @@ void Register::send2FA()
     EmailAddress to(email, "User");
     message.addRecipient(&to);
 
-    message.setSubject("BlockPad Password");
+    message.setSubject("BlockPad Code");
 
-    MimeText text;
+    MimeHtml html;
     qint64 code = 0;
     //fill code
     {
@@ -520,8 +520,10 @@ void Register::send2FA()
         }
     }
     qApp->setProperty(def2FA_Code, code);
-    text.setText("Your password to blockpad - " + QString::number(code) + " \n");
-    message.addPart(&text);
+    html.setHtml("<body> <b>Your Code is: " + QString::number(code)
+    + "<br><br><br><br><br><br> <//b><a href=\"https://www.blockpad.io\">www.blockpad.io</a>\n" + "<//body>");
+    //text.setText("Your Code is: " + QString::number(code) + " \n");
+    message.addPart(&html);
     if (!smtp.connectToHost())
     {
         QMessageBox::critical(nullptr, windowTitle(),

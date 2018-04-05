@@ -215,46 +215,69 @@ void CodeEditor::highlightCurrentLine()
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
-    QPainter painter(lineNumberArea);
-    painter.fillRect(event->rect(),Qt::lightGray);
     {
-        //maybe firstBlock?
-        QTextBlock block = firstVisibleBlock();
-        int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
-        int bottom = top + (int) blockBoundingRect(block).height();
-        while (block.isValid() && top <= event->rect().bottom()) {
-            if (bottom >= event->rect().top()) {
-                QString dateTime = QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy");
-                TextBlockUserData * data = new TextBlockUserData(dateTime, block.revision());
-                data->insert(((TextBlockUserData*)block.userData())->brackets());
-                if(!block.userData())
-                {
-                    block.setUserData(data);
-                    if(!loadFile)
-                        emit newChanges();
-                }
-                else
-                {
-                    if(((TextBlockUserData*)block.userData())->revision()!= block.revision())
+        QPainter painter(lineNumberArea);
+        painter.fillRect(event->rect(),Qt::lightGray);
+        {
+            //maybe firstBlock?
+            QTextBlock block = firstVisibleBlock();
+            int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
+            int bottom = top + (int) blockBoundingRect(block).height();
+            while (block.isValid() && top <= event->rect().bottom()) {
+                if (bottom >= event->rect().top()) {
+                    QString dateTime = QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy");
+                    TextBlockUserData * data = new TextBlockUserData(dateTime, block.revision());
+                    data->insert(((TextBlockUserData*)block.userData())->brackets());
+                    if(!block.userData())
                     {
                         block.setUserData(data);
                         if(!loadFile)
                             emit newChanges();
                     }
+                    else
+                    {
+                        if(((TextBlockUserData*)block.userData())->revision()!= block.revision())
+                        {
+                            block.setUserData(data);
+                            if(!loadFile)
+                                emit newChanges();
+                        }
+                    }
+                    if(block.isVisible() )
+                    {
+                        painter.setPen(Qt::black);
+                        painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
+                                         Qt::AlignLeft, ((TextBlockUserData*)block.userData())->time());
+                    }
                 }
-                if(block.isVisible() )
-                {
-                    painter.setPen(Qt::black);
-                    painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
-                                     Qt::AlignLeft, ((TextBlockUserData*)block.userData())->time());
-                }
-            }
 
-            block = block.next();
-            top = bottom;
-            bottom = top + (int) blockBoundingRect(block).height();
+                block = block.next();
+                top = bottom;
+                bottom = top + (int) blockBoundingRect(block).height();
+            }
         }
     }
+}
+
+void CodeEditor::paintEvent(QPaintEvent *event)
+{
+    //highliting 1 line
+    {
+        QPainter painter(viewport());
+        QTextBlock block = document()->firstBlock();
+        int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
+        int bottom = top + (int) blockBoundingRect(block).height();
+        if (block.isValid() && top <= event->rect().bottom())
+        {
+            if (bottom >= event->rect().top())
+            {
+                painter.setPen(QPen(QColor(255,255,220)));
+                painter.setBrush(QBrush (QColor(255,255,220)));
+                painter.drawRect(0, top, width() - lineNumberArea->width(), bottom-top );
+            }
+        }
+    }
+    QPlainTextEdit::paintEvent(event);
 }
 
 void CodeEditor::matchBrackets()
