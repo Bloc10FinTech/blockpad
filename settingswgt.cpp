@@ -33,6 +33,11 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
             ui->checkBox2FA_On->setChecked(on);
         }
 
+        if(settings.value("FontSize").type() != QVariant::Invalid)
+        {
+            ui->spinBoxFontSize->setValue(settings.value("FontSize").toInt());
+        }
+
         if(settings.value("LockScreen_Time").type() != QVariant::Invalid)
         {
             auto time = settings.value("LockScreen_Time").toInt();
@@ -62,9 +67,12 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
                 this, &SettingsWgt::slot2FA_On_Clicked);
         connect(ui->checkBoxCheckUpdates, &QCheckBox::toggled,
                 this, &SettingsWgt::slotCheckUpdatesStartUp);
-        connect(ui->spinBoxXMinutesLockScreen, &QSpinBox::editingFinished,
-                this, &SettingsWgt::slotLockScreen_Time_FinishEditing);
+        connect(ui->spinBoxXMinutesLockScreen, SIGNAL(valueChanged(int)),
+                this, SLOT(slotLockScreen_Time_FinishEditing()));
+        connect(ui->spinBoxFontSize, SIGNAL(valueChanged(int)),
+                this, SLOT(slotFontSizeFinishEditing()));
     }
+
 }
 
 void SettingsWgt::slotCheckUpdatesStartUp(bool bCheck)
@@ -81,8 +89,25 @@ void SettingsWgt::slotFontAppChanged(QString newFamily)
         font.setFamily(newFamily);
         widget->setFont(font);
     }
-    qApp->setFont (QFont (newFamily, appFontPointSize, appFontWeight));
+    int size = qApp->font().pointSize();
+    qApp->setFont (QFont (newFamily, size, appFontWeight));
     settings.setValue("Font", newFamily);
+    settings.sync();
+}
+
+void SettingsWgt::slotFontSizeFinishEditing()
+{
+    auto text = ui->spinBoxFontSize->text();
+    int size = text.toInt();
+    foreach (QWidget *widget, QApplication::allWidgets())
+    {
+        QFont font = widget->font();
+        font.setPointSize(size);
+        widget->setFont(font);
+    }
+    auto family = qApp->font().family();
+    qApp->setFont (QFont (family, size, appFontWeight));
+    settings.setValue("FontSize", size);
     settings.sync();
 }
 

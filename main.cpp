@@ -35,14 +35,27 @@ int main(int argc, char *argv[])
             QFontDatabase::addApplicationFont("://Fonts/"+ file);
         }
         QString font;
-        //fill font
+        int fontSize = 0;
+        //fill font and fontSize
         {
             QSettings settings;
             font = settings.value("Font").toString();
+            fontSize = settings.value("FontSize").toInt();
             if(font == "")
                 font = "Roboto";
+            if(fontSize == 0)
+            {
+            #if defined(WIN32) || defined(WIN64)
+                fontSize = 12;
+            #endif
+            #ifdef __APPLE__
+                fontSize = 14;
+            #endif
+                settings.setValue("FontSize", fontSize);
+                settings.sync();
+            }
         }
-        a.setFont (QFont (font, appFontPointSize, appFontWeight));
+        a.setFont (QFont (font, fontSize, appFontWeight));
     }
     EventsWaiting evWait;
     a.installEventFilter(&evWait);

@@ -33,9 +33,9 @@ MainWidget::MainWidget(QWidget *parent) :
         b2FA = settings.value("2FA_On").toBool();
     }
     ui->regist->Init();
-    int heigth = 280;
+    int heigth = 350;
     if(b2FA)
-        heigth = 310;
+        heigth = 380;
     ui->regist->setFixedSize(400, heigth);
     ui->stackedWidget->setFixedSize(400, heigth);
     adjustSize();
@@ -104,14 +104,14 @@ void MainWidget::slotLockScreen()
         showNormal();
         ui->blockPad->setMinimumWidth(0);
         ui->blockPad->setMinimumHeight(0);
-        ui->regist->setFixedSize(400, 180);
-        ui->stackedWidget->setFixedSize(400, 180);
+        ui->regist->setFixedSize(400, 250);
+        ui->stackedWidget->setFixedSize(400, 250);
         adjustSize();
         setGeometry(
             QStyle::alignedRect(
                 Qt::LeftToRight,
                 Qt::AlignCenter,
-                QSize(400,180),
+                QSize(400,250),
                 qApp->desktop()->availableGeometry()
             )
         );
