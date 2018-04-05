@@ -21,8 +21,9 @@ void RichItemDelegate::setModelData(QWidget *editor,
     auto displayData = model->data(index, Qt::DisplayRole).toString();
     QFontMetrics fm(qApp->font());
     model->setData(index, fm.width(displayData), textWidthRole);
-    displayData = "<a href=\"" + displayData
-                        +"\">" + displayData +"</a>";
+    if(!displayData.isEmpty())
+        displayData = "<a href=\"" + displayData
+                            +"\">" + displayData +"</a>";
     model->setData(index, displayData, Qt::DisplayRole);
     model->setData(index, displayData, Qt::EditRole);
     bSetModelData = false;

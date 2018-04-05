@@ -20,7 +20,8 @@ public:
     QList<QPair<QString, QString> > listEmailPassws(QList<QString>& nameFiles);
     QPair<QString, QString> pairEmailPassw(QString fileName, bool &bSuccess);
     void encrypt(QByteArray ba_plain_text,
-                 QByteArray &ba_cipher_text);
+                 QByteArray &ba_cipher_text,
+                 QByteArray &ba_Iv);
     void decrypt(QByteArray ba_cipher_text,
                  QByteArray & ba_plain_text);
     ~Crypto();
@@ -30,8 +31,7 @@ private:
     Crypto();
     //random 16 byte sequence
     QByteArray baKey;
-    unsigned char * defKey;
     QByteArray baIV;
-    unsigned char * defIV;
+    QByteArray generateIv();
 };
 #endif // CRYPT_H

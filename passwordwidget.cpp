@@ -48,11 +48,15 @@ PasswordWidget::PasswordWidget(QWidget *parent) :
 void PasswordWidget::slotVisibleClicked(bool bCheck)
 {
     if(bCheck)
+    {
         ui->lineEditPassword->setText(_text);
+        ui->labelPassword->setText(_text);
+    }
     else
     {
         QString newStr = _text;
         ui->lineEditPassword->setText(newStr.fill('*'));
+        ui->labelPassword->setText(newStr.fill('*'));
     }
 }
 
@@ -63,6 +67,8 @@ void PasswordWidget::setLocked(bool bLock)
         ui->checkBoxVisible->setChecked(true);
     }
     ui->lineEditPassword->setEnabled(!bLock);
+    ui->lineEditPassword->setVisible(!bLock);
+    ui->labelPassword->setVisible(bLock);
     if(!bLock)
     {
         ui->labelIcon->hide();
@@ -82,6 +88,7 @@ void PasswordWidget::setLocked(bool bLock)
 void PasswordWidget::slotTextEdited(QString str)
 {
     _text = str;
+    ui->labelPassword->setText(_text);
 }
 
 void PasswordWidget::focusInEvent(QFocusEvent *event)
@@ -93,6 +100,7 @@ void PasswordWidget::focusInEvent(QFocusEvent *event)
 void PasswordWidget::setText(QString text)
 {
     ui->lineEditPassword->setText(text);
+    ui->labelPassword->setText(text);
     _text = text;
 }
 

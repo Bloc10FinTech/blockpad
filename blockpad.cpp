@@ -443,10 +443,12 @@ void BlockPad::slotSaveEncrypt()
         allData.prepend((const char *)&size, sizeof(int));
     }
     QByteArray cryptoAllData;
+    QByteArray baIv;
     //fill cryptoAllData
     {
         Crypto c =Crypto::Instance();
-        c.encrypt(allData,cryptoAllData);
+        c.encrypt(allData,cryptoAllData, baIv);
+        cryptoAllData.prepend(baIv);
     }
     QString fileName = qApp->property(defFileProperty).toString();
 

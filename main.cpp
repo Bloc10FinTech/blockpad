@@ -55,7 +55,6 @@ int main(int argc, char *argv[])
                   &wgt, &MainWidget::slotLockScreen);
         a.connect(&wgt, &MainWidget::sigScreenLock_Time,
                   &evWait, &EventsWaiting::slotSetTimeLockScreen);
-    }
-
+    }   
     return a.exec();
 }

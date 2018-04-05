@@ -44,7 +44,9 @@ SOURCES += \
     highlighter.cpp \
     generatepassword.cpp \
     global.cpp \
-    richitemdelegate.cpp
+    richitemdelegate.cpp \
+    stega/lodepng.cpp \
+    stega/steganography.cpp
 
 HEADERS += \
     global.h \
@@ -75,7 +77,9 @@ HEADERS += \
     highlighter.h \
     adswebpage.h \
     generatepassword.h \
-    richitemdelegate.h
+    richitemdelegate.h \
+    stega/lodepng.h \
+    stega/steganography.h
 
 FORMS += \
     passwordwidget.ui \
