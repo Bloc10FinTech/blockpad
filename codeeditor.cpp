@@ -273,7 +273,9 @@ void CodeEditor::paintEvent(QPaintEvent *event)
             {
                 painter.setPen(QPen(QColor(255,255,220)));
                 painter.setBrush(QBrush (QColor(255,255,220)));
-                painter.drawRect(0, top, width() - lineNumberArea->width(), bottom-top );
+                painter.drawRect(document()->documentMargin(),
+                                 top, viewport()->width() - 2*document()->documentMargin(),
+                                 bottom-top );
             }
         }
     }
