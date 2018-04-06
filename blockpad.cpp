@@ -65,6 +65,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotPasswGenClicked);
         connect(ui->pushButtonSave, &QPushButton::clicked,
                 this, &BlockPad::slotSaveEncrypt);
+        connect(ui->pushButtonRemoveRow, &QPushButton::clicked,
+                this, &BlockPad::slotRemoveRowClicked);
         connect(ui->tableWidgetAccounts, &TableWidgetAccounts::sigCompetingRow,
                 this, &BlockPad::slotRowSuccessfullyCompleted);
         connect(ui->tableWidgetCoinRecords, &TableWidgetCoinRecords::sigCompetingRow,
@@ -468,6 +470,21 @@ void BlockPad::slotRowSuccessfullyCompleted()
     slotSaveEncrypt();
 }
 
+void BlockPad::slotRemoveRowClicked()
+{
+    if(ui->tabWidget->currentWidget() == ui->CoinRecords)
+    {
+        if(ui->tableWidgetCoinRecords->currentRow() != 0)
+            ui->tableWidgetCoinRecords->removeRow(ui->tableWidgetCoinRecords->currentRow());
+    }
+    if(ui->tabWidget->currentWidget() == ui->Accounts)
+    {
+        if(ui->tableWidgetAccounts->currentRow() != 0)
+            ui->tableWidgetAccounts->removeRow(ui->tableWidgetAccounts->currentRow());
+    }
+    slotSaveEncrypt();
+}
+
 void BlockPad::slotCurrentWgtChanged()
 {
     auto buttons = ui->ToolsWgt->findChildren<QPushButton *>();
@@ -478,6 +495,7 @@ void BlockPad::slotCurrentWgtChanged()
     if(ui->tabWidget->currentWidget() == ui->Development)
     {
         ui->pushButtonCompleteRow->hide();
+        ui->pushButtonRemoveRow->hide();
     }
     if(ui->tabWidget->currentWidget() == ui->Accounts)
     {

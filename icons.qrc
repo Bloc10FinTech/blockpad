@@ -10,5 +10,6 @@
         <file>Icons/Password.png</file>
         <file>Icons/UpdateIcon.png</file>
         <file>Icons/backup.png</file>
+        <file>Icons/removeRow.png</file>
     </qresource>
 </RCC>

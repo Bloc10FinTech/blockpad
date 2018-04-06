@@ -48,6 +48,7 @@ public slots:
     void slotSaveEncrypt();
 private slots:
     void slotCompleteRowClicked();
+    void slotRemoveRowClicked();
     void slotSettingsClicked();
     void slotRowSuccessfullyCompleted();
     void slotCurrentWgtChanged();
