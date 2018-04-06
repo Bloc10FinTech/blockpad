@@ -4,7 +4,7 @@
 
 class QWidget;
 
-#define defVersionDB "0.5"
+#define defVersionDB "0."
 
 #define appFontWeight QFont::Normal
 #define defColorNoEditable "#f8f8f8"

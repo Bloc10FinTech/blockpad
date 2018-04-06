@@ -213,8 +213,8 @@ void BlockPad::slotDescriptionFinished(QNetworkReply *reply)
     }
     auto data = (QString)(reply->readAll());
     bool bManually = reply->property("Manually").toBool();
-    QString latestVersion = reply->property("Link").toString();
-    QString downloadLink = reply->property("Version").toString();
+    QString latestVersion = reply->property("Version").toString();
+    QString downloadLink = reply->property("Link").toString();
     QString descriptionNewVersion;
     //fill descriptionNewVersion
     {
