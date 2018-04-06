@@ -166,7 +166,7 @@ void CodeEditor::calcLineNumberAreaWidth()
         ++digits;
     }
     spaceLineNumber = 7 + fontMetrics().width(QLatin1Char('9')) * digits;
-    _lineNumberAreaWidth = QFontMetrics(qApp->font()).width("99:99 pm 99/99/9999")
+    _lineNumberAreaWidth = fontMetrics().width("99:99 pm 99/99/9999")
             + spaceLineNumber;
 }
 
