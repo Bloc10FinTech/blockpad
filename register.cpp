@@ -22,13 +22,29 @@ Register::Register(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->comboBoxEmail->setCurrentText(settings.value(defCurrentEmail).toString());
-
+    bool on = settings.value("2FA_On").toBool();
+    //hello message
+    {
+        if(on)
+        {
+            ui->labelHello->setTextFormat(Qt::RichText);
+            ui->labelHello->setTextInteractionFlags(Qt::TextBrowserInteraction);
+            ui->labelHello->setText("Welcome, Blockpad user. You have turned on 2FA. Enter your username, password, and click 'get code' to get your 2FA code. When you have entered all 3, click Login. If you are a first time user, click <html><a style = 'text-decoration:none'href ='firstUserPage'>here</a></html>.");
+        }
+        else
+        {
+            ui->labelHello->setText("First time users: Please enter your email and set your password. Your password will be used to open Blockpad. Write it down - don't lose it! We highly recommend setting up 2FA which can be turned on in settings.");
+        }
+    }
     //connects signals/slots
     {
         connect(ui->pushButtonCreateBlockPad, &QPushButton::clicked,
                 this, &Register::slotCreateNewBlockPad);
 
         connect(ui->pushButtonLogin, &QPushButton::clicked,
+                this, &Register::slotLoginClicked);
+
+        connect(ui->pushButtonGetCode, &QPushButton::clicked,
                 this, &Register::slotLoginClicked);
 
         connect(ui->pushButtonOpenFile, &QPushButton::clicked,
@@ -45,7 +61,15 @@ Register::Register(QWidget *parent) :
 
         connect(ui->lineEditCode, &QLineEdit::returnPressed,
                 this, &Register::slotFinishEditingCode2FA);
+
+        connect(ui->labelHello, &QLabel::linkActivated,
+                this, &Register::slotHelloLinkActivated);
     }
+}
+
+void Register::slotHelloLinkActivated(QString link)
+{
+    ui->labelHello->setText("First time users: Please enter your email and set your password. Your password will be used to open Blockpad. Write it down - don't lose it! We highly recommend setting up 2FA which can be turned on in settings.");
 }
 
 void Register::Init()
@@ -204,13 +228,13 @@ void Register::slotFinishEditingCode2FA()
 
 void Register::setMode(ModeRegistr newMode)
 {
-    ui->labelHello->setText("First time users: Please enter your email and set your password. Your password will be used to open Blockpad. Write it down - don't lose it! We highly recommend setting up 2FA which can be turned on in settings.");
     ui->widgetCode->setEnabled(false);
     ui->widgetEmail->setEnabled(true);
     ui->widgetPassword->setEnabled(true);
     ui->widgetCreate->show();
     ui->widgetOpenFile->show();
     ui->labelHello->show();
+    ui->pushButtonGetCode->setEnabled(true);
     if(newMode != ModeRegistr::mode2FA)
     {
         ui->lineEditPassword->clear();
@@ -220,7 +244,10 @@ void Register::setMode(ModeRegistr newMode)
     if(!settings.value("2FA_On").toBool())
     {
         ui->widgetCode->hide();
+        ui->widgetGetCode->hide();
     }
+    else
+        ui->pushButtonLogin->setEnabled(false);
     switch(newMode)
     {
         case ModeRegistr::New:
@@ -260,8 +287,10 @@ void Register::setMode(ModeRegistr newMode)
         {
         ui->groupBoxAuthorizeData->setTitle("Input code from email");
         ui->widgetCode->setEnabled(true);
+        ui->pushButtonGetCode->setEnabled(false);
         ui->widgetEmail->setEnabled(false);
         ui->widgetPassword->setEnabled(false);
+        ui->pushButtonLogin->setEnabled(true);
         if(mode == ModeRegistr::modeLock)
         {
             ui->comboBoxEmail->hide();
@@ -393,7 +422,6 @@ void Register::slotLoginClicked()
         login2FA();
         return;
     }
-
     if(!ui->lineEditPassword->text().isEmpty())
     {
         bool success = false;

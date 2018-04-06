@@ -36,8 +36,8 @@ MainWidget::MainWidget(QWidget *parent) :
     int heigth = 350;
     if(b2FA)
         heigth = 380;
-    ui->regist->setFixedSize(400, heigth);
-    ui->stackedWidget->setFixedSize(400, heigth);
+    ui->regist->setFixedSize(500, heigth);
+    ui->stackedWidget->setFixedSize(500, heigth);
     adjustSize();
 #ifdef __APPLE__
     if(settings.value("updateToolsVersion").toString()

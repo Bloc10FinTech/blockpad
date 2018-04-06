@@ -37,6 +37,7 @@ private slots:
     void slotFinishEditingLogin();
     void slotFinishEditingPassword();
     void slotFinishEditingCode2FA();
+    void slotHelloLinkActivated(QString link);
 protected:
 signals:
     void successRegister();
