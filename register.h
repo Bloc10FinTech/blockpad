@@ -30,6 +30,8 @@ private:
     void login2FA();
     void sendEmailToGetResponse();
     void OpenFile(QString blockpad);
+    int resendId {0};
+    int resendTime{60}; //seconds
 private slots:
     void slotCreateNewBlockPad();
     void slotLoginClicked();
@@ -39,6 +41,7 @@ private slots:
     void slotFinishEditingCode2FA();
     void slotHelloLinkActivated(QString link);
 protected:
+    void timerEvent(QTimerEvent *event);
 signals:
     void successRegister();
     void successUnlocked();

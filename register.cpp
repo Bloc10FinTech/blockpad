@@ -67,6 +67,23 @@ Register::Register(QWidget *parent) :
     }
 }
 
+void Register::timerEvent(QTimerEvent *event)
+{
+    if(resendId == event->timerId())
+    {
+        resendTime--;
+        if(resendTime > 0)
+            ui->labelStatus->setText("You can resend email with code through "
+                                     + QString::number(resendTime) + " seconds");
+        else
+        {
+            ui->pushButtonGetCode->setEnabled(true);
+            killTimer(resendId);
+            ui->labelStatus->clear();
+        }
+    }
+}
+
 void Register::slotHelloLinkActivated(QString link)
 {
     ui->labelHello->setText("First time users: Please enter your email and set your password. Your password will be used to open Blockpad. Write it down - don't lose it! We highly recommend setting up 2FA which can be turned on in settings.");
@@ -287,7 +304,6 @@ void Register::setMode(ModeRegistr newMode)
         {
         ui->groupBoxAuthorizeData->setTitle("Input code from email");
         ui->widgetCode->setEnabled(true);
-        ui->pushButtonGetCode->setEnabled(false);
         ui->widgetEmail->setEnabled(false);
         ui->widgetPassword->setEnabled(false);
         ui->pushButtonLogin->setEnabled(true);
@@ -417,10 +433,18 @@ void Register::slotLoginClicked()
 {
     ui->labelStatus->clear();
     repaint();
-    if(mode == ModeRegistr::mode2FA)
+    if(mode == ModeRegistr::mode2FA
+            &&
+       ui->pushButtonLogin->hasFocus())
     {
         login2FA();
         return;
+    }
+    if(mode == ModeRegistr::mode2FA
+            &&
+       ui->pushButtonGetCode->hasFocus())
+    {
+        mode = prevMode;
     }
     if(!ui->lineEditPassword->text().isEmpty())
     {
@@ -480,7 +504,7 @@ void Register::slotLoginClicked()
                 bool on = settings.value("2FA_On").toBool();
                 if(on)
                 {
-                    setMode(ModeRegistr::mode2FA);
+                    setMode(ModeRegistr::mode2FA);                  
                     send2FA();
                 }
                 else
@@ -577,6 +601,11 @@ void Register::send2FA()
     QMessageBox::information(nullptr, windowTitle(),
                              "We sent a confirmation code to your email.");
 
+    resendTime = 60;
+    ui->labelStatus->setText("You can resend email with code through "
+                                 + QString::number(resendTime) + " seconds");
+    resendId = startTimer(1000);
+    ui->pushButtonGetCode->setEnabled(false);
 }
 
 void Register::slotCreateNewBlockPad()
