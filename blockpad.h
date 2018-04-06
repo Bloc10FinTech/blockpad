@@ -35,11 +35,13 @@ private:
     QPointer<QProgressDialog> progressUpdates;
     QPointer<QNetworkReply> updatingReply;
     QSettings settings;
+    QNetworkAccessManager * nam;
     QNetworkAccessManager * namUpdate;
-    QNetworkAccessManager * namCheckUpdates;
     Highlighter *highlighter;
     void checkUpdates(bool bManually = false);
+    void descriptionVersion(QString link, QString version, bool bManually);
     void downloadUpdateVersion(QString link, QString version);
+    enum TypeRequest {CheckUpdate, DescriptionUpdate, DownloadUpdate};
 protected:
 public slots:
     void slotLoadDecrypt();
@@ -52,18 +54,21 @@ private slots:
     void slotBlockPadNewChanges();
     void slotPasswGenClicked();
     void slotFontSizeChanged(int pointSize);
+    void slotReplyFinished(QNetworkReply *reply);
 
     //updates
-    void slotUpdateAvailable(QString link, QString version, bool bManually = false);
+    void slotUpdateAvailable(QString link, QString version,
+                             QString description,  bool bManually = false);
     void slot_No_UpdateAvailable();
     void slotErrorUpdateParsing();
     void slotUpdateClicking();
     void slotDownloadUpdateFinished(QNetworkReply *reply);
     void slotDownloadUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
     void slotCheckUpdateFinished(QNetworkReply *reply);
+    void slotDescriptionFinished(QNetworkReply *reply);
 signals:
     void sigScreenLock_Time(int time);
-    void sigUpdateAvailable(QString link, QString version, bool bManually);
+    void sigUpdateAvailable(QString link, QString version, QString description, bool bManually);
     void sigErrorParsing();
     void sig_No_UpdateAvailable();
 };

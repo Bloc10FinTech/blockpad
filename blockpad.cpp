@@ -23,6 +23,8 @@
 #include <QMetaEnum>
 #include <QtConcurrent>
 
+#define defReplyType "ReplyType"
+
 BlockPad::BlockPad(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::BlockPad)
@@ -50,7 +52,7 @@ BlockPad::BlockPad(QWidget *parent) :
         webEngineView->setUrl(QUrl("http://blockpad.io/adserv1.php"));
         webEngineView->setFixedHeight(110);
     }
-    namCheckUpdates = new QNetworkAccessManager(this);
+    nam = new QNetworkAccessManager(this);
     //signals-slots connects
     {
         connect(ui->pushButtonCompleteRow, &QPushButton::clicked,
@@ -73,8 +75,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotBlockPadNewChanges);
         connect(this, &BlockPad::sigUpdateAvailable,
                 this, &BlockPad::slotUpdateAvailable);
-        connect(namCheckUpdates, &QNetworkAccessManager::finished,
-                this, &BlockPad::slotCheckUpdateFinished);
+        connect(nam, &QNetworkAccessManager::finished,
+                this, &BlockPad::slotReplyFinished);
         connect(this, &BlockPad::sig_No_UpdateAvailable,
                 this, &BlockPad::slot_No_UpdateAvailable);
         connect(this, &BlockPad::sigErrorParsing,
@@ -94,6 +96,16 @@ BlockPad::BlockPad(QWidget *parent) :
         }
         slotFontSizeChanged(fontSize);
     }
+}
+
+void BlockPad::slotReplyFinished(QNetworkReply *reply)
+{
+    TypeRequest type = (TypeRequest)reply->property(defReplyType).toInt();
+
+    if(TypeRequest::CheckUpdate == type)
+        slotCheckUpdateFinished(reply);
+    if(TypeRequest::DescriptionUpdate == type)
+        slotDescriptionFinished(reply);
 }
 
 void BlockPad::slotCheckUpdateFinished(QNetworkReply *reply)
@@ -149,7 +161,7 @@ void BlockPad::slotCheckUpdateFinished(QNetworkReply *reply)
         else
         {
             if(latestVersion != defVersionDB)
-                emit sigUpdateAvailable(downloadLink, latestVersion, bManually);
+                descriptionVersion(downloadLink, latestVersion, bManually);
             else
             {
                 if (bManually)
@@ -166,6 +178,61 @@ void BlockPad::slotCheckUpdateFinished(QNetworkReply *reply)
         else
             ui->pushButtonUpdate->setEnabled(true);
     }
+}
+
+void BlockPad::descriptionVersion(QString link,
+                                  QString version,
+                                  bool bManually)
+{
+    QUrl url;
+#if defined(WIN32) || defined(WIN64)
+    url = QUrl("https://bintray.com/bloc10fintech/BlockPad/BlockPad_stable_windows/" +version);
+#endif
+#ifdef __APPLE__
+    url = QUrl("https://bintray.com/bloc10fintech/BlockPad/BlockPad_stable_mac/" +version);
+#endif
+    QNetworkRequest request(url);
+    auto reply = nam->get(request);
+    reply->setProperty("Manually", bManually);
+    reply->setProperty("Link", link);
+    reply->setProperty("Version", version);
+    reply->setProperty(defReplyType, TypeRequest::DescriptionUpdate);
+}
+
+void BlockPad::slotDescriptionFinished(QNetworkReply *reply)
+{
+    auto error = reply->error();
+    if(error != QNetworkReply::NoError)
+    {
+        auto data = QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(error);
+        QMessageBox::critical(nullptr, windowTitle(), data);
+        ui->pushButtonUpdate->setEnabled(true);
+        return;
+    }
+    auto data = (QString)(reply->readAll());
+    bool bManually = reply->property("Manually").toBool();
+    QString latestVersion = reply->property("Link").toString();
+    QString downloadLink = reply->property("Version").toString();
+    QString descriptionNewVersion;
+    //fill descriptionNewVersion
+    {
+        auto indexBlockDescription = data.indexOf("<div id=\"block-avatar-description\">");
+        if(indexBlockDescription != -1)
+        {
+            auto indexStartText = data.indexOf("New in version", indexBlockDescription);
+            if(indexStartText != -1)
+            {
+                auto indexEndText = data.indexOf("</div>", indexStartText);
+                if(indexEndText != -1)
+                {
+                    descriptionNewVersion = data.mid(indexStartText,
+                                                     indexEndText-indexStartText);
+                }
+            }
+        }
+    }
+    emit sigUpdateAvailable(downloadLink, latestVersion,
+                            descriptionNewVersion, bManually);
 }
 
 void BlockPad::slotUpdateClicking()
@@ -249,10 +316,11 @@ void BlockPad::slotDownloadUpdateProgress(qint64 bytesReceived,
         progressUpdates->setValue((bytesReceived*100)/bytesTotal);
 }
 
-void BlockPad::slotUpdateAvailable(QString link, QString version, bool bManually)
-{
+void BlockPad::slotUpdateAvailable(QString link, QString version,
+                                   QString description, bool bManually)
+{   
     QMessageBox mesBox;
-    mesBox.setText("An update package is available, do you want to download it?");
+    mesBox.setText("An update package is available, do you want to download it?\r\n" + description.remove("<br>").remove("<br/>"));
     mesBox.setWindowTitle("BlockPad update");
 
     QPushButton * yesButton = mesBox.addButton("Yes", QMessageBox::YesRole);
@@ -318,8 +386,9 @@ void BlockPad::checkUpdates(bool bManually)
     url = QUrl("https://bintray.com/package/info/bloc10fintech/BlockPad/BlockPad_stable_mac");
 #endif
     QNetworkRequest request(url);
-    auto reply = namCheckUpdates->get(request);
+    auto reply = nam->get(request);
     reply->setProperty("Manually", bManually);
+    reply->setProperty(defReplyType, TypeRequest::CheckUpdate);
 }
 
 void BlockPad::slotErrorUpdateParsing()
