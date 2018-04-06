@@ -8,12 +8,10 @@ Crypto::Crypto()
 {
     //fill defKey
     {
-        QFile::copy("://Icons/Password.png", "Password.png");
         SteganoReaderWriter st;
-        st.decode_img("Password.png");
+        st.decode_img("://Icons/Password.png");
         QString str = st.read_data();
         baKey.append(str);
-        QFile::remove("Password.png");
     }
 }
 

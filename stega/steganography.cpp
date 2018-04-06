@@ -2,6 +2,7 @@
 #include <vector>
 #include "steganography.h"
 #include "lodepng.h"
+#include <QFile>
 
 SteganoReaderWriter::SteganoReaderWriter() {
 	width = 0;
@@ -15,7 +16,13 @@ bool SteganoReaderWriter::imgError() {
 }
 
 void SteganoReaderWriter::decode_img(std::string filename) {
-	unsigned error = lodepng::decode(img, width, height, filename);
+    QFile file(QString::fromStdString(filename));
+    file.open(QIODevice::ReadOnly);
+    auto ba = file.readAll();
+    file.close();
+    const unsigned char* in = reinterpret_cast<const unsigned char*>(ba.data());
+    size_t insize = ba.size();
+    unsigned error = lodepng::decode(img, width, height, in, insize);
 	if(error) {
 		std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
 		exit(1);

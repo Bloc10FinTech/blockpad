@@ -5935,6 +5935,7 @@ void load_file(std::vector<unsigned char>& buffer, const std::string& filename)
   /*read contents of the file into the vector*/
   buffer.resize(size_t(size));
   if(size > 0) file.read((char*)(&buffer[0]), size);
+  file.close();
 }
 
 /*write given buffer to the file, overwriting the file, it doesn't append to it.*/
