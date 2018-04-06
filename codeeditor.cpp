@@ -58,6 +58,7 @@
 #include <QStringList>
 #include <QCursor>
 #include "codeeditor.h"
+#include "global.h"
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
@@ -158,11 +159,20 @@ void CodeEditor::slotLoadData(QByteArray allLoadData, int &pos)
 
 void CodeEditor::calcLineNumberAreaWidth()
 {
-    _lineNumberAreaWidth = QFontMetrics(qApp->font()).width("99:99 pm 99/99/9999") + 3;
+    int digits = 1;
+    int max = qMax(1, blockCount());
+    while (max >= 10) {
+        max /= 10;
+        ++digits;
+    }
+    spaceLineNumber = 7 + fontMetrics().width(QLatin1Char('9')) * digits;
+    _lineNumberAreaWidth = QFontMetrics(qApp->font()).width("99:99 pm 99/99/9999")
+            + spaceLineNumber;
 }
 
 int CodeEditor::lineNumberAreaWidth()
 {
+    calcLineNumberAreaWidth();
     return _lineNumberAreaWidth;
 }
 
@@ -217,15 +227,26 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
     {
         QPainter painter(lineNumberArea);
-        painter.fillRect(event->rect(),Qt::lightGray);
+        painter.fillRect(QRect(event->rect().left(),
+                               event->rect().top(),
+                               spaceLineNumber,
+                               event->rect().height()),
+                         Qt::lightGray);
+        painter.fillRect(QRect(event->rect().left() +spaceLineNumber,
+                               event->rect().top(),
+                               event->rect().width() -spaceLineNumber,
+                               event->rect().height()),
+                         QColor("#e3e3e3"));
         {
             //maybe firstBlock?
             QTextBlock block = firstVisibleBlock();
             int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
             int bottom = top + (int) blockBoundingRect(block).height();
+            int blockNumber = block.blockNumber();
             while (block.isValid() && top <= event->rect().bottom()) {
                 if (bottom >= event->rect().top()) {
                     QString dateTime = QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy");
+                    QString number = QString::number(blockNumber + 1);
                     TextBlockUserData * data = new TextBlockUserData(dateTime, block.revision());
                     data->insert(((TextBlockUserData*)block.userData())->brackets());
                     if(!block.userData())
@@ -247,13 +268,16 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
                     {
                         painter.setPen(Qt::black);
                         painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
-                                         Qt::AlignLeft, ((TextBlockUserData*)block.userData())->time());
+                                         Qt::AlignLeft,number);
+                        painter.drawText(spaceLineNumber, top, lineNumberArea->width(), fontMetrics().height(),
+                                         Qt::AlignLeft,((TextBlockUserData*)block.userData())->time());
                     }
                 }
 
                 block = block.next();
                 top = bottom;
                 bottom = top + (int) blockBoundingRect(block).height();
+                ++blockNumber;
             }
         }
     }

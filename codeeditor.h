@@ -92,6 +92,7 @@ private slots:
 private:
     QWidget *lineNumberArea;
     int _lineNumberAreaWidth;
+    int spaceLineNumber;
     void init();
     bool loadFile {false};
     bool matchLeftBrackets(QTextBlock currentBlock,
