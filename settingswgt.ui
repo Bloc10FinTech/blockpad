@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>BlockPad</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QLabel" name="labelSettingsTitle">
@@ -177,6 +180,18 @@
         </item>
         <item>
          <widget class="QCheckBox" name="checkBoxPasswVisible">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -226,6 +241,18 @@
         </item>
         <item>
          <widget class="QCheckBox" name="checkBox2FA_On">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -279,7 +306,7 @@
            <number>5</number>
           </property>
           <property name="maximum">
-           <number>360</number>
+           <number>9999</number>
           </property>
           <property name="singleStep">
            <number>5</number>
@@ -333,6 +360,18 @@
         </item>
         <item>
          <widget class="QCheckBox" name="checkBoxCheckUpdates">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -385,6 +424,18 @@
         </item>
         <item>
          <widget class="QCheckBox" name="checkBoxHighlightingCode">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
            <string/>
           </property>

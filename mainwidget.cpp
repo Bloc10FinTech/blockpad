@@ -33,7 +33,7 @@ MainWidget::MainWidget(QWidget *parent) :
         b2FA = settings.value("2FA_On").toBool();
     }
     ui->regist->Init();
-    int heigth = 350;
+    int heigth = 310;
     if(b2FA)
         heigth = 380;
     ui->regist->setFixedSize(500, heigth);
