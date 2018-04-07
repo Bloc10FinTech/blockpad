@@ -169,6 +169,8 @@ void Register::Init()
 
 void Register::slotOpenFile()
 {
+    killTimer(resendId);
+    ui->labelStatus->clear();
     QString blockpad = QFileDialog::getOpenFileName(this, tr("Open BlockPad"),
                                         Utilities::filesDirectory(),
                                         "*.bloc");
@@ -610,6 +612,8 @@ void Register::send2FA()
 
 void Register::slotCreateNewBlockPad()
 {
+    killTimer(resendId);
+    ui->labelStatus->clear();
     setMode(ModeRegistr::New);
 }
 

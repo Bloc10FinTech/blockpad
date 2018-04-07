@@ -33,6 +33,17 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
             ui->checkBox2FA_On->setChecked(on);
         }
 
+        if(settings.value("Highlighting_Text").type() != QVariant::Invalid)
+        {
+            auto on = settings.value("Highlighting_Text").toBool();
+            ui->checkBoxHighlightingCode->setChecked(on);
+        }
+        else
+        {
+            settings.setValue("Highlighting_Text", true);
+            ui->checkBoxHighlightingCode->setChecked(true);
+        }
+
         if(settings.value("FontSize").type() != QVariant::Invalid)
         {
             ui->spinBoxFontSize->setValue(settings.value("FontSize").toInt());
@@ -45,6 +56,7 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
         }
 
         ui->checkBoxCheckUpdates->setChecked(!settings.value("noUpdating").toBool());
+        settings.sync();
     }
     //add pixmap to label
     {
@@ -65,6 +77,8 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
                 this, &SettingsWgt::slotPasswordVisibleClicked);
         connect(ui->checkBox2FA_On, &QCheckBox::toggled,
                 this, &SettingsWgt::slot2FA_On_Clicked);
+        connect(ui->checkBoxHighlightingCode, &QCheckBox::toggled,
+                this, &SettingsWgt::slotCheckHighlightingText);
         connect(ui->checkBoxCheckUpdates, &QCheckBox::toggled,
                 this, &SettingsWgt::slotCheckUpdatesStartUp);
         connect(ui->spinBoxXMinutesLockScreen, SIGNAL(valueChanged(int)),
@@ -73,6 +87,13 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
                 this, SLOT(slotFontSizeFinishEditing()));
     }
 
+}
+
+void SettingsWgt::slotCheckHighlightingText(bool bCheck)
+{
+    settings.setValue("Highlighting_Text", bCheck);
+    settings.sync();
+    emit sigHighlightingCode(bCheck);
 }
 
 void SettingsWgt::slotCheckUpdatesStartUp(bool bCheck)

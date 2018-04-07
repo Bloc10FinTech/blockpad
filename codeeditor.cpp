@@ -157,6 +157,13 @@ void CodeEditor::slotLoadData(QByteArray allLoadData, int &pos)
     loadFile = false;
 }
 
+QColor CodeEditor::mix2clr(const QColor &clr1, const QColor &clr2) {
+    qreal r = clr1.redF() + (clr2.redF() - clr1.redF()) * clr2.alphaF();
+    qreal g = clr1.greenF() + (clr2.greenF() - clr1.greenF()) * clr2.alphaF();
+    qreal b = clr1.blueF() + (clr2.blueF() - clr1.blueF()) * clr2.alphaF();
+    return QColor(r, g, b, qMax(clr1.alphaF(), clr2.alphaF()));
+}
+
 void CodeEditor::calcLineNumberAreaWidth()
 {
     int digits = 1;
@@ -295,14 +302,20 @@ void CodeEditor::paintEvent(QPaintEvent *event)
         {
             if (bottom >= event->rect().top())
             {
-                painter.setPen(QPen(QColor(255,255,220)));
-                painter.setBrush(QBrush (QColor(255,255,220)));
+                QColor color;
+                //fill color
+                {
+                    color = QColor(255,255,220);
+                }
+                painter.setPen(QPen(color));
+                painter.setBrush(QBrush (color));
                 painter.drawRect(document()->documentMargin(),
                                  top, viewport()->width() - 2*document()->documentMargin(),
                                  bottom-top );
             }
         }
     }
+
     QPlainTextEdit::paintEvent(event);
 }
 
@@ -323,7 +336,7 @@ void CodeEditor::matchBrackets()
             int currentPosition = textCursor().position() - textBlock.position();
 
             // Clicked on a left brackets?
-            if (bracket->position == currentPosition - 1
+            if (bracket->position == currentPosition
                  && isLeftBrackets(bracket->character))
             {
                 if (matchLeftBrackets(textBlock, i + 1, 0))
@@ -344,37 +357,40 @@ void CodeEditor::matchBrackets()
 /** Test left brackets match **/
 bool CodeEditor::matchLeftBrackets(QTextBlock currentBlock, int index, int numberLeftBracket)
 {
-    TextBlockUserData *data = static_cast <TextBlockUserData *> (currentBlock.userData());
-
-    QVector<UBracketInfo *> brackets = data->brackets();
-
-    int positionInDocument = currentBlock.position();
-
-    // Match in same line?
-    for (; index < brackets.count(); index++)
+    while (currentBlock.isValid())
     {
-        UBracketInfo *bracket = brackets.at(index);
+        TextBlockUserData *data = static_cast <TextBlockUserData *> (currentBlock.userData());
 
-        if (isLeftBrackets(bracket->character))
+        QVector<UBracketInfo *> brackets = data->brackets();
+
+        int positionInDocument = currentBlock.position();
+
+        // Match in same line?
+        for (; index < brackets.count(); index++)
         {
-            ++numberLeftBracket;
-            continue;
+            UBracketInfo *bracket = brackets.at(index);
+
+            if (isLeftBrackets(bracket->character))
+            {
+                ++numberLeftBracket;
+                continue;
+            }
+
+            if (isRightBrackets(bracket->character)
+                 && numberLeftBracket == 0)
+            {
+                createBracketsSelection(positionInDocument + bracket->position);
+                return true;
+            }else
+                --numberLeftBracket;
         }
 
-        if (isRightBrackets(bracket->character)
-             && numberLeftBracket == 0)
-        {
-            createBracketsSelection(positionInDocument + bracket->position);
-            return true;
-        }else
-            --numberLeftBracket;
+        // No match yet? Then try next block
+        currentBlock = currentBlock.next();
+        index = 0;
+//        if (currentBlock.isValid())
+//            return matchLeftBrackets(currentBlock, 0, numberLeftBracket);
     }
-
-    // No match yet? Then try next block
-    currentBlock = currentBlock.next();
-    if (currentBlock.isValid())
-        return matchLeftBrackets(currentBlock, 0, numberLeftBracket);
-
     // No match at all
     return false;
 }
@@ -382,44 +398,47 @@ bool CodeEditor::matchLeftBrackets(QTextBlock currentBlock, int index, int numbe
 /** Test right brackets match **/
 bool CodeEditor::matchRightBrackets(QTextBlock currentBlock, int index, int numberRightBracket)
 {
-    TextBlockUserData *data = static_cast <TextBlockUserData *> (currentBlock.userData());
-
-    QVector<UBracketInfo *> brackets = data->brackets();
-    int positionInDocument = currentBlock.position();
-
-    // Match in same line?
-    for (int i = index; i >= 0; i--)
+    while(currentBlock.isValid())
     {
-        UBracketInfo *bracket = brackets.at(i);
-
-        if (isRightBrackets(bracket->character))
-        {
-            ++numberRightBracket;
-            continue;
-        }
-
-        if (isLeftBrackets(bracket->character)
-             && numberRightBracket == 0)
-        {
-            createBracketsSelection(positionInDocument + bracket->position);
-            return true;
-        } else
-            --numberRightBracket;
-    }
-
-    // No match yet? Then try previous block
-    currentBlock = currentBlock.previous();
-    if (currentBlock.isValid())
-    {
-
-        // Recalculate correct index first
         TextBlockUserData *data = static_cast <TextBlockUserData *> (currentBlock.userData());
 
-        QVector <UBracketInfo *> brackets = data->brackets();
+        QVector<UBracketInfo *> brackets = data->brackets();
+        int positionInDocument = currentBlock.position();
 
-        return matchRightBrackets(currentBlock, brackets.count() - 1, numberRightBracket);
+        // Match in same line?
+        for (int i = index; i >= 0; i--)
+        {
+            UBracketInfo *bracket = brackets.at(i);
+
+            if (isRightBrackets(bracket->character))
+            {
+                ++numberRightBracket;
+                continue;
+            }
+
+            if (isLeftBrackets(bracket->character)
+                 && numberRightBracket == 0)
+            {
+                createBracketsSelection(positionInDocument + bracket->position);
+                return true;
+            } else
+                --numberRightBracket;
+        }
+
+        // No match yet? Then try previous block
+        currentBlock = currentBlock.previous();
+        if (currentBlock.isValid())
+        {
+
+            // Recalculate correct index first
+            TextBlockUserData *data = static_cast <TextBlockUserData *> (currentBlock.userData());
+
+            QVector <UBracketInfo *> brackets = data->brackets();
+
+            index = brackets.count() - 1;
+            //return matchRightBrackets(currentBlock, brackets.count() - 1, numberRightBracket);
+        }
     }
-
     // No match at all
     return false;
 }

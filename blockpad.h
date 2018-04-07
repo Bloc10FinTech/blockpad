@@ -55,6 +55,7 @@ private slots:
     void slotBlockPadNewChanges();
     void slotPasswGenClicked();
     void slotFontSizeChanged(int pointSize);
+    void slotHighlightingCode(bool on);
     void slotReplyFinished(QNetworkReply *reply);
 
     //updates

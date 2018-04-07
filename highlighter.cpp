@@ -149,45 +149,53 @@ Highlighter::Highlighter(QTextDocument *parent)
 
 void Highlighter::highlightBlock(const QString &text)
 {
-    foreach (const HighlightingRule &rule, highlightingRules) {
-        QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
-        while (matchIterator.hasNext()) {
-            QRegularExpressionMatch match = matchIterator.next();
-            setFormat(match.capturedStart(), match.capturedLength(), rule.format);
-        }
+    bool highlighting_On = true;
+    if(settings.value("Highlighting_Text").type() != QVariant::Invalid)
+    {
+        highlighting_On = settings.value("Highlighting_Text").toBool();
     }
-
-    TextBlockUserData *data = static_cast<TextBlockUserData *>(currentBlockUserData());
-    QString dateTime = QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy");
-    if(data == nullptr)
-        data = new TextBlockUserData(dateTime, currentBlock().revision());
-    else
-        data->insert(QVector <UBracketInfo *>());
-    insertBrackets(RoundBrackets, data, text);
-    insertBrackets(CurlyBraces, data, text);
-    insertBrackets(SquareBrackets, data, text);
-
-    setCurrentBlockUserData(data);
-
-    setCurrentBlockState(0);
-
-    int startIndex = 0;
-    if (previousBlockState() != 1)
-        startIndex = text.indexOf(commentStartExpression);
-
-    while (startIndex >= 0) {
-        QRegularExpressionMatch match = commentEndExpression.match(text, startIndex);
-        int endIndex = match.capturedStart();
-        int commentLength = 0;
-        if (endIndex == -1) {
-            setCurrentBlockState(1);
-            commentLength = text.length() - startIndex;
-        } else {
-            commentLength = endIndex - startIndex
-                            + match.capturedLength();
+    if(highlighting_On)
+    {
+        foreach (const HighlightingRule &rule, highlightingRules) {
+            QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
+            while (matchIterator.hasNext()) {
+                QRegularExpressionMatch match = matchIterator.next();
+                setFormat(match.capturedStart(), match.capturedLength(), rule.format);
+            }
         }
-        setFormat(startIndex, commentLength, multiLineCommentFormat);
-        startIndex = text.indexOf(commentStartExpression, startIndex + commentLength);
+
+        TextBlockUserData *data = static_cast<TextBlockUserData *>(currentBlockUserData());
+        QString dateTime = QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy");
+        if(data == nullptr)
+            data = new TextBlockUserData(dateTime, currentBlock().revision());
+        else
+            data->insert(QVector <UBracketInfo *>());
+        insertBrackets(RoundBrackets, data, text);
+        insertBrackets(CurlyBraces, data, text);
+        insertBrackets(SquareBrackets, data, text);
+
+        setCurrentBlockUserData(data);
+
+        setCurrentBlockState(0);
+
+        int startIndex = 0;
+        if (previousBlockState() != 1)
+            startIndex = text.indexOf(commentStartExpression);
+
+        while (startIndex >= 0) {
+            QRegularExpressionMatch match = commentEndExpression.match(text, startIndex);
+            int endIndex = match.capturedStart();
+            int commentLength = 0;
+            if (endIndex == -1) {
+                setCurrentBlockState(1);
+                commentLength = text.length() - startIndex;
+            } else {
+                commentLength = endIndex - startIndex
+                                + match.capturedLength();
+            }
+            setFormat(startIndex, commentLength, multiLineCommentFormat);
+            startIndex = text.indexOf(commentStartExpression, startIndex + commentLength);
+        }
     }
 }
 

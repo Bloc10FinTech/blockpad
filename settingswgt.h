@@ -25,10 +25,12 @@ private slots:
     void slotCheckUpdatesStartUp(bool bCheck);
     void slotLockScreen_Time_FinishEditing();
     void slotFontSizeFinishEditing();
+    void slotCheckHighlightingText(bool bCheck);
 signals:
     void sigScreenLock_Time(int time);
     void sigPasswordVisible(bool on);
     void sigFontSizeChanged(int pointSize);
+    void sigHighlightingCode(bool on);
 };
 
 #endif // SETTINGSWGT_H

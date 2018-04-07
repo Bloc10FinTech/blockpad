@@ -427,6 +427,8 @@ void BlockPad::slotSettingsClicked()
                 this, &BlockPad::sigScreenLock_Time);
         connect(setWgt, &SettingsWgt::sigFontSizeChanged,
                 this, &BlockPad::slotFontSizeChanged);
+        connect(setWgt, &SettingsWgt::sigHighlightingCode,
+                this, &BlockPad::slotHighlightingCode);
         connect(setWgt, &SettingsWgt::sigPasswordVisible,
                 ui->tableWidgetAccounts, &TableWidgetAccounts::slotAllwaysChecked);
     }
@@ -511,6 +513,11 @@ void BlockPad::slotCurrentWgtChanged()
         ui->tableWidgetCoinRecords->setCurrentItem(item);
         ui->tableWidgetCoinRecords->editItem(item);
     }
+}
+
+void BlockPad::slotHighlightingCode(bool on)
+{
+    highlighter->rehighlight();
 }
 
 void BlockPad::slotFontSizeChanged(int pointSize)

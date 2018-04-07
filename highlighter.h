@@ -54,7 +54,7 @@
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QRegularExpression>
-
+#include <QSettings>
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
@@ -127,7 +127,7 @@ private:
         QTextCharFormat format;
     };
     QVector<HighlightingRule> highlightingRules;
-
+    QSettings settings;
     QRegularExpression commentStartExpression;
     QRegularExpression commentEndExpression;
 

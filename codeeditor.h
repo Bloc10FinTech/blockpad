@@ -93,6 +93,7 @@ private:
     QWidget *lineNumberArea;
     int _lineNumberAreaWidth;
     int spaceLineNumber;
+    QColor mix2clr(const QColor &clr1, const QColor &clr2);
     void init();
     bool loadFile {false};
     bool matchLeftBrackets(QTextBlock currentBlock,
