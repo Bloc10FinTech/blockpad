@@ -305,7 +305,7 @@ void CodeEditor::paintEvent(QPaintEvent *event)
                 QColor color;
                 //fill color
                 {
-                    color = QColor(255,255,220);
+                    color = QColor(248,255,255);
                 }
                 painter.setPen(QPen(color));
                 painter.setBrush(QBrush (color));
