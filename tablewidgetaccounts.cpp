@@ -146,14 +146,18 @@ TableWidgetAccounts::~TableWidgetAccounts()
 
 }
 
-//void TableWidgetAccounts::slotCellClicked(int row, int column)
-//{
-//    if(columnsAccount::WebSite == column && clickHyperLink)
-//    {
-//        auto editData = item(row, column)->text();
-//        QDesktopServices::openUrl(QUrl(RichItemDelegate::nameWebSite(editData)));
-//    }
-//}
+void TableWidgetAccounts::slotClickedPasswordChild()
+{
+    auto wgt = qobject_cast<QWidget*>(sender());
+    for (int iR=0; iR<rowCount(); iR++)
+    {
+        if(cellWidget(iR,columnsAccount::Password) == wgt)
+        {
+            highlightingLine(iR);
+            break;
+        }
+    }
+}
 
 void TableWidgetAccounts::addRow(QStringList initTexts)
 {
@@ -172,6 +176,8 @@ void TableWidgetAccounts::addRow(QStringList initTexts)
                     this, &TableWidgetAccounts::slotFinishEditing);
             connect(wgt, &PasswordWidget::focusIn,
                     this, &TableWidgetAccounts::slotFocusInPassword);
+            connect(wgt, &PasswordWidget::clickedToChild,
+                    this, &TableWidgetAccounts::slotClickedPasswordChild);
             setCellWidget(0, i,wgt);
         }
         else

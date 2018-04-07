@@ -21,7 +21,7 @@ public slots:
     void slotAllwaysChecked(bool allways);
 private slots:
     void slotFocusInPassword(QWidget * wgt);
-    //void slotCellClicked(int row, int column);
+    void slotClickedPasswordChild();
 signals:
     void allwaysChecked(bool allways);
 };

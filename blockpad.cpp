@@ -474,17 +474,20 @@ void BlockPad::slotRowSuccessfullyCompleted()
 
 void BlockPad::slotRemoveRowClicked()
 {
-    if(ui->tabWidget->currentWidget() == ui->CoinRecords)
+    if(QMessageBox::Yes == QMessageBox::question(this, windowTitle(), "Are you sure that you want to delete row?"))
     {
-        if(ui->tableWidgetCoinRecords->currentRow() != 0)
-            ui->tableWidgetCoinRecords->removeRow(ui->tableWidgetCoinRecords->currentRow());
+        if(ui->tabWidget->currentWidget() == ui->CoinRecords)
+        {
+            if(ui->tableWidgetCoinRecords->currentRow() != 0)
+                ui->tableWidgetCoinRecords->removeRow(ui->tableWidgetCoinRecords->currentRow());
+        }
+        if(ui->tabWidget->currentWidget() == ui->Accounts)
+        {
+            if(ui->tableWidgetAccounts->currentRow() != 0)
+                ui->tableWidgetAccounts->removeRow(ui->tableWidgetAccounts->currentRow());
+        }
+        slotSaveEncrypt();
     }
-    if(ui->tabWidget->currentWidget() == ui->Accounts)
-    {
-        if(ui->tableWidgetAccounts->currentRow() != 0)
-            ui->tableWidgetAccounts->removeRow(ui->tableWidgetAccounts->currentRow());
-    }
-    slotSaveEncrypt();
 }
 
 void BlockPad::slotCurrentWgtChanged()
@@ -502,16 +505,12 @@ void BlockPad::slotCurrentWgtChanged()
     if(ui->tabWidget->currentWidget() == ui->Accounts)
     {
         ui->pushButtonSave->hide();
-        auto item = ui->tableWidgetAccounts->item(0,0);
-        ui->tableWidgetAccounts->setCurrentItem(item);
-        ui->tableWidgetAccounts->editItem(item);
+        ui->tableWidgetAccounts->Init();
     }
     if(ui->tabWidget->currentWidget() == ui->CoinRecords)
     {
         ui->pushButtonSave->hide();
-        auto item = ui->tableWidgetCoinRecords->item(0,1);
-        ui->tableWidgetCoinRecords->setCurrentItem(item);
-        ui->tableWidgetCoinRecords->editItem(item);
+        ui->tableWidgetCoinRecords->Init();
     }
 }
 

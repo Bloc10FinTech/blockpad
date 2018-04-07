@@ -18,9 +18,12 @@ public:
     ~TableWidgetBase();
     QByteArray dataToEncrypt();
     void slotLoadData(QByteArray allLoadData, int &pos);
+    void Init();
 protected:
     virtual void addRow(QStringList initTexts = QStringList());
     QSet <int> neverEditableColumns;
+    void mouseReleaseEvent(QMouseEvent *event);
+    void highlightingLine(int row);
 private:
     void lockedRow(int iR);
     bool bClearContents {false};

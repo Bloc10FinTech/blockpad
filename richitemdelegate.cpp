@@ -68,10 +68,9 @@ void RichItemDelegate::drawDisplay(QPainter *painter,
     document.setTextWidth(rect.width());
     if (!text.isEmpty())
     {
-                document.setHtml(text);
-                painter->translate(rect.topLeft());
-                document.drawContents(painter);
-
+        document.setHtml(text);
+        painter->translate(rect.topLeft());
+        document.drawContents(painter);
     }
 
     painter->restore();

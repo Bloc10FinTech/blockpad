@@ -41,6 +41,7 @@ PasswordWidget::PasswordWidget(QWidget *parent) :
     //event filters
     {
         ui->lineEditPassword->installEventFilter(this);
+        ui->labelPassword->installEventFilter(this);
         ui->checkBoxVisible->installEventFilter(this);
     }
 }
@@ -58,6 +59,20 @@ void PasswordWidget::slotVisibleClicked(bool bCheck)
         ui->lineEditPassword->setText(newStr.fill('*'));
         ui->labelPassword->setText(newStr.fill('*'));
     }
+}
+
+void PasswordWidget::setHighlighted(bool bOn)
+{
+    auto widgets = findChildren<QWidget *>();
+    foreach(auto wgt, widgets)
+    {
+        wgt->setProperty("highlighted", bOn);
+        wgt->style()->unpolish(wgt);
+        wgt->style()->polish(wgt);
+    }
+    m_highlighted = bOn;
+    this->style()->unpolish(this);
+    this->style()->polish(this);
 }
 
 void PasswordWidget::setLocked(bool bLock)
@@ -81,8 +96,17 @@ void PasswordWidget::setLocked(bool bLock)
         ui->checkBoxVisible->setProperty("locked", true);
         setToolTip("to make editable item click it and input Ctrl+Y");
     }
+    m_locked = bLock;
     ui->checkBoxVisible->style()->unpolish(ui->checkBoxVisible);
     ui->checkBoxVisible->style()->polish(ui->checkBoxVisible);
+    this->style()->unpolish(this);
+    this->style()->polish(this);
+}
+
+void PasswordWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    int n=0;
+    n++;
 }
 
 void PasswordWidget::slotTextEdited(QString str)
@@ -111,6 +135,10 @@ QString PasswordWidget::text()
 
 bool PasswordWidget::eventFilter(QObject *obj, QEvent *event)
 {
+    if(event->type() == QEvent::MouseButtonRelease)
+    {
+        emit clickedToChild();
+    }
     if(obj == ui->lineEditPassword)
     {
         if(event->type() == QEvent::FocusIn)

@@ -48,6 +48,77 @@ void TableWidgetBase::addRow(QStringList initTexts)
 {
 }
 
+void TableWidgetBase::highlightingLine(int row)
+{
+    bool editable = false;
+    if(row == 0)
+        editable =true;
+    if(row > 0 && row < rowCount())
+    {
+        for(int iCol=0; iCol<columnCount(); iCol++)
+        {
+            if(item(row,iCol))
+            {
+                if(!item(row,iCol)->flags().testFlag(Qt::ItemIsEditable))
+                {
+                    item(row,iCol)->setBackgroundColor(Qt::magenta);
+                    for(int iR =1; iR<rowCount(); iR++)
+                    {
+                        if(row != iR &&
+                          !item(iR,iCol)->flags().testFlag(Qt::ItemIsEditable))
+                        {
+                            item(iR,iCol)->setBackgroundColor(defColorNoEditable);
+                        }
+                    }
+                }
+                else
+                    editable =true;
+            }
+            else
+            {
+                if(cellWidget(row,iCol)->property("locked").toBool())
+                {
+                    cellWidget(row,iCol)->setProperty("highlighted", true);
+                    for(int iR =0; iR<rowCount(); iR++)
+                    {
+                        if(row != iR &&
+                        cellWidget(iR,iCol)->property("locked").toBool())
+                        {
+                            cellWidget(iR,iCol)->setProperty("highlighted", false);
+                        }
+                    }
+                }
+                else
+                    editable =true;
+            }
+        }
+    }
+    if(editable)
+    {
+        for(int iCol=0; iCol<columnCount(); iCol++)
+        {
+            if(item(row,iCol))
+            {
+                for(int iR =1; iR<rowCount(); iR++)
+                {
+                    if(!item(iR,iCol)->flags().testFlag(Qt::ItemIsEditable))
+                    {
+                        item(iR,iCol)->setBackgroundColor(defColorNoEditable);
+                    }
+                }
+            }
+            else
+            {
+                for(int iR =0; iR<rowCount(); iR++)
+                {
+                    if(cellWidget(iR,iCol)->property("locked").toBool())
+                        cellWidget(iR,iCol)->setProperty("highlighted", false);
+                }
+            }
+        }
+    }
+}
+
 void TableWidgetBase::slotLoadData(QByteArray allLoadData, int & pos)
 {
     bClearContents = true;
@@ -127,6 +198,18 @@ void TableWidgetBase::slotEditedShortcut()
                 else
                 {
                     cellWidget(curRow,iCol)->setProperty("locked", false);
+                    cellWidget(curRow,iCol)->setProperty("highlighted", false);
+                }
+            }
+            else
+            {
+                if(item(curRow,iCol))
+                {
+                    item(curRow,iCol)->setBackgroundColor(defColorNoEditable);
+                }
+                else
+                {
+                    cellWidget(curRow,iCol)->setProperty("highlighted", false);
                 }
             }
         }
@@ -160,6 +243,33 @@ void TableWidgetBase::lockedRow(int iR)
     }
 }
 
+void TableWidgetBase::Init()
+{
+    if(rowAt(rect().topLeft().y()) == 0)
+    {
+        QTableWidgetItem * item_ = nullptr;
+        for(int iC=0; iC<columnCount(); iC++)
+        {
+            if(!neverEditableColumns.contains(iC))
+            {
+                item_ = item(0,iC);
+                break;
+            }
+        }
+        setCurrentItem(item_);
+        editItem(item_);
+    }
+    highlightingLine(0);
+}
+
+void TableWidgetBase::mouseReleaseEvent(QMouseEvent *event)
+{
+    auto y = event->pos().y();
+    int row = rowAt(y);
+    highlightingLine(row);
+    QTableWidget::mouseReleaseEvent(event);
+}
+
 void TableWidgetBase::slotCompletingRow()
 {
     completingRow(true);
@@ -169,6 +279,7 @@ bool TableWidgetBase::completingRow(bool clickButton)
 {
     auto curRow = this->currentRow();
     auto bAllData = true;
+    auto bLocked = true;
     for(int iCol=0; iCol<columnCount(); iCol++)
     {
         if(item(curRow, iCol))
@@ -177,6 +288,7 @@ bool TableWidgetBase::completingRow(bool clickButton)
             {
                 continue;
             }
+            bLocked = false;
             auto text = item(curRow, iCol)->text();
             if(text == "")
             {
@@ -191,6 +303,11 @@ bool TableWidgetBase::completingRow(bool clickButton)
         }
         else
         {
+            if(cellWidget(curRow,iCol)->property("locked").toBool())
+            {
+                continue;
+            }
+            bLocked = false;
             if(cellWidget(curRow, iCol)->property("text").toString() == "")
             {
                 bAllData = false;
@@ -203,7 +320,7 @@ bool TableWidgetBase::completingRow(bool clickButton)
             }
         }
     }
-    if(bAllData)
+    if(bAllData && !bLocked)
     {
         lockedRow(curRow);
         if(curRow == 0)
