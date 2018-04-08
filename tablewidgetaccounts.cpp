@@ -167,9 +167,6 @@ void TableWidgetAccounts::addRow(QStringList initTexts)
         if(columnsAccount::Password == i)
         {
             PasswordWidget * wgt = new PasswordWidget(this);
-            if(!initTexts.isEmpty())
-                wgt->setText(initTexts[i]);
-            wgt->slotAllwaysVisible(allwaysVisible);
             connect(this, &TableWidgetAccounts::allwaysChecked,
                     wgt, &PasswordWidget::slotAllwaysVisible);
             connect(wgt, &PasswordWidget::enterLineEditPressed,
@@ -178,6 +175,11 @@ void TableWidgetAccounts::addRow(QStringList initTexts)
                     this, &TableWidgetAccounts::slotFocusInPassword);
             connect(wgt, &PasswordWidget::clickedToChild,
                     this, &TableWidgetAccounts::slotClickedPasswordChild);
+//            connect(wgt, &PasswordWidget::newDisplayData,
+//                    this, [&](QString text){model()->setData(model()->index(0,i), text, Qt::DisplayRole);});
+            if(!initTexts.isEmpty())
+                wgt->setText(initTexts[i]);
+            wgt->slotAllwaysVisible(allwaysVisible);
             setCellWidget(0, i,wgt);
         }
         else

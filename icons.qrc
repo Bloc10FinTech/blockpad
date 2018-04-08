@@ -11,5 +11,6 @@
         <file>Icons/UpdateIcon.png</file>
         <file>Icons/backup.png</file>
         <file>Icons/removeRow.png</file>
+        <file>Icons/Printer.png</file>
     </qresource>
 </RCC>

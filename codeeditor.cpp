@@ -60,6 +60,7 @@
 #include "codeeditor.h"
 #include "global.h"
 
+
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
     lineNumberArea = new LineNumberArea(this);

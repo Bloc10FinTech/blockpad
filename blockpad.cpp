@@ -22,6 +22,10 @@
 #include <QDesktopWidget>
 #include <QMetaEnum>
 #include <QtConcurrent>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QPaintEngine>
+#include "tablePrinter/tableprinter.h"
 
 #define defReplyType "ReplyType"
 
@@ -61,6 +65,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotUpdateClicking);
         connect(ui->pushButtonSettings, &QPushButton::clicked,
                 this, &BlockPad::slotSettingsClicked);
+        connect(ui->pushButtonPrint, &QPushButton::clicked,
+                this, &BlockPad::slotPrintClicked);
         connect(ui->pushButtonGeneratePassword, &QPushButton::clicked,
                 this, &BlockPad::slotPasswGenClicked);
         connect(ui->pushButtonSave, &QPushButton::clicked,
@@ -472,9 +478,130 @@ void BlockPad::slotRowSuccessfullyCompleted()
     slotSaveEncrypt();
 }
 
+void BlockPad::slotPrintClicked()
+{
+    QPrinter printer;
+
+    QPrintDialog dialog(&printer, this);
+    dialog.setWindowTitle(tr("Print Document"));
+    if (dialog.exec() == QDialog::Accepted) {
+
+        QPainter painter;
+        painter.begin(&printer);//p is my QPrinter
+        painter.setRenderHint(QPainter::Antialiasing, true);
+
+        renderHeader(painter, "BlockPad");
+        printer.newPage();
+
+
+        auto doc = ui->codeEdit->document()->clone(this);
+        Highlighter *highlighter = new Highlighter(doc);
+        highlighter->rehighlight();
+        QTextOption opt = doc->defaultTextOption();
+        opt.setWrapMode(QTextOption::WrapAnywhere);
+        doc->setDefaultTextOption(opt);
+        printDocument(&painter, printer, doc);
+
+        printer.newPage();
+
+        renderHeader(painter, "CoinRecords");
+
+        printer.newPage();
+
+        {
+            TablePrinter tablePrinter(&painter, &printer);
+            QVector<int> columnStretch = QVector<int>() << 1 << 1 << 1 << 1 << 1;
+            QVector<QString> headers = QVector<QString>() << "Time" << "Block Address"
+                                                          << "From" << "To" << "Notes";
+            if(!tablePrinter.printTable(ui->tableWidgetCoinRecords,
+                                        columnStretch,
+                                        headers)) {
+                qDebug() << tablePrinter.lastError();
+            }
+        }
+        printer.newPage();
+
+        renderHeader(painter, "Accounts");
+
+        printer.newPage();
+
+        {
+            TablePrinter tablePrinter(&painter, &printer);
+            QVector<int> columnStretch = QVector<int>() << 1 << 1 << 1;
+            QVector<QString> headers = QVector<QString>() << "Web Site" << "Username"
+                                                          << "Password";
+            if(!tablePrinter.printTable(ui->tableWidgetAccounts,
+                                        columnStretch,
+                                        headers, columnsAccount::WebSite)) {
+                qDebug() << tablePrinter.lastError();
+            }
+        }
+        painter.end();
+        doc->deleteLater();
+//     ui->codeEdit->print(&printer);
+    }
+}
+
+double BlockPad::mmToPixels(QPrinter& printer, int mm)
+{
+    return mm * 0.039370147 * printer.resolution();
+}
+
+void BlockPad::printDocument(QPainter* painter, QPrinter& printer, QTextDocument* doc)
+{
+    doc->documentLayout()->setPaintDevice(&printer);
+    doc->setPageSize(printer.pageRect().size());
+    QSizeF pageSize = printer.pageRect().size(); // page size in pixels
+    // Calculate the rectangle where to lay out the text
+    const double tm = mmToPixels(printer, textMargins);
+    const qreal footerHeight = painter->fontMetrics().height();
+    const QRectF textRect(tm, tm, pageSize.width() - 2 * tm, pageSize.height() - 2 * tm - footerHeight);
+    doc->setPageSize(textRect.size());
+
+    const int pageCount = doc->pageCount();
+
+    bool firstPage = true;
+    for (int pageIndex = 0; pageIndex < pageCount; ++pageIndex) {
+        qDebug() << "pageIndex: " << pageIndex;
+        if (!firstPage)
+            printer.newPage();
+
+        paintPage(pageIndex, pageCount, painter, doc, textRect, footerHeight );
+        firstPage = false;
+    }
+}
+
+void BlockPad::paintPage(int pageNumber, int pageCount,
+                      QPainter* painter, QTextDocument* doc,
+                      const QRectF& textRect, qreal footerHeight)
+{
+
+
+    painter->save();
+
+    const QRectF textPageRect(0, pageNumber * doc->pageSize().height(), doc->pageSize().width(), doc->pageSize().height());
+    // Translate so that 0,0 is now the page corner
+    painter->translate(0, -textPageRect.top());
+    // Translate so that 0,0 is the text rect corner
+    painter->translate(textRect.left(), textRect.top());
+    QAbstractTextDocumentLayout *layout = doc->documentLayout();
+    QAbstractTextDocumentLayout::PaintContext ctx;
+
+    painter->setClipRect(textPageRect);
+    ctx.clip = textPageRect;
+    ctx.palette.setColor(QPalette::Text, Qt::black);
+    layout->draw(painter, ctx);
+    painter->restore();
+//    QRectF footerRect = textRect;
+//    footerRect.setTop(textRect.bottom());
+//    footerRect.setHeight(footerHeight);
+//    painter->drawText(footerRect, Qt::AlignVCenter | Qt::AlignRight, QObject::tr("Page %1 of %2").arg(pageNumber+1).arg(pageCount));
+
+}
+
 void BlockPad::slotRemoveRowClicked()
 {
-    if(QMessageBox::Yes == QMessageBox::question(this, windowTitle(), "Are you sure that you want to delete row?"))
+    if(QMessageBox::Yes == QMessageBox::question(this, windowTitle(), "Are you sure that you want delete row?"))
     {
         if(ui->tabWidget->currentWidget() == ui->CoinRecords)
         {
@@ -652,4 +779,16 @@ void BlockPad::slotLoadDecrypt()
 BlockPad::~BlockPad()
 {
     delete ui;
+}
+
+void BlockPad::renderHeader(QPainter &painter, QString header)
+{
+    painter.save();
+    painter.resetTransform();
+    painter.setFont(QFont(painter.font().family(),
+                          25,
+                          QFont::Bold));
+    painter.drawText(painter.window(), Qt::AlignCenter, header);
+    //painter.drawRect(boundingRect);
+    painter.restore();
 }

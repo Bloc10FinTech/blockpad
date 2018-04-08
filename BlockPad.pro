@@ -46,7 +46,8 @@ SOURCES += \
     global.cpp \
     richitemdelegate.cpp \
     stega/lodepng.cpp \
-    stega/steganography.cpp
+    stega/steganography.cpp \
+    tablePrinter/tableprinter.cpp
 
 HEADERS += \
     global.h \
@@ -79,7 +80,8 @@ HEADERS += \
     generatepassword.h \
     richitemdelegate.h \
     stega/lodepng.h \
-    stega/steganography.h
+    stega/steganography.h \
+    tablePrinter/tableprinter.h
 
 FORMS += \
     passwordwidget.ui \
