@@ -59,8 +59,10 @@ TablePrinter::TablePrinter(QPainter* painter, QPrinter* printer) :
 }
 
 bool TablePrinter::printTable(QTableWidget * wgt, const QVector<int> columnStretch,
-                              const QVector<QString> headers,  int webColumn) {
-
+                              const QRectF textRect, qreal footerHeight,
+                              int & numPage,
+                              const QVector<QString> headers,  int webColumn)
+{
     //--------------------------------- error checking -------------------------------------
     auto model = wgt->model();
     int columnCount = model->columnCount();
@@ -112,11 +114,10 @@ bool TablePrinter::printTable(QTableWidget * wgt, const QVector<int> columnStret
 
     // to know row height before printing
     // at first print to test image
-    QPainter testSize;
-    QImage* image = new QImage(10, 10, QImage::Format_RGB32);
-    image->setDotsPerMeterX(printer->logicalDpiX() * 100 / 2.54); // 2.54 cm = 1 inch
-    image->setDotsPerMeterY(printer->logicalDpiY() * 100 / 2.54);
-    testSize.begin(image);
+//    QImage* image = new QImage(10, 10, QImage::Format_RGB32);
+//    image->setDotsPerMeterX(printer->logicalDpiX() * 100 / 2.54); // 2.54 cm = 1 inch
+//    image->setDotsPerMeterY(printer->logicalDpiY() * 100 / 2.54);
+//    testSize.begin(image);
 
     if(prepare) {
         painter->save();
@@ -127,11 +128,11 @@ bool TablePrinter::printTable(QTableWidget * wgt, const QVector<int> columnStret
 
     painter->setPen(pen);
     painter->setFont(contentFont);
-    testSize.setFont(contentFont);
+    //testSize.setFont(contentFont);
     painter->translate(-painter->transform().dx() + leftBlank, 0);
     painter->save();
     painter->setFont(headersFont);
-    testSize.setFont(headersFont);
+    //testSize.setFont(headersFont);
     painter->drawLine(0, 0, tableWidth, 0); // first horizontal line
 
     float max_y;
@@ -139,7 +140,7 @@ bool TablePrinter::printTable(QTableWidget * wgt, const QVector<int> columnStret
     for(int j = initValue; j < model->rowCount(); j++) { // for each row
         if(j == 0) {
             painter->setFont(contentFont);
-            testSize.setFont(contentFont);
+            //testSize.setFont(contentFont);
         }
 
         // --------------------------- row height counting ----------------------------
@@ -154,16 +155,20 @@ bool TablePrinter::printTable(QTableWidget * wgt, const QVector<int> columnStret
             }
             QRect rect(0, 0, columnWidth[i] - rightMargin - leftMargin, maxRowHeight);
             QRect realRect;
-            testSize.drawText(rect, Qt::AlignLeft | Qt::TextWrapAnywhere, str, &realRect);
+            //testSize.drawText(rect, Qt::AlignLeft | Qt::TextWrapAnywhere, str, &realRect);
+            QFontMetrics fm(contentFont);
+            realRect = fm.boundingRect(str);
             if(str.isEmpty())
                 maxHeight = prevMaxHeight;
             if (realRect.height() > maxHeight && columnStretch[i] != 0) {
-                 realRect.height() > maxRowHeight ? maxHeight = maxRowHeight : maxHeight = realRect.height();
+                 realRect.height() > maxRowHeight ? maxHeight = maxRowHeight : maxHeight = realRect.height()+5;
             }
         }
         prevMaxHeight = maxHeight;
 
-        if(painter->transform().dy() + maxHeight + topMargin + bottomMargin > painter->viewport().height() -
+        if(painter->transform().dy() + maxHeight + topMargin
+                + bottomMargin + footerHeight + textRect.left()
+                > painter->viewport().height() -
                 bottomHeight) { // begin from new page
             int y = painter->transform().dy();
             painter->restore();
@@ -175,7 +180,12 @@ bool TablePrinter::printTable(QTableWidget * wgt, const QVector<int> columnStret
             }
             painter->drawLine(0, 0, 0, - painter->transform().dy() + y); // last vertical line
             painter->restore();
+            QRectF footerRect = textRect;
+            footerRect.setTop(textRect.bottom());
+            footerRect.setHeight(footerHeight);
+            painter->drawText(footerRect, Qt::AlignVCenter | Qt::AlignRight, QString::number(numPage));
             printer->newPage();
+            numPage++;
             if(prepare) {
                 painter->save();
                 painter->translate(-painter->transform().dx(), -painter->transform().dy());
@@ -225,13 +235,17 @@ bool TablePrinter::printTable(QTableWidget * wgt, const QVector<int> columnStret
     }
     painter->drawLine(0, 0, 0, - painter->transform().dy() + y); // last vertical line
     painter->restore();
+    QRectF footerRect = textRect;
+    footerRect.setTop(textRect.bottom());
+    footerRect.setHeight(footerHeight);
+    painter->drawText(footerRect, Qt::AlignVCenter | Qt::AlignRight, QString::number(numPage));
 
-    testSize.end();
-    delete image;
+//    testSize.end();
+//    delete image;
 
-    painter->restore(); // before table print
+    //painter->restore(); // before table print
 
-    painter->translate(0, max_y);
+    //painter->translate(0, max_y);
 
     return true;
 }

@@ -485,14 +485,22 @@ void BlockPad::slotPrintClicked()
     QPrintDialog dialog(&printer, this);
     dialog.setWindowTitle(tr("Print Document"));
     if (dialog.exec() == QDialog::Accepted) {
+        int iNumPage = 1;
 
         QPainter painter;
+        QSizeF pageSize = printer.pageRect().size(); // page size in pixels
+        const double tm = mmToPixels(printer, textMargins);
+        const qreal footerHeight = painter.fontMetrics().height();
+        const QRectF textRect(tm, tm, pageSize.width() - 2 * tm,
+                              pageSize.height() - 2 * tm - footerHeight);
+
         painter.begin(&printer);//p is my QPrinter
         painter.setRenderHint(QPainter::Antialiasing, true);
 
-        renderHeader(painter, "BlockPad");
+        renderHeader(painter, "BlockPad",
+                     textRect, footerHeight, iNumPage);
         printer.newPage();
-
+        iNumPage++;
 
         auto doc = ui->codeEdit->document()->clone(this);
         Highlighter *highlighter = new Highlighter(doc);
@@ -500,42 +508,53 @@ void BlockPad::slotPrintClicked()
         QTextOption opt = doc->defaultTextOption();
         opt.setWrapMode(QTextOption::WrapAnywhere);
         doc->setDefaultTextOption(opt);
-        printDocument(&painter, printer, doc);
+        printDocument(&painter, printer, doc, iNumPage);
 
         printer.newPage();
-
-        renderHeader(painter, "CoinRecords");
+        //iNumPage++;
+        renderHeader(painter, "CoinRecords",
+                     textRect, footerHeight, iNumPage);
 
         printer.newPage();
+        iNumPage++;
 
-        {
+        //{
             TablePrinter tablePrinter(&painter, &printer);
+            //tablePrinter.setPageMargin(tm,tm, tm, tm);
             QVector<int> columnStretch = QVector<int>() << 1 << 1 << 1 << 1 << 1;
             QVector<QString> headers = QVector<QString>() << "Time" << "Block Address"
                                                           << "From" << "To" << "Notes";
             if(!tablePrinter.printTable(ui->tableWidgetCoinRecords,
-                                        columnStretch,
+                                        columnStretch, textRect,
+                                        footerHeight, iNumPage,
                                         headers)) {
                 qDebug() << tablePrinter.lastError();
             }
-        }
+        //}
         printer.newPage();
 
-        renderHeader(painter, "Accounts");
+        iNumPage++;
+
+        renderHeader(painter, "Accounts",
+                     textRect, footerHeight, iNumPage);
 
         printer.newPage();
 
-        {
-            TablePrinter tablePrinter(&painter, &printer);
-            QVector<int> columnStretch = QVector<int>() << 1 << 1 << 1;
-            QVector<QString> headers = QVector<QString>() << "Web Site" << "Username"
+        iNumPage++;
+
+        //{
+
+            QVector<int> columnStretch_ = QVector<int>() << 1 << 1 << 1;
+            QVector<QString> headers_ = QVector<QString>() << "Web Site" << "Username"
                                                           << "Password";
             if(!tablePrinter.printTable(ui->tableWidgetAccounts,
-                                        columnStretch,
-                                        headers, columnsAccount::WebSite)) {
+                                        columnStretch_, textRect,
+                                        footerHeight, iNumPage,
+                                        headers_, columnsAccount::WebSite)) {
                 qDebug() << tablePrinter.lastError();
             }
-        }
+        //}
+
         painter.end();
         doc->deleteLater();
 //     ui->codeEdit->print(&printer);
@@ -547,7 +566,8 @@ double BlockPad::mmToPixels(QPrinter& printer, int mm)
     return mm * 0.039370147 * printer.resolution();
 }
 
-void BlockPad::printDocument(QPainter* painter, QPrinter& printer, QTextDocument* doc)
+void BlockPad::printDocument(QPainter* painter, QPrinter& printer,
+                             QTextDocument* doc, int & numPage)
 {
     doc->documentLayout()->setPaintDevice(&printer);
     doc->setPageSize(printer.pageRect().size());
@@ -559,21 +579,22 @@ void BlockPad::printDocument(QPainter* painter, QPrinter& printer, QTextDocument
     doc->setPageSize(textRect.size());
 
     const int pageCount = doc->pageCount();
-
+    int beginNamePage =numPage;
     bool firstPage = true;
     for (int pageIndex = 0; pageIndex < pageCount; ++pageIndex) {
         qDebug() << "pageIndex: " << pageIndex;
         if (!firstPage)
             printer.newPage();
 
-        paintPage(pageIndex, pageCount, painter, doc, textRect, footerHeight );
+        paintPage(pageIndex, pageCount, painter, doc, textRect, footerHeight,beginNamePage);
         firstPage = false;
     }
+    numPage +=pageCount;
 }
 
 void BlockPad::paintPage(int pageNumber, int pageCount,
                       QPainter* painter, QTextDocument* doc,
-                      const QRectF& textRect, qreal footerHeight)
+                      const QRectF& textRect, qreal footerHeight, int beginNamePage)
 {
 
 
@@ -592,10 +613,10 @@ void BlockPad::paintPage(int pageNumber, int pageCount,
     ctx.palette.setColor(QPalette::Text, Qt::black);
     layout->draw(painter, ctx);
     painter->restore();
-//    QRectF footerRect = textRect;
-//    footerRect.setTop(textRect.bottom());
-//    footerRect.setHeight(footerHeight);
-//    painter->drawText(footerRect, Qt::AlignVCenter | Qt::AlignRight, QObject::tr("Page %1 of %2").arg(pageNumber+1).arg(pageCount));
+    QRectF footerRect = textRect;
+    footerRect.setTop(textRect.bottom());
+    footerRect.setHeight(footerHeight);
+    painter->drawText(footerRect, Qt::AlignVCenter | Qt::AlignRight, QString::number(pageNumber+beginNamePage));
 
 }
 
@@ -781,7 +802,8 @@ BlockPad::~BlockPad()
     delete ui;
 }
 
-void BlockPad::renderHeader(QPainter &painter, QString header)
+void BlockPad::renderHeader(QPainter &painter, QString header,
+                            const QRectF &textRect, qreal footerHeight, int pageNumber)
 {
     painter.save();
     painter.resetTransform();
@@ -791,4 +813,9 @@ void BlockPad::renderHeader(QPainter &painter, QString header)
     painter.drawText(painter.window(), Qt::AlignCenter, header);
     //painter.drawRect(boundingRect);
     painter.restore();
+    QRectF footerRect = textRect;
+    footerRect.setTop(textRect.bottom());
+    footerRect.setHeight(footerHeight);
+    painter.drawText(footerRect, Qt::AlignVCenter | Qt::AlignRight, QString::number(pageNumber));
+
 }

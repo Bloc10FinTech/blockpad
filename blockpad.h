@@ -42,15 +42,17 @@ private:
     void descriptionVersion(QString link, QString version, bool bManually);
     void downloadUpdateVersion(QString link, QString version);
     enum TypeRequest {CheckUpdate, DescriptionUpdate, DownloadUpdate};
-    void printDocument(QPainter* painter, QPrinter& printer, QTextDocument* doc);
+
+    //print data
+    void renderHeader(QPainter &painter, QString header,
+                      const QRectF& textRect, qreal footerHeight, int pageNumber);
+    void printDocument(QPainter* painter, QPrinter& printer, QTextDocument* doc, int &numPage);
     void paintPage(int pageNumber, int pageCount,
                           QPainter* painter, QTextDocument* doc,
-                          const QRectF& textRect, qreal footerHeight);
+                          const QRectF& textRect, qreal footerHeight, int beginNamePage);
     double mmToPixels(QPrinter& printer, int mm);
     const int textMargins = 12; // in millimeters
     const int borderMargins = 10; // in millimeters
-    //print data
-    void renderHeader(QPainter &painter, QString header);
 protected:
 public slots:
     void slotLoadDecrypt();
