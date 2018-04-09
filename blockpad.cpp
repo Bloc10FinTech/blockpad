@@ -484,7 +484,7 @@ void BlockPad::slotPrintClicked()
 
     QPrintDialog dialog(&printer, this);
     dialog.setWindowTitle(tr("Print Document"));
-    if (dialog.exec() == QDialog::Accepted) {
+    if (dialog.exec() == QDialog::Accepted && printer.isValid()) {
         int iNumPage = 1;
 
         QPainter painter;

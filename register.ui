@@ -44,15 +44,15 @@ QPushButton:default {
 QLineEdit {
     border: 2px solid #8f8f91;
     border-radius: 3px;
-	min-width:170px;
-	max-width:170px;
+	min-width:200px;
+	max-width:200px;
 }
 
 QComboBox {
     border: 2px solid #8f8f91;
     border-radius: 3px;
-	min-width:170px;
-	max-width:170px;
+	min-width:200px;
+	max-width:200px;
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -340,8 +340,14 @@ QComboBox {
           <widget class="QLabel" name="labelFalshGetCode">
            <property name="minimumSize">
             <size>
-             <width>120</width>
+             <width>150</width>
              <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>150</width>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -351,6 +357,18 @@ QComboBox {
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonGetCode">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>154</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="text">
             <string>Get Code</string>
            </property>
@@ -407,8 +425,14 @@ QComboBox {
           <widget class="QLabel" name="labelFalsh">
            <property name="minimumSize">
             <size>
-             <width>120</width>
+             <width>150</width>
              <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>150</width>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -418,6 +442,18 @@ QComboBox {
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonLogin">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>154</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="text">
             <string>Login</string>
            </property>
