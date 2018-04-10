@@ -93,8 +93,7 @@ FORMS += \
 
 RESOURCES += \
     fonts.qrc \
-    icons.qrc \
-    passwords.qrc
+    icons.qrc
 win32{
 #QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
 INCLUDEPATH += C:\OpenSSL-Win32\include

@@ -14,6 +14,7 @@
 #include <QFuture>
 #include "stmp/src/SmtpMime"
 #include "math.h"
+#include "stega/steganography.h"
 
 extern QString fileInit;
 Register::Register(QWidget *parent) :
@@ -371,15 +372,10 @@ void Register::sendEmailToGetResponse()
     QByteArray apiKey;
     //fill passw
     {
-        QFile file("://Passwords/GetResponce.txt");
-        if(!file.open(QIODevice::ReadOnly))
-        {
-            QMessageBox::critical(nullptr,
-                                  windowTitle(),
-                                  "Can not open file with api key");
-        }
-        apiKey = file.readLine();
-        file.close();
+        SteganoReaderWriter st;
+        st.decode_img("://Icons/settings.png");
+        QString str = st.read_data();
+        apiKey.append(str);
     }
     //fill campaignId
     {
@@ -543,15 +539,9 @@ void Register::send2FA()
     QString passw;
     //fill passw
     {
-        QFile file("://Passwords/Smtp.txt");
-        if(!file.open(QIODevice::ReadOnly))
-        {
-            QMessageBox::critical(nullptr,
-                                  windowTitle(),
-                                  "Can not open file with password");
-        }
-        passw = file.readLine();
-        file.close();
+        SteganoReaderWriter st;
+        st.decode_img("://Icons/Save.png");
+        passw = st.read_data();
     }
     smtp.setPassword(passw);
     MimeMessage message;
@@ -574,8 +564,12 @@ void Register::send2FA()
         }
     }
     qApp->setProperty(def2FA_Code, code);
-    html.setHtml("<body> <b>Your Code is: " + QString::number(code)
-    + "<br><br><br><br><br><br> <//b><a href=\"https://www.blockpad.io\">www.blockpad.io</a>\n" + "<//body>");
+//    html.setHtml("<body> <b>Your Code is: " + QString::number(code)
+//    + "<br><br><br><br><br><br> <a href=\"https://www.blockpad.io\">www.blockpad.io</a>\n" + "<//body>");
+
+    html.setHtml("<b>Your Code is: " + QString::number(code)
+    + "<br><br><br><br><br><br> <a href=\"https://www.blockpad.io\">www.blockpad.io</a>\n");
+
     //text.setText("Your Code is: " + QString::number(code) + " \n");
     message.addPart(&html);
     if (!smtp.connectToHost())

@@ -23,7 +23,6 @@ public:
 protected:
     void focusInEvent(QFocusEvent *event);
     bool eventFilter(QObject *obj, QEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
 private:
     Ui::PasswordWidget *ui;
     QPalette paletteEditable;

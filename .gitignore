@@ -7,3 +7,5 @@ crt
 crt/*
 SigningComands.txt
 .DS_Store
+*.zip
+*_old.png

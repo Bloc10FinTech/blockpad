@@ -103,12 +103,6 @@ void PasswordWidget::setLocked(bool bLock)
     this->style()->polish(this);
 }
 
-void PasswordWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-    int n=0;
-    n++;
-}
-
 void PasswordWidget::slotTextEdited(QString str)
 {
     _text = str;

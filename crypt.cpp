@@ -6,7 +6,7 @@
 #include "stega/steganography.h"
 Crypto::Crypto()
 {
-    //fill defKey
+    //fill baKey
     {
         SteganoReaderWriter st;
         st.decode_img("://Icons/Password.png");
