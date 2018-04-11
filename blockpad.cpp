@@ -227,14 +227,15 @@ void BlockPad::slotDescriptionFinished(QNetworkReply *reply)
         auto indexBlockDescription = data.indexOf("<div id=\"block-avatar-description\">");
         if(indexBlockDescription != -1)
         {
-            auto indexStartText = data.indexOf("New in version", indexBlockDescription);
+            auto indexStartText = data.indexOf("<div class=\"description-text\">", indexBlockDescription);
             if(indexStartText != -1)
             {
                 auto indexEndText = data.indexOf("</div>", indexStartText);
                 if(indexEndText != -1)
                 {
                     descriptionNewVersion = data.mid(indexStartText,
-                                                     indexEndText-indexStartText);
+                                                     indexEndText-indexStartText)
+                            .remove("<div class=\"description-text\">");
                 }
             }
         }
