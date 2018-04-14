@@ -433,7 +433,9 @@ void Register::slotLoginClicked()
     repaint();
     if(mode == ModeRegistr::mode2FA
             &&
-       ui->pushButtonLogin->hasFocus())
+       (ui->pushButtonLogin->hasFocus()
+        ||
+        ui->lineEditCode->hasFocus()))
     {
         login2FA();
         return;

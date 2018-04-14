@@ -1,1 +1,5 @@
 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
+{"type": "Activate", "data": some_data, "hash" : hash}
+some_data = encrypt(license_key+mac_address);
+
+{"success": true(false), "error": Описание ошибки(неправильная структура запроса или почему false)}

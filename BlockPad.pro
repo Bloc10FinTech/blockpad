@@ -47,7 +47,8 @@ SOURCES += \
     richitemdelegate.cpp \
     stega/lodepng.cpp \
     stega/steganography.cpp \
-    tablePrinter/tableprinter.cpp
+    tablePrinter/tableprinter.cpp \
+    onetimepadgeneratorwgt.cpp
 
 HEADERS += \
     global.h \
@@ -81,7 +82,8 @@ HEADERS += \
     richitemdelegate.h \
     stega/lodepng.h \
     stega/steganography.h \
-    tablePrinter/tableprinter.h
+    tablePrinter/tableprinter.h \
+    onetimepadgeneratorwgt.h
 
 FORMS += \
     passwordwidget.ui \
@@ -89,7 +91,8 @@ FORMS += \
     mainwidget.ui \
     blockpad.ui \
     settingswgt.ui \
-    generatepassword.ui
+    generatepassword.ui \
+    onetimepadgeneratorwgt.ui
 
 RESOURCES += \
     fonts.qrc \

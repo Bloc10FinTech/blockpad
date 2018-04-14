@@ -67,6 +67,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotSettingsClicked);
         connect(ui->pushButtonPrint, &QPushButton::clicked,
                 this, &BlockPad::slotPrintClicked);
+        connect(ui->pushButton1TimePad, &QPushButton::clicked,
+                this, &BlockPad::slotOneTimePadGeneratorClicked);
         connect(ui->pushButtonGeneratePassword, &QPushButton::clicked,
                 this, &BlockPad::slotPasswGenClicked);
         connect(ui->pushButtonSave, &QPushButton::clicked,
@@ -103,6 +105,15 @@ BlockPad::BlockPad(QWidget *parent) :
         #endif
         }
         slotFontSizeChanged(fontSize);
+    }
+}
+
+void BlockPad::slotOneTimePadGeneratorClicked()
+{
+    if(oneTimePadGenWgt.isNull())
+    {
+        oneTimePadGenWgt = new OneTimePadGeneratorWgt(nullptr);
+        oneTimePadGenWgt->show();
     }
 }
 
@@ -454,10 +465,12 @@ void BlockPad::Init()
         ui->pushButtonUpdate->setEnabled(true);
 }
 
-void BlockPad::closeChildWgts()
+void BlockPad::closeSeparateWgts()
 {
     if(!setWgt.isNull())
         setWgt->close();
+    if(!oneTimePadGenWgt.isNull())
+        oneTimePadGenWgt->close();
     if(!genPasswWgt.isNull())
         genPasswWgt->close();
 }

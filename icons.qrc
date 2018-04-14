@@ -12,5 +12,11 @@
         <file>Icons/backup.png</file>
         <file>Icons/removeRow.png</file>
         <file>Icons/Printer.png</file>
+        <file>Icons/1TimePad.png</file>
+        <file>Icons/padGeneratorEncrypted.png</file>
+        <file>Icons/padGeneratorOriginal.png</file>
+        <file>Icons/padGeneratorKeyFile.png</file>
+        <file>Icons/padGeneratorDecrypt.png</file>
+        <file>Icons/padGeneratorEncrypt.png</file>
     </qresource>
 </RCC>

@@ -7,14 +7,26 @@
     <x>0</x>
     <y>0</y>
     <width>442</width>
-    <height>550</height>
+    <height>578</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>BlockPad</string>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">QGroupBox{
+    border: 2px solid grey;
+    border-radius: 10px;
+    margin-top: 6px;
+    padding-top: 8px;
+}
+
+QGroupBox::title {
+    margin: 0 5px;
+    subcontrol-origin: margin;
+    subcontrol-position: top center;
+    padding: 0 3px;
+}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>

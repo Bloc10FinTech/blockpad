@@ -10,6 +10,7 @@
 #include "tablewidgetaccounts.h"
 #include "tablewidgetcoinrecords.h"
 #include "settingswgt.h"
+#include "onetimepadgeneratorwgt.h"
 #include "generatepassword.h"
 #include "highlighter.h"
 #include <QPrinter>
@@ -27,11 +28,12 @@ public:
     ~BlockPad();
     void Init();
     bool needSaving();
-    void closeChildWgts();
+    void closeSeparateWgts();
 private:
     Ui::BlockPad *ui;
     QPointer<SettingsWgt> setWgt;
     QPointer<GeneratePassword> genPasswWgt;
+    QPointer<OneTimePadGeneratorWgt> oneTimePadGenWgt;
     QPointer<QProgressDialog> progressUpdates;
     QPointer<QNetworkReply> updatingReply;
     QSettings settings;
@@ -69,6 +71,7 @@ private slots:
     void slotHighlightingCode(bool on);
     void slotReplyFinished(QNetworkReply *reply);
     void slotPrintClicked();
+    void slotOneTimePadGeneratorClicked();
 
     //updates
     void slotUpdateAvailable(QString link, QString version,
