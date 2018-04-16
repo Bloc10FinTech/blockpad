@@ -13,7 +13,11 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = BlockPad
 TEMPLATE = app
 
-DEFINES +=
+DEFINES += AWS_SDK_PLATFORM_WINDOWS
+DEFINES += ENABLE_WINDOWS_CLIENT
+DEFINES += ENABLE_BCRYPT_ENCRYPTION
+DEFINES += USE_IMPORT_EXPORT
+DEFINES += AWS_S3_EXPORTS
 DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_NO_DEBUG_OUTPUT
 SOURCES += \
@@ -119,6 +123,7 @@ DEPENDPATH += $$PWD/../../../../../OpenSSL-Win32/include/openssl
 CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../OpenSSL-Win32/lib/VC/ -llibeay32MD
 else:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../OpenSSL-Win32/lib/VC/ -llibeay32MDd
 
+
 RC_ICONS = BlockPad.ico
 }
 
@@ -138,6 +143,14 @@ install.path = C:/Users/user/Documents/GitHub/BlockPadBin
 CONFIG(release, debug|release):install.files += $$OUT_PWD/release/BlockPad.exe
 CONFIG(debug, debug|release):install.files += $$OUT_PWD/debug/BlockPad.exe
 INSTALLS +=install
+
+CONFIG(release, debug|release): LIBS += -L$$PWD/'../../../../../Program Files (x86)/aws-cpp-sdk-all/bin/' -laws-cpp-sdk-core -laws-cpp-sdk-s3 -laws-cpp-sdk-transfer
+CONFIG(debug, debug|release): LIBS += -L$$PWD/'../../../../../Program Files (x86)/aws-cpp-sdk-all/bin-debug/' -laws-cpp-sdk-core -laws-cpp-sdk-s3 -laws-cpp-sdk-transfer
+
+
+INCLUDEPATH += $$PWD/'../../../../../Program Files (x86)/aws-cpp-sdk-all/include'
+DEPENDPATH += $$PWD/'../../../../../Program Files (x86)/aws-cpp-sdk-all/include'
+
 }
 
 macx{

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>670</width>
     <height>358</height>
    </rect>
   </property>
@@ -579,6 +579,23 @@ max-height:50;
            <property name="icon">
             <iconset resource="icons.qrc">
              <normaloff>:/Icons/backup.png</normaloff>:/Icons/backup.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonProVersion">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/Icons/Pro_Version.png</normaloff>:/Icons/Pro_Version.png</iconset>
            </property>
            <property name="iconSize">
             <size>
