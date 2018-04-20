@@ -731,13 +731,13 @@ void BlockPad::slotRemoveRowClicked()
     {
         if(ui->tabWidget->currentWidget() == ui->CoinRecords)
         {
-            if(ui->tableWidgetCoinRecords->currentRow() != 0)
-                ui->tableWidgetCoinRecords->removeRow(ui->tableWidgetCoinRecords->currentRow());
+            if(ui->tableWidgetCoinRecords->getRowHighlighting() > 0)
+                ui->tableWidgetCoinRecords->removeRow(ui->tableWidgetCoinRecords->getRowHighlighting());
         }
         if(ui->tabWidget->currentWidget() == ui->Accounts)
         {
-            if(ui->tableWidgetAccounts->currentRow() != 0)
-                ui->tableWidgetAccounts->removeRow(ui->tableWidgetAccounts->currentRow());
+            if(ui->tableWidgetAccounts->getRowHighlighting() >  0)
+                ui->tableWidgetAccounts->removeRow(ui->tableWidgetAccounts->getRowHighlighting());
         }
         slotSaveEncrypt();
     }

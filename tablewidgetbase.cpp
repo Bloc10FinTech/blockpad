@@ -33,6 +33,7 @@ void TableWidgetBase::addRow(QStringList initTexts)
 
 void TableWidgetBase::highlightingLine(int row)
 {
+    rowHighlighting = -1;
     bool editable = false;
     if(row == 0)
         editable =true;
@@ -62,6 +63,7 @@ void TableWidgetBase::highlightingLine(int row)
                 if(cellWidget(row,iCol)->property("locked").toBool())
                 {
                     cellWidget(row,iCol)->setProperty("highlighted", true);
+                    rowHighlighting = row;
                     for(int iR =0; iR<rowCount(); iR++)
                     {
                         if(row != iR &&
@@ -100,6 +102,11 @@ void TableWidgetBase::highlightingLine(int row)
             }
         }
     }
+}
+
+int TableWidgetBase::getRowHighlighting()
+{
+    return rowHighlighting;
 }
 
 void TableWidgetBase::slotLoadData(QByteArray allLoadData, int & pos)

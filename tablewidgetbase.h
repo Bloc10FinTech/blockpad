@@ -19,6 +19,7 @@ public:
     QByteArray dataToEncrypt();
     void slotLoadData(QByteArray allLoadData, int &pos);
     void Init();
+    int getRowHighlighting();
 protected:
     virtual void addRow(QStringList initTexts = QStringList());
     QSet <int> neverEditableColumns;
@@ -29,6 +30,7 @@ private:
     bool bClearContents {false};
     bool bNewCol {false};
     bool completingRow(bool clickButton = false);
+    int rowHighlighting {-1};
 public slots:
     void slotCompletingRow();
 protected slots:
