@@ -33,11 +33,19 @@ MainWidget::MainWidget(QWidget *parent) :
         b2FA = settings.value("2FA_On").toBool();
     }
     ui->regist->Init();
+#if defined(WIN32) || defined(WIN64)
     int heigth = 310;
     if(b2FA)
         heigth = 380;
+#endif
+#ifdef __APPLE__
+    int heigth = 325;
+    if(b2FA)
+        heigth = 395;
+#endif
     ui->regist->setFixedSize(500, heigth);
     ui->stackedWidget->setFixedSize(500, heigth);
+    this->setFixedSize(500, heigth);
     adjustSize();
 #ifdef __APPLE__
     if(settings.value("updateToolsVersion").toString()

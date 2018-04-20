@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
                 fontSize = 12;
             #endif
             #ifdef __APPLE__
-                fontSize = 14;
+                fontSize = 15;
             #endif
             }
         }

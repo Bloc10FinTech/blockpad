@@ -583,7 +583,6 @@ void BlockPad::slotRowSuccessfullyCompleted()
 void BlockPad::slotPrintClicked()
 {
     QPrinter printer;
-
     QPrintDialog dialog(&printer, this);
     dialog.setWindowTitle(tr("Print Document"));
     if (dialog.exec() == QDialog::Accepted && printer.isValid()) {
