@@ -10,7 +10,7 @@
 #include <QDebug>
 
 QString fileInit;
-
+#if defined(WIN32) || defined(WIN64)
 #include <aws/core/Aws.h>
 #include <aws/s3/S3Client.h>
 #include <aws/s3/model/Bucket.h>
@@ -19,6 +19,7 @@ QString fileInit;
 #include <aws/s3/model/GetObjectRequest.h>
 #include <iostream>
 #include <fstream>
+#endif
 
 int main(int argc, char *argv[])
 {
