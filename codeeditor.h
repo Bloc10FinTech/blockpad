@@ -79,11 +79,16 @@ public:
     int lineNumberAreaWidth();
     void calcLineNumberAreaWidth();
     QByteArray dataToEncrypt();
-    void slotLoadData(QByteArray allLoadData, int &pos);
+    QMap<QString, QTextDocument *> slotLoadData(QByteArray allLoadData, int &pos);
+    QMap<QString, QTextDocument *> getAllDocuments();
+    void removeDocument(QString nameDocument);
+    void setCurrentDocument(QString nameDocument);
 protected:
     void resizeEvent(QResizeEvent *event) override;
     void keyPressEvent(QKeyEvent *event);
     void paintEvent(QPaintEvent *event) override;
+public slots:
+    void slotHighlightingCode(bool on);
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
@@ -91,6 +96,9 @@ private slots:
     void matchBrackets();
 private:
     QWidget *lineNumberArea;
+    Highlighter *highlighter;
+    QObject documentsParent;
+    QMap<QString, QTextDocument *> allDocuments;
     int _lineNumberAreaWidth;
     int spaceLineNumber;
     QColor mix2clr(const QColor &clr1, const QColor &clr2);

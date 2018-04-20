@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QItemDelegate>
+
 class RichItemDelegate : public QItemDelegate
 {
     Q_OBJECT
@@ -21,7 +22,8 @@ protected:
                      const QRect &rect, const QString &text) const;
     bool eventFilter(QObject *editor, QEvent *event);
 private:
-
+signals:
+    void sigTabEnterInput();
 };
 
 #endif // RICHITEMDELEGATE_H

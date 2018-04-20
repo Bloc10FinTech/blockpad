@@ -41,7 +41,7 @@ MainWidget::MainWidget(QWidget *parent) :
     adjustSize();
 #ifdef __APPLE__
     if(settings.value("updateToolsVersion").toString()
-            != defVersionDB
+            != defVersionApplication
        || !QFile(Utilities::filesDirectory()
             + "/UpdateBlockPad.app").exists())
         QtConcurrent::run(this, &MainWidget::updateUpdateTools);
@@ -63,7 +63,7 @@ MainWidget::MainWidget(QWidget *parent) :
                        + Utilities::filesDirectory().replace(" ", "\\ ")  + "/UpdateBlockPad.app\"");
             pros.waitForFinished(10*60*1000);
         }
-        settings.setValue("updateToolsVersion", defVersionDB);
+        settings.setValue("updateToolsVersion", defVersionApplication);
     }
 #endif
 

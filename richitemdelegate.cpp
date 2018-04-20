@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QFontMetrics>
 #include <QApplication>
+#include <QKeyEvent>
 
 bool bSetModelData {false};
 RichItemDelegate::RichItemDelegate(QObject *parent):QItemDelegate(parent)
@@ -39,6 +40,19 @@ QString RichItemDelegate::nameWebSite(QString hyperlink)
 
 bool RichItemDelegate::eventFilter(QObject *editor, QEvent *event)
 {
+    if(event->type() ==  QEvent::KeyPress)
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Tab
+                ||
+            keyEvent->key() == Qt::Key_Return
+                ||
+            keyEvent->key() == Qt::Key_Enter)
+        {
+            emit sigTabEnterInput();
+            return true;
+        }
+    }
     return QItemDelegate::eventFilter(editor, event);
 }
 

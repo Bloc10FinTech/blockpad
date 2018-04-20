@@ -27,14 +27,17 @@ protected:
 private:
     void lockedRow(int iR);
     bool bClearContents {false};
+    bool bNewCol {false};
     bool completingRow(bool clickButton = false);
 public slots:
     void slotCompletingRow();
 protected slots:
     void slotFinishEditing();
     void slotEditedShortcut();
-    void slotCurrentCellChanged(int currentRow, int currentColumn,
-                                int previousRow, int previousColumn);
+//    void slotCurrentCellChanged(int currentRow, int currentColumn,
+//                                int previousRow, int previousColumn);
+    void slotFocusInPassword(QWidget * wgt);
+    void slotClickedPasswordChild();
 signals:
     void sigCompetingRow();
 };

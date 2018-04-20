@@ -20,8 +20,7 @@ private:
 public slots:
     void slotAllwaysChecked(bool allways);
 private slots:
-    void slotFocusInPassword(QWidget * wgt);
-    void slotClickedPasswordChild();
+
 signals:
     void allwaysChecked(bool allways);
 };

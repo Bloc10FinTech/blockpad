@@ -25,9 +25,12 @@
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QPaintEngine>
+#include <QInputDialog>
+#include <QMenu>
 #include "tablePrinter/tableprinter.h"
 
 #define defReplyType "ReplyType"
+#define defDefaultNameFile "new "
 
 BlockPad::BlockPad(QWidget *parent) :
     QWidget(parent),
@@ -44,7 +47,7 @@ BlockPad::BlockPad(QWidget *parent) :
         }
     }
     slotCurrentWgtChanged();
-    highlighter = new Highlighter(ui->codeEdit->document());
+    //highlighter = new Highlighter(ui->codeEdit->document());
     ui->pushButtonSave->setEnabled(false);
     //add ads
     {
@@ -67,6 +70,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotSettingsClicked);
         connect(ui->pushButtonPrint, &QPushButton::clicked,
                 this, &BlockPad::slotPrintClicked);
+        connect(ui->pushButtonAddFile, &QPushButton::clicked,
+                this, &BlockPad::slotAddBlockPadFile);
         connect(ui->pushButton1TimePad, &QPushButton::clicked,
                 this, &BlockPad::slotOneTimePadGeneratorClicked);
         connect(ui->pushButtonGeneratePassword, &QPushButton::clicked,
@@ -91,6 +96,12 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slot_No_UpdateAvailable);
         connect(this, &BlockPad::sigErrorParsing,
                 this, &BlockPad::slotErrorUpdateParsing);
+        connect(ui->listWidgetFiles, &QListWidget::itemClicked,
+                this, &BlockPad::slotFileClicked);
+        connect(ui->listWidgetFiles, &QListWidget::currentTextChanged,
+                this, &BlockPad::slotFilesItemFinishEditing);
+        connect(ui->listWidgetFiles, SIGNAL(customContextMenuRequested(QPoint)),
+                this, SLOT(slotFilesContextMenu(QPoint)));
     }
     //change font size
     {
@@ -106,6 +117,80 @@ BlockPad::BlockPad(QWidget *parent) :
         }
         slotFontSizeChanged(fontSize);
     }
+    //context menu to list widget
+    {
+//        auto act = new QAction("Erase", this);
+//        ui->listWidgetFiles->addAction(act);
+//        connect(act, &QAction::triggered,
+//                this, &BlockPad::slotDeleteBlockPadFile);
+    }
+}
+
+void BlockPad::slotFilesContextMenu(QPoint pos)
+{
+    // Handle global position
+    QPoint globalPos = ui->listWidgetFiles->mapToGlobal(pos);
+    auto item = ui->listWidgetFiles->itemAt(pos);
+    if(item)
+    {
+        // Create menu and insert some actions
+        QMenu myMenu;
+        myMenu.addAction("Add", this, SLOT(slotAddBlockPadFile()));
+        myMenu.addAction("Erase",  this, SLOT(slotDeleteBlockPadFile()));
+        myMenu.addAction("Rename",  this, SLOT(slotRenameBlockPadFile()));
+        // Show context menu at handling position
+        myMenu.exec(globalPos);
+    }
+}
+
+void BlockPad::slotFileClicked(QListWidgetItem *item)
+{
+    auto nameDocument = item->text();
+    documentChanged(nameDocument);
+}
+
+
+void BlockPad::slotDeleteBlockPadFile()
+{
+    auto row = ui->listWidgetFiles->currentRow();
+    QString text = ui->listWidgetFiles->item(row)->text();
+    if(text == "main")
+    {
+        QMessageBox::warning(this, windowTitle(),
+                             "You can not delete file \"main\"");
+        return;
+    }
+    if(QMessageBox::Yes == QMessageBox::question(this, windowTitle(),
+                          "Are you sure that you want to delete the file " + text + " ?"))
+    {
+        auto item = ui->listWidgetFiles->takeItem(row);
+        delete item;
+        auto docs = ui->codeEdit->getAllDocuments();
+        if(docs[text] == ui->codeEdit->document())
+        {
+            documentChanged("main");
+        }
+        ui->codeEdit->removeDocument(text);
+    }
+}
+
+void BlockPad::slotRenameBlockPadFile()
+{
+    QListWidgetItem *item = ui->listWidgetFiles->currentItem();
+    if(item->text() == "main")
+    {
+        QMessageBox::warning(this, windowTitle(),
+                             "You can not rename file \"main\"");
+        return;
+    }
+    item->setFlags(item->flags() | Qt::ItemIsEditable);
+    ui->listWidgetFiles->editItem(item);
+}
+
+void BlockPad::slotFilesItemFinishEditing()
+{
+    QListWidgetItem *item = ui->listWidgetFiles->currentItem();
+    item->setFlags(item->flags() & (~Qt::ItemIsEditable));
 }
 
 void BlockPad::slotOneTimePadGeneratorClicked()
@@ -179,7 +264,7 @@ void BlockPad::slotCheckUpdateFinished(QNetworkReply *reply)
             emit sigErrorParsing();
         else
         {
-            if(latestVersion != defVersionDB)
+            if(latestVersion != defVersionApplication)
                 descriptionVersion(downloadLink, latestVersion, bManually);
             else
             {
@@ -446,7 +531,7 @@ void BlockPad::slotSettingsClicked()
         connect(setWgt, &SettingsWgt::sigFontSizeChanged,
                 this, &BlockPad::slotFontSizeChanged);
         connect(setWgt, &SettingsWgt::sigHighlightingCode,
-                this, &BlockPad::slotHighlightingCode);
+                ui->codeEdit, &CodeEditor::slotHighlightingCode);
         connect(setWgt, &SettingsWgt::sigPasswordVisible,
                 ui->tableWidgetAccounts, &TableWidgetAccounts::slotAllwaysChecked);
     }
@@ -458,6 +543,9 @@ void BlockPad::Init()
     slotSaveEncrypt();
     ui->codeEdit->setFocus();
     bool noUpdate = settings.value("noUpdating").toBool();
+    //dont know width of splitter in this place - it is reason why
+    //we get width of code editor 999999 (Of course this is more than required)
+    ui->splitterBlockPad->setSizes(QList<int>() <<999999<<100);
     if(!noUpdate)
         checkUpdates();
         //    QtConcurrent::run(this, &BlockPad::checkUpdates, false);
@@ -511,20 +599,27 @@ void BlockPad::slotPrintClicked()
         painter.begin(&printer);//p is my QPrinter
         painter.setRenderHint(QPainter::Antialiasing, true);
 
-        renderHeader(painter, "BlockPad",
-                     textRect, footerHeight, iNumPage);
-        printer.newPage();
-        iNumPage++;
+        auto allDocuments = ui->codeEdit->getAllDocuments();
 
-        auto doc = ui->codeEdit->document()->clone(this);
-        Highlighter *highlighter = new Highlighter(doc);
-        highlighter->rehighlight();
-        QTextOption opt = doc->defaultTextOption();
-        opt.setWrapMode(QTextOption::WrapAnywhere);
-        doc->setDefaultTextOption(opt);
-        printDocument(&painter, printer, doc, iNumPage);
+        foreach(QString nameDoc, allDocuments.keys())
+        {
+            renderHeader(painter, "BlockPad ( " + nameDoc + " )",
+                         textRect, footerHeight, iNumPage);
+            printer.newPage();
+            iNumPage++;
 
-        printer.newPage();
+            //auto doc = ui->codeEdit->document()->clone(this);
+            auto doc = allDocuments[nameDoc]->clone(this);
+            Highlighter *highlighter = new Highlighter(doc);
+            highlighter->rehighlight();
+            QTextOption opt = doc->defaultTextOption();
+            opt.setWrapMode(QTextOption::WrapAnywhere);
+            doc->setDefaultTextOption(opt);
+            printDocument(&painter, printer, doc, iNumPage);
+
+            printer.newPage();
+            doc->deleteLater();
+        }
         //iNumPage++;
         renderHeader(painter, "CoinRecords",
                      textRect, footerHeight, iNumPage);
@@ -567,11 +662,8 @@ void BlockPad::slotPrintClicked()
                                         headers_, columnsAccount::WebSite)) {
                 qDebug() << tablePrinter.lastError();
             }
-        //}
 
         painter.end();
-        doc->deleteLater();
-//     ui->codeEdit->print(&printer);
     }
 }
 
@@ -596,7 +688,6 @@ void BlockPad::printDocument(QPainter* painter, QPrinter& printer,
     int beginNamePage =numPage;
     bool firstPage = true;
     for (int pageIndex = 0; pageIndex < pageCount; ++pageIndex) {
-        qDebug() << "pageIndex: " << pageIndex;
         if (!firstPage)
             printer.newPage();
 
@@ -652,6 +743,46 @@ void BlockPad::slotRemoveRowClicked()
     }
 }
 
+void BlockPad::slotAddBlockPadFile()
+{
+    QString defaultNameFile;
+    auto allDocuments = ui->codeEdit->getAllDocuments();
+    //fill defaultNameFile
+    {
+        int iNum = 1;
+        while(1)
+        {
+            defaultNameFile = defDefaultNameFile + QString::number(iNum);
+            if(allDocuments.contains(defaultNameFile))
+                iNum++;
+            else
+                break;
+        }
+    }
+    bool ok = false;
+    QString nameFile = QInputDialog::getText(this, windowTitle(), tr("Name File"),
+                                QLineEdit::Normal, defaultNameFile, &ok);
+
+    if(ok && !nameFile.isEmpty())
+    {
+        if(allDocuments.contains(nameFile))
+        {
+            int iNum = 1;
+            while(1)
+            {
+                nameFile = nameFile + " " + QString::number(iNum);
+                if(allDocuments.contains(nameFile))
+                    iNum++;
+                else
+                    break;
+            }
+        }
+        ui->listWidgetFiles->addItem(nameFile);
+        documentChanged(nameFile);
+        ui->pushButtonSave->setEnabled(true);
+    }
+}
+
 void BlockPad::slotCurrentWgtChanged()
 {
     auto buttons = ui->ToolsWgt->findChildren<QPushButton *>();
@@ -667,18 +798,15 @@ void BlockPad::slotCurrentWgtChanged()
     if(ui->tabWidget->currentWidget() == ui->Accounts)
     {
         ui->pushButtonSave->hide();
+        ui->pushButtonAddFile->hide();
         ui->tableWidgetAccounts->Init();
     }
     if(ui->tabWidget->currentWidget() == ui->CoinRecords)
     {
         ui->pushButtonSave->hide();
+        ui->pushButtonAddFile->hide();
         ui->tableWidgetCoinRecords->Init();
     }
-}
-
-void BlockPad::slotHighlightingCode(bool on)
-{
-    highlighter->rehighlight();
 }
 
 void BlockPad::slotFontSizeChanged(int pointSize)
@@ -724,6 +852,8 @@ void BlockPad::slotSaveEncrypt()
         int size = hash.size();
         allData.prepend(hash);
         allData.prepend((const char *)&size, sizeof(int));
+        int versionProtocol = defVersionEncryptProtocol;
+        allData.prepend((const char *)&versionProtocol, sizeof(int));
     }
     QByteArray cryptoAllData;
     QByteArray baIv;
@@ -761,6 +891,8 @@ void BlockPad::slotLoadDecrypt()
         if(!file.open(QIODevice::ReadOnly))
         {
             //QMessageBox::critical(this, "BlockPad", "Can not open file to read - " + fileName);
+            ui->listWidgetFiles->addItem("main");
+            documentChanged("main");
             return;
         }
         allData = file.readAll();
@@ -775,6 +907,8 @@ void BlockPad::slotLoadDecrypt()
     //parse allDecryptoData
     {
         int pos = 0;
+        int versionProtocol = *((int *)allDecryptoData.mid(pos, sizeof(int)).data());
+        pos+=sizeof(int);
         //check hash
         {
             int size = *((int *)allDecryptoData.mid(pos, sizeof(int)).data());
@@ -807,8 +941,37 @@ void BlockPad::slotLoadDecrypt()
         }
         ui->tableWidgetCoinRecords->slotLoadData(allDecryptoData, pos);
         ui->tableWidgetAccounts->slotLoadData(allDecryptoData, pos);
-        ui->codeEdit->slotLoadData(allDecryptoData, pos);
+        auto allDocuments = ui->codeEdit->slotLoadData(allDecryptoData, pos);
+        ui->listWidgetFiles->addItems(allDocuments.keys());
+        QString currentName = allDocuments.firstKey();
+        foreach(QString name, allDocuments.keys())
+        {
+            if(ui->codeEdit->document() == allDocuments[name])
+            {
+                currentName = name;
+                break;
+            }
+        }
+        documentChanged(currentName);
     }
+}
+
+void BlockPad::documentChanged(QString nameDocument)
+{
+    //all other items with default color
+    {
+        for(int i=0; i<ui->listWidgetFiles->count(); i++)
+        {
+            auto item = ui->listWidgetFiles->item(i);
+            if(item->text() == nameDocument)
+                item->setIcon(QIcon("://Icons/Display.png"));
+            else
+                item->setIcon(QIcon());
+        }
+    }
+    ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->Development),
+                              "BlockPad ( " + nameDocument + " )");
+    ui->codeEdit->setCurrentDocument(nameDocument);
 }
 
 BlockPad::~BlockPad()

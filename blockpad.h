@@ -15,6 +15,8 @@
 #include "highlighter.h"
 #include <QPrinter>
 
+class QListWidgetItem;
+
 namespace Ui {
 class BlockPad;
 }
@@ -39,12 +41,13 @@ private:
     QSettings settings;
     QNetworkAccessManager * nam;
     QNetworkAccessManager * namUpdate;
-    Highlighter *highlighter;
+    //Highlighter *highlighter;
     void checkUpdates(bool bManually = false);
     void descriptionVersion(QString link, QString version, bool bManually);
     void downloadUpdateVersion(QString link, QString version);
     enum TypeRequest {CheckUpdate, DescriptionUpdate, DownloadUpdate};
-
+    bool bRightButtonFiles {false};
+    void documentChanged(QString nameDocument);
     //print data
     void renderHeader(QPainter &painter, QString header,
                       const QRectF& textRect, qreal footerHeight, int pageNumber);
@@ -68,11 +71,15 @@ private slots:
     void slotBlockPadNewChanges();
     void slotPasswGenClicked();
     void slotFontSizeChanged(int pointSize);
-    void slotHighlightingCode(bool on);
     void slotReplyFinished(QNetworkReply *reply);
     void slotPrintClicked();
     void slotOneTimePadGeneratorClicked();
-
+    void slotAddBlockPadFile();
+    void slotDeleteBlockPadFile();
+    void slotRenameBlockPadFile();
+    void slotFileClicked(QListWidgetItem *item);
+    void slotFilesContextMenu(QPoint);
+    void slotFilesItemFinishEditing();
     //updates
     void slotUpdateAvailable(QString link, QString version,
                              QString description,  bool bManually = false);

@@ -68,7 +68,7 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumberArea(QRect,int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
     connect(this, SIGNAL(cursorPositionChanged()),
-             this, SLOT(matchBrackets()));
+             this, SLOT(matchBrackets()));  
     init();
 }
 
@@ -92,70 +92,151 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
 
 void CodeEditor::init()
 {
+    highlighter = new Highlighter(document());
     calcLineNumberAreaWidth();
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
     setUndoRedoEnabled(true);
 }
 
+void CodeEditor::slotHighlightingCode(bool on)
+{
+    highlighter->rehighlight();
+}
+
 QByteArray CodeEditor::dataToEncrypt()
 {
     QByteArray res;
-    auto allText = toPlainText();
-    int length = allText.size();
-    res.append((const char *)&length, sizeof(int));
-    res.append(allText);
-    //timestamps
+    int numDocs = allDocuments.size();
+    res.append((const char *)&numDocs, sizeof(int));
+    foreach(auto nameDocument, allDocuments.keys())
     {
-        QTextBlock block = document()->firstBlock();
-        while (block.isValid())
+        bool bVisible = false;
+        res.append((const char *)&bVisible, sizeof(bool));
+        int nameDocumentSize = nameDocument.size();
+        res.append((const char *)&nameDocumentSize, sizeof(int));
+        res.append(nameDocument);
+        auto doc= allDocuments[nameDocument];
+        if(doc == document())
+            bVisible = true;
+        auto allText = doc->toPlainText();
+        int length = allText.size();
+        res.append((const char *)&length, sizeof(int));
+        res.append(allText);
+        //timestamps
         {
-            QString time;
-            //fill time
+            QTextBlock block = doc->firstBlock();
+            while (block.isValid())
             {
-                TextBlockUserData* timeUserData =  dynamic_cast<TextBlockUserData*>(block.userData());
-                if(!timeUserData)
-                    time = QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy");
-                else
-                    time = ((TextBlockUserData*)block.userData())->time();
+                QString time;
+                //fill time
+                {
+                    TextBlockUserData* timeUserData =  dynamic_cast<TextBlockUserData*>(block.userData());
+                    if(!timeUserData)
+                        time = QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy");
+                    else
+                        time = ((TextBlockUserData*)block.userData())->time();
+                }
+                int sizeTime = time.size();
+                res.append((const char *)&sizeTime, sizeof(int));
+                res.append(time);
+                block = block.next();
             }
-            int sizeTime = time.size();
-            res.append((const char *)&sizeTime, sizeof(int));
-            res.append(time);
-            block = block.next();
         }
     }
     return res;
 }
 
-void CodeEditor::slotLoadData(QByteArray allLoadData, int &pos)
+QMap<QString, QTextDocument *> CodeEditor::slotLoadData(QByteArray allLoadData, int &pos)
 {
     loadFile = true;
-    int textSize = *((int *)allLoadData.mid(pos, sizeof(int)).data());
+    int nDocuments = *((int *)allLoadData.mid(pos, sizeof(int)).data());
     pos+=sizeof(int);
 
-    QString plainText = allLoadData.mid(pos, textSize);
-    setPlainText(plainText);
-    pos+=textSize;
-
-    QTextBlock block = document()->firstBlock();
-    while (block.isValid())
+    for(int iDoc=0; iDoc<nDocuments; iDoc++)
     {
-        int timeSize = *((int *)allLoadData.mid(pos, sizeof(int)).data());
+        QTextDocument * doc = new QTextDocument(&documentsParent);
+        doc->setDocumentLayout(new QPlainTextDocumentLayout(doc));
+        bool bVisible = *((bool *)allLoadData.mid(pos, sizeof(bool)).data());
+        pos+=sizeof(bool);
+
+        int nameDocumentSize = *((int *)allLoadData.mid(pos, sizeof(int)).data());
         pos+=sizeof(int);
-        QString timeBlock = allLoadData.mid(pos, timeSize);
-        TextBlockUserData * userData = new TextBlockUserData(timeBlock, block.revision());
-        if(block.userData()!= nullptr)
+        QString nameDocument = allLoadData.mid(pos, nameDocumentSize);
+        pos+=nameDocumentSize;
+
+        int textSize = *((int *)allLoadData.mid(pos, sizeof(int)).data());
+        pos+=sizeof(int);
+
+        QString plainText = allLoadData.mid(pos, textSize);
+
+        doc->setPlainText(plainText);
+        pos+=textSize;
+
+        QTextBlock block = doc->firstBlock();
+        while (block.isValid())
         {
-            userData->insert(((TextBlockUserData*)block.userData())->brackets());
+            int timeSize = *((int *)allLoadData.mid(pos, sizeof(int)).data());
+            pos+=sizeof(int);
+            QString timeBlock = allLoadData.mid(pos, timeSize);
+            TextBlockUserData * userData = new TextBlockUserData(timeBlock, block.revision());
+            if(block.userData()!= nullptr)
+            {
+                userData->insert(((TextBlockUserData*)block.userData())->brackets());
+            }
+            block.setUserData(userData);
+            pos+=timeSize;
+            block = block.next();
         }
-        block.setUserData(userData);
-        pos+=timeSize;
-        block = block.next();
+        allDocuments[nameDocument] = doc;
+        if(bVisible)
+            setDocument(doc);
     }
     init();
     repaint();
     loadFile = false;
+    return allDocuments;
+}
+
+QMap<QString, QTextDocument *> CodeEditor::getAllDocuments()
+{
+    return allDocuments;
+}
+
+void CodeEditor::removeDocument(QString nameDocument)
+{
+    if(allDocuments.contains(nameDocument))
+    {
+        auto doc = allDocuments[nameDocument];
+        allDocuments.remove(nameDocument);
+    }
+}
+
+void CodeEditor::setCurrentDocument(QString nameDocument)
+{
+    if(allDocuments.contains(nameDocument))
+    {
+        if(allDocuments[nameDocument] != document())
+        {
+            setDocument(allDocuments[nameDocument]);
+            init();
+        }
+    }
+    else
+    {
+        allDocuments[nameDocument] = new QTextDocument(&documentsParent);
+        allDocuments[nameDocument]->setDocumentLayout(new QPlainTextDocumentLayout(allDocuments[nameDocument]));
+        setDocument(allDocuments[nameDocument]);
+        init();
+        QTextBlock block = allDocuments[nameDocument]->firstBlock();
+        while (block.isValid())
+        {
+            QString timeBlock = QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy");
+            TextBlockUserData * userData = new TextBlockUserData(timeBlock, block.revision());
+            block.setUserData(userData);
+            block = block.next();
+        }
+    }
 }
 
 QColor CodeEditor::mix2clr(const QColor &clr1, const QColor &clr2) {

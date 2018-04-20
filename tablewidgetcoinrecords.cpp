@@ -2,6 +2,7 @@
 #include <qDebug>
 #include <QHeaderView>
 #include <QDateTime>
+#include "passwordwidget.h"
 
 TableWidgetCoinRecords::TableWidgetCoinRecords(QWidget *parent):
     TableWidgetBase(parent)
@@ -60,21 +61,36 @@ void TableWidgetCoinRecords::addRow(QStringList initTexts)
     insertRow(0);
     for(int i=0; i<columnCount(); i++)
     {
-        QTableWidgetItem * it = new QTableWidgetItem();
-        if(!initTexts.isEmpty())
-            it->setText(initTexts[i]);
         //Time
         if(i == columnsCR::Time)
         {
+            QTableWidgetItem * it = new QTableWidgetItem();
+            if(!initTexts.isEmpty())
+                it->setText(initTexts[i]);
             it->setFlags(it->flags() & (~Qt::ItemIsEditable));
             it->setBackgroundColor(defColorNoEditable);
             it->setIcon(QIcon("://Icons/locked.png"));
             neverEditableColumns.insert(columnsCR::Time);
+            setItem(0, i,it);
         }
-        setItem(0, i,it);
+        else
+        {
+            PasswordWidget * wgt;
+            wgt = new PasswordWidget(this, true);
+            connect(wgt, &PasswordWidget::enterLineEditPressed,
+                    this, &TableWidgetCoinRecords::slotFinishEditing);
+            connect(wgt, &PasswordWidget::focusIn,
+                    this, &TableWidgetCoinRecords::slotFocusInPassword);
+            connect(wgt, &PasswordWidget::clickedToChild,
+                    this, &TableWidgetCoinRecords::slotClickedPasswordChild);
+            if(!initTexts.isEmpty())
+                wgt->setText(initTexts[i]);
+            setCellWidget(0, i,wgt);
+        }
     }
     setCurrentIndex(model()->index(0, 1));
-    //editItem(item(0, 1));
+    if(cellWidget(0, 1))
+        cellWidget(0,1)->setFocus();
     if(rowCount() > 1 && initTexts.isEmpty())
     {
         item(1, columnsCR::Time)

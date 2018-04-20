@@ -10,6 +10,8 @@
 #include <QPoint>
 #include <QApplication>
 #include <QMetaEnum>
+#include <QMenu>
+#include <QClipboard>
 
 TableWidgetBase::TableWidgetBase(QWidget *parent):
     QTableWidget(parent)
@@ -17,31 +19,12 @@ TableWidgetBase::TableWidgetBase(QWidget *parent):
     setIconSize(QSize(15,15));
     //connect signals/slots
     {
-        connect(this->itemDelegate(), &QAbstractItemDelegate::closeEditor,
-                this, &TableWidgetBase::slotFinishEditing);
-
         QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+Y")),
                                              this);
         connect(shortcut, &QShortcut::activated,
                 this, &TableWidgetBase::slotEditedShortcut);
-
-        connect(this, &TableWidgetBase::currentCellChanged,
-                this, &TableWidgetBase::slotCurrentCellChanged);
     }
     setSelectionMode(QAbstractItemView::NoSelection);
-}
-
-void TableWidgetBase::slotCurrentCellChanged(int currentRow, int currentColumn,
-                            int previousRow, int previousColumn)
-{
-    if(currentRow >= 0 && currentColumn>= 0)
-    {
-        if(!item(currentRow, currentColumn) && !bClearContents)
-        {
-            cellWidget(currentRow, currentColumn)->setFocus();
-            setCurrentIndex(model()->index(currentRow, currentColumn));
-        }
-    }
 }
 
 void TableWidgetBase::addRow(QStringList initTexts)
@@ -189,8 +172,7 @@ void TableWidgetBase::slotEditedShortcut()
             {
                 if(item(curRow,iCol))
                 {
-                    auto currentFlags = item(curRow,iCol)->flags();
-                    item(curRow,iCol)->setFlags(currentFlags | Qt::ItemIsEditable);
+                    item(curRow,iCol)->setFlags(item(curRow,iCol)->flags().setFlag(Qt::ItemIsEditable, true));
                     item(curRow,iCol)->setBackgroundColor(Qt::white);
                     item(curRow,iCol)->setIcon(QIcon());
                     item(curRow,iCol)->setToolTip("");
@@ -222,8 +204,9 @@ void TableWidgetBase::lockedRow(int iR)
     {
         if(item(iR,iCol))
         {
-            auto currentFlags = item(iR,iCol)->flags();
-            item(iR,iCol)->setFlags(currentFlags & (~Qt::ItemIsEditable));
+            item(iR,iCol)->setFlags(item(iR,iCol)->flags()
+                .setFlag(Qt::ItemIsEditable, false)
+                .setFlag(Qt::ItemIsSelectable, true));
             item(iR,iCol)->setBackgroundColor(defColorNoEditable);
             item(iR,iCol)->setIcon(QIcon("://Icons/locked.png"));
             if(!neverEditableColumns.contains(iCol))
@@ -247,17 +230,22 @@ void TableWidgetBase::Init()
 {
     if(rowAt(rect().topLeft().y()) == 0)
     {
-        QTableWidgetItem * item_ = nullptr;
+        //QTableWidgetItem * item_ = nullptr;
+        int iC_init = 0;
         for(int iC=0; iC<columnCount(); iC++)
         {
             if(!neverEditableColumns.contains(iC))
             {
-                item_ = item(0,iC);
+                iC_init = iC;
                 break;
             }
         }
-        setCurrentItem(item_);
-        editItem(item_);
+        //setCurrentItem(item_);
+        setCurrentIndex(model()->index(0, iC_init));
+        if(item(0,iC_init)!= nullptr)
+            editItem(item(0,iC_init));
+        else
+            cellWidget(0,iC_init)->setFocus();
     }
     highlightingLine(0);
 }
@@ -335,23 +323,77 @@ TableWidgetBase::~TableWidgetBase()
     clear();
 }
 
+void TableWidgetBase::slotFocusInPassword(QWidget *wgt)
+{
+    int curColumn = -1;
+    int curRow = -1;
+    auto focus_wgt = qApp->focusWidget();
+
+    for(int iR=0; iR<rowCount(); iR++)
+    {
+        for(int iC=0; iC<columnCount(); iC++)
+        {
+            if(cellWidget(iR, iC) == focus_wgt
+                    ||
+               cellWidget(iR, iC) == focus_wgt->parentWidget())
+            {
+                curColumn = iC;
+                curRow = iR;
+                break;
+            }
+        }
+    }
+    setCurrentCell(curRow, curColumn);
+}
+
+void TableWidgetBase::slotClickedPasswordChild()
+{
+    auto wgt = qobject_cast<QWidget*>(sender());
+    for (int iR=0; iR<rowCount(); iR++)
+    {
+        for(int iC=0; iC<columnCount(); iC++)
+        {
+            if(cellWidget(iR,iC) == wgt)
+            {
+                highlightingLine(iR);
+                break;
+            }
+        }
+    }
+}
+
 void TableWidgetBase::slotFinishEditing()
 {
     auto curColumn = this->currentColumn();
     auto curRow = this->currentRow();
-    auto curItem = item(curRow, curColumn);
+    if(bNewCol)
+        curColumn--;
     bool bCompleteRow = false;
-    if(curRow == 0 && (this->hasFocus() || curItem == nullptr))
+    if(curRow == 0)
     {
         bCompleteRow = completingRow();
     }
     if(!bCompleteRow)
     {
-        if(curColumn < columnCount()-1 && this->hasFocus())
+        int newColumn = curColumn+1;
+        if(newColumn >= columnCount())
         {
-            if(cellWidget(curRow, curColumn+1))
-                cellWidget(curRow, curColumn+1)->setFocus();
-            setCurrentIndex(model()->index(curRow, curColumn+1));
+            for(int iC=0; iC<columnCount(); iC++)
+            {
+                if(!neverEditableColumns.contains(iC))
+                {
+                    newColumn = iC;
+                    break;
+                }
+            }
         }
+        if(!bNewCol)
+        {
+            bNewCol = true;
+            if(cellWidget(curRow, newColumn))
+                cellWidget(curRow, newColumn)->setFocus();
+        }
+        setCurrentIndex(model()->index(curRow, newColumn));
+        bNewCol= false;
     }
 }

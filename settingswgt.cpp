@@ -68,7 +68,7 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
                                           Qt::KeepAspectRatio,
                                           Qt::SmoothTransformation));
     }
-    ui->labelVersion->setText(defVersionDB + QString(" (Qt 5.10)"));
+    ui->labelVersion->setText(defVersionApplication + QString(" (Qt 5.10)"));
     //signals-slots connects
     {
         connect(ui->comboBoxFonts, SIGNAL(currentIndexChanged(QString)),

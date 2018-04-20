@@ -22,7 +22,6 @@ Register::Register(QWidget *parent) :
     ui(new Ui::Register)
 {
     ui->setupUi(this);
-    ui->comboBoxEmail->setCurrentText(settings.value(defCurrentEmail).toString());
     bool on = settings.value("2FA_On").toBool();
     //hello message
     {
@@ -158,6 +157,7 @@ void Register::Init()
         }
     }
     ui->comboBoxEmail->addItems(emails);
+    ui->comboBoxEmail->setCurrentText(settings.value(defCurrentEmail).toString());
     //registration
     if(_listEmailPassws.isEmpty())
         setMode(ModeRegistr::New);
@@ -424,6 +424,9 @@ void Register::sendEmailToGetResponse()
         auto reply = nam.post(request, data);
         if(!reply->isFinished())
             loop.exec();
+        auto data_ = reply->readAll();
+        auto statusCode = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
+        qDebug() << "statusCode: " << statusCode;
     }
 }
 

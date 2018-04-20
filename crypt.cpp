@@ -95,6 +95,26 @@ QPair<QString, QString> Crypto::pairEmailPassw(QString fileName, bool & bSuccess
     texts << ""<< "" << "";
     QList<int> sizes;
     sizes << 0<< 0 <<0;
+    //version encryption protocol
+    int versionProtocol = -1;
+
+    //fill versionProtocol
+    {
+        int plaintext_len;
+        unsigned char *ciphertext
+                = reinterpret_cast<unsigned char *>(baAllCipher.data() + pos);
+        int ciphertext_len = sizeof(int);
+        unsigned char *plaintext = new unsigned char[ciphertext_len + 8];
+        if(1 != EVP_DecryptUpdate(ctxDecrypt, plaintext, &plaintext_len, ciphertext, ciphertext_len))
+        {
+            qDebug() << "decrypt error";
+            return pair;
+        }
+        versionProtocol = *((int *)plaintext);
+        pos += sizeof(int);
+        delete[] plaintext;
+    }
+
     for(int i=0; i<3; i++)
     {
         //fill sizes[i]

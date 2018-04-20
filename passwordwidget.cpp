@@ -2,11 +2,13 @@
 #include "ui_passwordwidget.h"
 #include <QPalette>
 #include <QDebug>
+#include <QKeyEvent>
 #include "global.h"
 
-PasswordWidget::PasswordWidget(QWidget *parent) :
+PasswordWidget::PasswordWidget(QWidget *parent, bool noPassword) :
     QFrame(parent),
-    ui(new Ui::PasswordWidget)
+    ui(new Ui::PasswordWidget),
+    noPassword(noPassword)
 {
     ui->setupUi(this);
     QPixmap pixmap("://Icons/locked.png");
@@ -44,20 +46,25 @@ PasswordWidget::PasswordWidget(QWidget *parent) :
         ui->labelPassword->installEventFilter(this);
         ui->checkBoxVisible->installEventFilter(this);
     }
+    if(noPassword)
+        ui->checkBoxVisible->hide();
 }
 
 void PasswordWidget::slotVisibleClicked(bool bCheck)
 {
-    if(bCheck)
+    if(!noPassword)
     {
-        ui->lineEditPassword->setText(_text);
-        ui->labelPassword->setText(_text);
-    }
-    else
-    {
-        QString newStr = _text;
-        ui->lineEditPassword->setText(newStr.fill('*'));
-        ui->labelPassword->setText(newStr.fill('*'));
+        if(bCheck)
+        {
+            ui->lineEditPassword->setText(_text);
+            ui->labelPassword->setText(_text);
+        }
+        else
+        {
+            QString newStr = _text;
+            ui->lineEditPassword->setText(newStr.fill('*'));
+            ui->labelPassword->setText(newStr.fill('*'));
+        }
     }
 }
 
@@ -112,7 +119,7 @@ void PasswordWidget::slotTextEdited(QString str)
 void PasswordWidget::focusInEvent(QFocusEvent *event)
 {
     ui->lineEditPassword->setFocus();
-    emit focusIn(this);
+    //emit focusIn(this);
 }
 
 void PasswordWidget::setText(QString text)
@@ -146,6 +153,15 @@ bool PasswordWidget::eventFilter(QObject *obj, QEvent *event)
             if(!ui->checkBoxVisible->hasFocus())
                 setFrameShape(QFrame::NoFrame);
         }
+        if(event->type() == QEvent::KeyPress)
+        {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent->key() == Qt::Key_Tab)
+            {
+                emit enterLineEditPressed();
+                return true;
+            }
+        }
     }
     if(obj == ui->checkBoxVisible)
     {
@@ -160,16 +176,19 @@ bool PasswordWidget::eventFilter(QObject *obj, QEvent *event)
 
 void PasswordWidget::slotAllwaysVisible(bool allways)
 {
-    if(allways)
+    if(!noPassword)
     {
-        slotVisibleClicked(true);
-        ui->checkBoxVisible->hide();
-    }
-    else
-    {
-        ui->checkBoxVisible->show();
-        ui->checkBoxVisible->setChecked(false);
-        slotVisibleClicked(false);
+        if(allways)
+        {
+            slotVisibleClicked(true);
+            ui->checkBoxVisible->hide();
+        }
+        else
+        {
+            ui->checkBoxVisible->show();
+            ui->checkBoxVisible->setChecked(false);
+            slotVisibleClicked(false);
+        }
     }
 }
 

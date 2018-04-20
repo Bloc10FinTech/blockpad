@@ -14,7 +14,7 @@ class PasswordWidget : public QFrame
     Q_PROPERTY(bool locked MEMBER m_locked WRITE setLocked)
     Q_PROPERTY(bool highlighted MEMBER m_highlighted WRITE setHighlighted)
 public:
-    explicit PasswordWidget(QWidget *parent = 0);
+    explicit PasswordWidget(QWidget *parent = 0, bool noPassword = false);
     ~PasswordWidget();
     void setText(QString text);
     QString text();
@@ -29,6 +29,7 @@ private:
     QString _text;
     bool m_highlighted {false};
     bool m_locked {false};
+    bool noPassword{false};
 public slots:
     void slotAllwaysVisible(bool allways);
 private slots:

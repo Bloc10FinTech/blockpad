@@ -41,17 +41,11 @@ TableWidgetAccounts::TableWidgetAccounts(QWidget *parent):
         HeaderView->setSectionResizeMode(QHeaderView::Stretch);
     }
     addRow();
-    setItemDelegateForColumn(columnsAccount::WebSite, new RichItemDelegate(this));
-
-//    connect(this, &TableWidgetAccounts::cellClicked,
-//            this, &TableWidgetAccounts::slotCellClicked);
+    auto richDelegate = new RichItemDelegate(this);
+    setItemDelegateForColumn(columnsAccount::WebSite, richDelegate);
+    connect(richDelegate, &RichItemDelegate::sigTabEnterInput,
+            this, &TableWidgetAccounts::slotFinishEditing);
     setMouseTracking(true);
-    //connect signals/slots
-    {
-        auto webSiteDelegate = itemDelegateForColumn(columnsAccount::WebSite);
-        connect(webSiteDelegate, &QAbstractItemDelegate::closeEditor,
-                this, &TableWidgetAccounts::slotFinishEditing);
-    }
 }
 
 void TableWidgetAccounts::mousePressEvent(QMouseEvent *event)
@@ -112,29 +106,6 @@ void TableWidgetAccounts::mouseMoveEvent(QMouseEvent *event)
     TableWidgetBase::mouseMoveEvent(event);
 }
 
-void TableWidgetAccounts::slotFocusInPassword(QWidget *wgt)
-{
-    int curColumn = -1;
-    int curRow = -1;
-    auto focus_wgt = qApp->focusWidget();
-
-    for(int iR=0; iR<rowCount(); iR++)
-    {
-        for(int iC=0; iC<columnCount(); iC++)
-        {
-            if(cellWidget(iR, iC) == focus_wgt
-                    ||
-               cellWidget(iR, iC) == focus_wgt->parentWidget())
-            {
-                curColumn = iC;
-                curRow = iR;
-                break;
-            }
-        }
-    }
-    setCurrentCell(curRow, curColumn);
-}
-
 void TableWidgetAccounts::slotAllwaysChecked(bool allways)
 {
     allwaysVisible = allways;
@@ -146,27 +117,20 @@ TableWidgetAccounts::~TableWidgetAccounts()
 
 }
 
-void TableWidgetAccounts::slotClickedPasswordChild()
-{
-    auto wgt = qobject_cast<QWidget*>(sender());
-    for (int iR=0; iR<rowCount(); iR++)
-    {
-        if(cellWidget(iR,columnsAccount::Password) == wgt)
-        {
-            highlightingLine(iR);
-            break;
-        }
-    }
-}
-
 void TableWidgetAccounts::addRow(QStringList initTexts)
 {
     insertRow(0);
     for(int i=0; i<columnCount(); i++)
     {
-        if(columnsAccount::Password == i)
+        if(columnsAccount::Password == i
+                ||
+           columnsAccount::Username == i)
         {
-            PasswordWidget * wgt = new PasswordWidget(this);
+            PasswordWidget * wgt;
+            if(columnsAccount::Username == i)
+                wgt = new PasswordWidget(this, true);
+            else
+                wgt = new PasswordWidget(this);
             connect(this, &TableWidgetAccounts::allwaysChecked,
                     wgt, &PasswordWidget::slotAllwaysVisible);
             connect(wgt, &PasswordWidget::enterLineEditPressed,
@@ -175,8 +139,6 @@ void TableWidgetAccounts::addRow(QStringList initTexts)
                     this, &TableWidgetAccounts::slotFocusInPassword);
             connect(wgt, &PasswordWidget::clickedToChild,
                     this, &TableWidgetAccounts::slotClickedPasswordChild);
-//            connect(wgt, &PasswordWidget::newDisplayData,
-//                    this, [&](QString text){model()->setData(model()->index(0,i), text, Qt::DisplayRole);});
             if(!initTexts.isEmpty())
                 wgt->setText(initTexts[i]);
             wgt->slotAllwaysVisible(allwaysVisible);

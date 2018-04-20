@@ -19,5 +19,8 @@
         <file>Icons/padGeneratorDecrypt.png</file>
         <file>Icons/padGeneratorEncrypt.png</file>
         <file>Icons/Pro_Version.png</file>
+        <file>Icons/Save-all.png</file>
+        <file>Icons/AddFile.png</file>
+        <file>Icons/Display.png</file>
     </qresource>
 </RCC>
