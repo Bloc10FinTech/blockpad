@@ -209,22 +209,22 @@ void Ticker::RePaint()
     {
         //tc100Index and tcw100Index
         {
-            auto firstTc100 = addTextItem("Price of TC 100: ",
-                                    QFont("Roboto", 16, QFont::Bold),
+            auto firstTc100 = addTextItem("$" + QString::number(tc100Index),
+                                    QFont("Roboto", 13),
                                     graphItems, specialId::firstId);
-            firstTc100->setDefaultTextColor(Qt::white);
-            auto secondTc100 = addTextItem("$" + QString::number(tc100Index),
-                                    QFont("Roboto", 16, QFont::Bold),
+            firstTc100->setDefaultTextColor(Qt::darkGreen);
+            auto secondTc100 = addTextItem("Price of Tc100: ",
+                                    QFont("Roboto", 15, QFont::Bold),
                                     graphItems);
-            secondTc100->setDefaultTextColor(Qt::green);
-            auto firstTcw100 = addTextItem("TCw100: ",
-                                    QFont("Roboto", 16, QFont::Bold),
+            secondTc100->setDefaultTextColor(Qt::black);
+            auto firstTcw100 = addTextItem(QString::number(tcw100Index),
+                                    QFont("Roboto", 13),
                                     graphItems, specialId::firstId);
-            firstTcw100->setDefaultTextColor(Qt::white);
-            auto secondTcw100 = addTextItem(QString::number(tcw100Index),
-                                    QFont("Roboto", 16, QFont::Bold),
+            firstTcw100->setDefaultTextColor(Qt::darkGreen);
+            auto secondTcw100 = addTextItem("TCw100: ",
+                                    QFont("Roboto", 15, QFont::Bold),
                                     graphItems);
-            secondTcw100->setDefaultTextColor(Qt::green);
+            secondTcw100->setDefaultTextColor(Qt::black);
         }
         QDir dir("://totalCryptosPrices/");
         for(int i=0;i<dir.entryList().size(); i++)
