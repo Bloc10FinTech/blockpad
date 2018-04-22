@@ -169,6 +169,8 @@ QGraphicsTextItem * Ticker::addTextItem(QString html,
         textItem->setX(leftPosition()
                       - coeff*shiftElements - QFontMetrics(font).width(html));
     else
+        //magic number 10 because to html QFontMetrics dont work
+        //and boundingRect give strange value
         textItem->setX(leftPosition()
                       - 10);
     textItem->setProperty("id", id);

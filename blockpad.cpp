@@ -125,7 +125,9 @@ BlockPad::BlockPad(QWidget *parent) :
     {
         QLabel* pLabelTime = new QLabel(this);
         pLabelTime->setText("the time is " +
-        QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy") + "    ");
+        QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy")
+        //rewrite with qsplitter
+        + "    ");
         ui->tabWidget->setCornerWidget(pLabelTime, Qt::TopRightCorner);
     }
 }
@@ -138,7 +140,9 @@ void BlockPad::timerEvent(QTimerEvent *event)
         if(lbl != nullptr)
         {
             lbl->setText("the time is " +
-                         QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy") + "    ");
+                         QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy")
+                         //rewrite with qsplitter
+                         + "    ");
         }
     }
 }
