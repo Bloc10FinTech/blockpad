@@ -122,6 +122,11 @@ void MainWidget::slotLockScreen()
         if(b2FA)
             heigth = 250;
     #endif
+    #ifdef __APPLE__
+        int heigth = 225;
+        if(b2FA)
+            heigth = 265;
+    #endif
         ui->regist->setFixedSize(400, heigth);
         ui->stackedWidget->setFixedSize(400, heigth);
         this->setFixedSize(400, heigth);
