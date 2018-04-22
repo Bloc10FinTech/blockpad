@@ -24,14 +24,47 @@ Ticker::Ticker(QWidget *parent) :
     //connect signals/slots
     {
         connect(&nam, &QNetworkAccessManager::finished,
-                this, &Ticker::slotUpdateCryptoPricesFinished);
+                this, &Ticker::slotNetworkReplyFinished);
     }
+}
+
+void Ticker::slotNetworkReplyFinished(QNetworkReply *reply)
+{
+    if(reply->error() != QNetworkReply::NoError)
+        return;
+    auto type = reply->property("type").toString();
+    if("symbolsUSDPrices" == type)
+        updateUSD_PricesFinished(reply);
+    if("tcPrices" == type)
+        updateTcPricesFinished(reply);
 }
 
 void Ticker::updateCryptoPrices()
 {
-    QNetworkRequest request(QUrl("https://totalcryptos.com/api/symbolsUSDPrices"));
-    nam.get(request);
+    {
+        QNetworkRequest request(QUrl("https://totalcryptos.com/api/symbolsUSDPrices"));
+        auto reply = nam.get(request);
+        reply->setProperty("type", "symbolsUSDPrices");
+    }
+    {
+        QNetworkRequest request(QUrl("https://totalcryptos.com/api/tcPrices"));
+        auto reply = nam.get(request);
+        reply->setProperty("type", "tcPrices");
+    }
+}
+
+void Ticker::updateTcPricesFinished(QNetworkReply *reply)
+{
+    auto data =reply->readAll();
+    QJsonDocument document = QJsonDocument::fromJson(data);
+    auto objectMain = document.object();
+    int errorCode = objectMain.value("errCode").toInt();
+    if(errorCode == 1)
+    {
+        auto objectData = objectMain.value("data").toObject();
+        tc100Index = objectData.value("tc100").toInt();
+        tcw100Index = objectData.value("tcw100").toInt();
+    }
 }
 
 QString Ticker::roundDouble(QString dbString)
@@ -47,10 +80,8 @@ QString Ticker::roundDouble(QString dbString)
     return res;
 }
 
-void Ticker::slotUpdateCryptoPricesFinished(QNetworkReply *reply)
+void Ticker::updateUSD_PricesFinished(QNetworkReply *reply)
 {
-    if(reply->error() != QNetworkReply::NoError)
-        return;
     auto data =reply->readAll();
     QJsonDocument document = QJsonDocument::fromJson(data);
     auto objectMain = document.object();
@@ -166,8 +197,27 @@ void Ticker::RePaint()
     ui->graphicsView->setSceneRect(0,0,
                ui->graphicsView->width(),
                ui->graphicsView->height());
-    if(graphItems.isEmpty())
+    if(graphItems.isEmpty() && tc100Index >= 0 && tcw100Index >= 0)
     {
+        //tc100Index and tcw100Index
+        {
+            auto firstTc100 = addTextItem("Price of TC 100: ",
+                                    QFont("Roboto", 16, QFont::Bold),
+                                    graphItems, specialId::firstId);
+            firstTc100->setDefaultTextColor(Qt::white);
+            auto secondTc100 = addTextItem("$" + QString::number(tc100Index),
+                                    QFont("Roboto", 16, QFont::Bold),
+                                    graphItems);
+            secondTc100->setDefaultTextColor(Qt::green);
+            auto firstTcw100 = addTextItem("TCw100: ",
+                                    QFont("Roboto", 16, QFont::Bold),
+                                    graphItems, specialId::firstId);
+            firstTcw100->setDefaultTextColor(Qt::white);
+            auto secondTcw100 = addTextItem(QString::number(tcw100Index),
+                                    QFont("Roboto", 16, QFont::Bold),
+                                    graphItems);
+            secondTcw100->setDefaultTextColor(Qt::green);
+        }
         QDir dir("://totalCryptosPrices/");
         for(int i=0;i<dir.entryList().size(); i++)
         {

@@ -50,10 +50,14 @@ private:
     QString roundDouble(QString dbString);
     const int numberRounding {2};
     const int fontSizeDefault {16};
+    int tc100Index {-1};
+    int tcw100Index {-1};
+    void updateUSD_PricesFinished(QNetworkReply *reply);
+    void updateTcPricesFinished(QNetworkReply *reply);
 public slots:
     void slotStart(bool bOn);
 private slots:
-    void slotUpdateCryptoPricesFinished(QNetworkReply *reply);
+    void slotNetworkReplyFinished(QNetworkReply *reply);
 };
 
 #endif // TICKER_H
