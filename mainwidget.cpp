@@ -45,7 +45,6 @@ MainWidget::MainWidget(QWidget *parent) :
 #endif
     ui->regist->setFixedSize(500, heigth);
     ui->stackedWidget->setFixedSize(500, heigth);
-    this->setFixedSize(500, heigth);
     adjustSize();
 #ifdef __APPLE__
     if(settings.value("updateToolsVersion").toString()
@@ -108,12 +107,24 @@ void MainWidget::slotLockScreen()
     {
         ui->stackedWidget->setCurrentWidget(ui->regist);
         ui->blockPad->closeSeparateWgts();
+        ui->blockPad->activateWidgets(false);
         ui->regist->onLock();
         showNormal();
         ui->blockPad->setMinimumWidth(0);
         ui->blockPad->setMinimumHeight(0);
-        ui->regist->setFixedSize(400, 250);
-        ui->stackedWidget->setFixedSize(400, 250);
+        bool b2FA = false;
+        if(settings.value("2FA_On").type() != QVariant::Invalid)
+        {
+            b2FA = settings.value("2FA_On").toBool();
+        }
+    #if defined(WIN32) || defined(WIN64)
+        int heigth = 200;
+        if(b2FA)
+            heigth = 250;
+    #endif
+        ui->regist->setFixedSize(400, heigth);
+        ui->stackedWidget->setFixedSize(400, heigth);
+        this->setFixedSize(400, heigth);
         adjustSize();
         setGeometry(
             QStyle::alignedRect(
@@ -123,6 +134,7 @@ void MainWidget::slotLockScreen()
                 qApp->desktop()->availableGeometry()
             )
         );
+
     }
 }
 
@@ -139,6 +151,7 @@ void MainWidget::slotSuccessRegistered()
     setMinimumSize(0,0);
     showMaximized();
     ui->blockPad->Init();
+    ui->blockPad->activateWidgets(true);
 }
 
 
@@ -152,6 +165,7 @@ void MainWidget::slotSuccessUnlocked()
     ui->stackedWidget->setMinimumSize(0,0);
     ui->blockPad->setMinimumWidth(800);
     ui->blockPad->setMinimumHeight(400);
+    ui->blockPad->activateWidgets(true);
     setMinimumSize(0,0);
     showMaximized();
 }

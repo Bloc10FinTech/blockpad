@@ -8,6 +8,7 @@ QT       += core gui
 QT       += network
 QT       += concurrent
 QT       += webenginewidgets
+QT       += svg
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = BlockPad
@@ -52,7 +53,8 @@ SOURCES += \
     stega/lodepng.cpp \
     stega/steganography.cpp \
     tablePrinter/tableprinter.cpp \
-    onetimepadgeneratorwgt.cpp
+    onetimepadgeneratorwgt.cpp \
+    ticker.cpp
 
 HEADERS += \
     global.h \
@@ -87,7 +89,8 @@ HEADERS += \
     stega/lodepng.h \
     stega/steganography.h \
     tablePrinter/tableprinter.h \
-    onetimepadgeneratorwgt.h
+    onetimepadgeneratorwgt.h \
+    ticker.h
 
 FORMS += \
     passwordwidget.ui \
@@ -96,11 +99,13 @@ FORMS += \
     blockpad.ui \
     settingswgt.ui \
     generatepassword.ui \
-    onetimepadgeneratorwgt.ui
+    onetimepadgeneratorwgt.ui \
+    ticker.ui
 
 RESOURCES += \
     fonts.qrc \
-    icons.qrc
+    icons.qrc \
+    totalcryptosprices.qrc
 win32{
 #QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
 INCLUDEPATH += C:\OpenSSL-Win32\include

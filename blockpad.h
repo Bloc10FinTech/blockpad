@@ -15,6 +15,8 @@
 #include "highlighter.h"
 #include <QPrinter>
 
+#include <QGraphicsPixmapItem>
+
 class QListWidgetItem;
 
 namespace Ui {
@@ -41,13 +43,13 @@ private:
     QSettings settings;
     QNetworkAccessManager * nam;
     QNetworkAccessManager * namUpdate;
-    //Highlighter *highlighter;
     void checkUpdates(bool bManually = false);
     void descriptionVersion(QString link, QString version, bool bManually);
     void downloadUpdateVersion(QString link, QString version);
     enum TypeRequest {CheckUpdate, DescriptionUpdate, DownloadUpdate};
     bool bRightButtonFiles {false};
     void documentChanged(QString nameDocument);
+
     //print data
     void renderHeader(QPainter &painter, QString header,
                       const QRectF& textRect, qreal footerHeight, int pageNumber);
@@ -62,6 +64,7 @@ protected:
 public slots:
     void slotLoadDecrypt();
     void slotSaveEncrypt();
+    void activateWidgets(bool bOn);
 private slots:
     void slotCompleteRowClicked();
     void slotRemoveRowClicked();
@@ -95,6 +98,7 @@ signals:
     void sigUpdateAvailable(QString link, QString version, QString description, bool bManually);
     void sigErrorParsing();
     void sig_No_UpdateAvailable();
+    void sigNewCryptoPrices();
 };
 
 #endif // BlockPad_H

@@ -54,13 +54,10 @@ void TableWidgetAccounts::mousePressEvent(QMouseEvent *event)
     auto y = event->pos().y();
     int column = columnAt(x);
     int row = rowAt(y);
-    qDebug() << "TableWidgetAccounts::mousePressEvent";
-    qDebug() << "clickHyperLink = " << clickHyperLink;
     if(columnsAccount::WebSite == column && clickHyperLink)
     {
         auto editData = item(row, column)->text();
         auto nameUrl = RichItemDelegate::nameWebSite(editData);
-        qDebug() << "nameUrl = " << nameUrl;
         QDesktopServices::openUrl(QUrl(nameUrl));
     }
     TableWidgetBase::mousePressEvent(event);

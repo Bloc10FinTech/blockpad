@@ -178,21 +178,13 @@ bool TablePrinter::printTable(QTableWidget * wgt, const QVector<int> columnStret
             footerRect.setTop(textRect.bottom() - textRect.left());
             footerRect.setHeight(footerHeight);
             footerRect.setWidth(textRect.width() - rightBlank);
-            //footerRect.moveBottom(headerHeight);
-            //footerRect.moveLeft(-rightBlank);
-            qDebug() << "footerRect: " << "top - " << footerRect.top()
-                     << " left - " << footerRect.left()
-                     << " bottom - " << footerRect.bottom()
-                     << " right - " << footerRect.right();
             painter->drawText(footerRect, Qt::AlignVCenter | Qt::AlignRight, QString::number(numPage));
-            //painter->restore();
             printer->newPage();
-            //painter->translate(-painter->transform().dx() + leftBlank, headerHeight);
             numPage++;
 
             painter->save();
             painter->drawLine(0, 0, tableWidth,
-                              0); // first horizontal line
+                              0);
         }
 
         //------------------------------ content printing -------------------------------------------

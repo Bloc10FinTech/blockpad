@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>totalCryptosPrices/ada.svg</file>
+        <file>totalCryptosPrices/bch.svg</file>
+        <file>totalCryptosPrices/btc.svg</file>
+        <file>totalCryptosPrices/dash.svg</file>
+        <file>totalCryptosPrices/eth.svg</file>
+        <file>totalCryptosPrices/ltc.svg</file>
+        <file>totalCryptosPrices/miota.svg</file>
+        <file>totalCryptosPrices/xem.svg</file>
+        <file>totalCryptosPrices/xmr.svg</file>
+        <file>totalCryptosPrices/xrp.svg</file>
+    </qresource>
+</RCC>

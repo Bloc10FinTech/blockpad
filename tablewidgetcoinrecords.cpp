@@ -1,5 +1,5 @@
 #include "tablewidgetcoinrecords.h"
-#include <qDebug>
+#include <QDebug>
 #include <QHeaderView>
 #include <QDateTime>
 #include "passwordwidget.h"

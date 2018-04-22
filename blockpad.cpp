@@ -26,6 +26,7 @@
 #include <QPrintDialog>
 #include <QPaintEngine>
 #include <QInputDialog>
+#include <QGraphicsScene>
 #include <QMenu>
 #include "tablePrinter/tableprinter.h"
 
@@ -116,13 +117,6 @@ BlockPad::BlockPad(QWidget *parent) :
         #endif
         }
         slotFontSizeChanged(fontSize);
-    }
-    //context menu to list widget
-    {
-//        auto act = new QAction("Erase", this);
-//        ui->listWidgetFiles->addAction(act);
-//        connect(act, &QAction::triggered,
-//                this, &BlockPad::slotDeleteBlockPadFile);
     }
 }
 
@@ -573,6 +567,11 @@ void BlockPad::slotCompleteRowClicked()
     {
         ui->tableWidgetAccounts->slotCompletingRow();
     }
+}
+
+void BlockPad::activateWidgets(bool bOn)
+{
+    ui->widgetTicker->slotStart(bOn);
 }
 
 void BlockPad::slotRowSuccessfullyCompleted()
