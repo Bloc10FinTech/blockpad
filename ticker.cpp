@@ -142,8 +142,16 @@ QGraphicsTextItem * Ticker::addTextItem(QString html,
                       - 10);
     textItem->setProperty("id", id);
     items.append(textItem);
+#if defined(WIN32) || defined(WIN64)
     if(id != specialId::arrowId)
         textItem->moveBy(0,fontSizeDefault - font.pointSize());
+#endif
+#ifdef __APPLE__
+    if(id != specialId::arrowId)
+        textItem->moveBy(0,fontSizeDefault + 3- font.pointSize());
+    else
+        textItem->moveBy(0,3);
+#endif
     textItem->setFont(font);
     return textItem;
 }
@@ -176,6 +184,10 @@ void Ticker::RePaint()
             name.remove(".svg");
             if(cryptoPrices.contains(name))
             {
+                int shiftFontSize = 0;
+            #ifdef __APPLE__
+                shiftFontSize = 4;
+            #endif
                 QString arrowText;
                 QString text;
                 bool bPlus = false;
@@ -195,10 +207,10 @@ void Ticker::RePaint()
                     }
                 }
                 auto firstItem = addTextItem(text,
-                                        QFont("Roboto", 12, QFont::Bold),
+                                        QFont("Roboto", 12+shiftFontSize, QFont::Bold),
                                         graphItems, specialId::firstId);
                 auto arrowItem = addTextItem(arrowText,
-                                             QFont("Roboto", 12, QFont::Bold),
+                                             QFont("Roboto", 12+shiftFontSize, QFont::Bold),
                                              graphItems, specialId::arrowId);
                 if(bPlus)
                 {
@@ -211,10 +223,10 @@ void Ticker::RePaint()
                     arrowItem->setDefaultTextColor(Qt::red);
                 }
                 addTextItem("$ " + cryptoPrices[name]["price"] +"  ",
-                        QFont("Roboto", 13),
+                        QFont("Roboto", 13+shiftFontSize),
                         graphItems);
                 addTextItem(name,
-                            QFont("Roboto", 16, QFont::Bold),
+                            QFont("Roboto", 16+shiftFontSize, QFont::Bold),
                             graphItems);
                 QSvgRenderer *render = new QSvgRenderer("://totalCryptosPrices/"+ file, this);
                 addSvgItem(render, graphItems);
