@@ -323,7 +323,7 @@ void Ticker::RePaint()
     for(int i=0;i<graphItems.size(); i++)
     {
         auto graphItem = graphItems[i];
-        graphItem->setX(graphItem->x() +10);
+        graphItem->setX(graphItem->x() +3);
     }
 }
 

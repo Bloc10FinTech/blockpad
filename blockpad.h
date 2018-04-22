@@ -14,6 +14,7 @@
 #include "generatepassword.h"
 #include "highlighter.h"
 #include <QPrinter>
+#include "webBrowser/browser.h"
 
 #include <QGraphicsPixmapItem>
 
@@ -50,7 +51,7 @@ private:
     bool bRightButtonFiles {false};
     void documentChanged(QString nameDocument);
     int currentTimeId {-1};
-
+    Browser browser;
     //print data
     void renderHeader(QPainter &painter, QString header,
                       const QRectF& textRect, qreal footerHeight, int pageNumber);

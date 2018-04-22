@@ -31,6 +31,8 @@
 #include <QLabel>
 #include <QDateTime>
 #include "tablePrinter/tableprinter.h"
+#include "webBrowser/browserwindow.h"
+#include <QWebEngineProfile>
 
 #define defReplyType "ReplyType"
 #define defDefaultNameFile "new "
@@ -120,8 +122,7 @@ BlockPad::BlockPad(QWidget *parent) :
         }
         slotFontSizeChanged(fontSize);
     }
-    //add time
-    currentTimeId = startTimer(1000);
+    //add current time
     {
         QLabel* pLabelTime = new QLabel(this);
         pLabelTime->setText("the time is " +
@@ -129,6 +130,15 @@ BlockPad::BlockPad(QWidget *parent) :
         //rewrite with qsplitter
         + "    ");
         ui->tabWidget->setCornerWidget(pLabelTime, Qt::TopRightCorner);
+        currentTimeId = startTimer(1000);
+    }
+    //add web browser
+    {
+        auto web_browserWindow = new BrowserWindow(&browser, QWebEngineProfile::defaultProfile());
+        web_browserWindow->setParent(this);
+        QHBoxLayout *layout = new QHBoxLayout;
+        layout->addWidget(web_browserWindow);
+        ui->WebBrowser->setLayout(layout);
     }
 }
 

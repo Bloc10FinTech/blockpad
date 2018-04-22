@@ -53,7 +53,7 @@ background-color: white
       <string notr="true"/>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="Development">
       <attribute name="title">
@@ -434,6 +434,11 @@ QHeaderView::section{
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QWidget" name="WebBrowser">
+      <attribute name="title">
+       <string>Web Browser</string>
+      </attribute>
      </widget>
     </widget>
    </item>

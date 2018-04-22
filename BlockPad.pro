@@ -54,7 +54,15 @@ SOURCES += \
     stega/steganography.cpp \
     tablePrinter/tableprinter.cpp \
     onetimepadgeneratorwgt.cpp \
-    ticker.cpp
+    ticker.cpp \
+    webBrowser/browserwindow.cpp \
+    webBrowser/downloadmanagerwidget.cpp \
+    webBrowser/downloadwidget.cpp \
+    webBrowser/tabwidget.cpp \
+    webBrowser/webpage.cpp \
+    webBrowser/webpopupwindow.cpp \
+    webBrowser/webview.cpp \
+    webBrowser/browser.cpp
 
 HEADERS += \
     global.h \
@@ -90,7 +98,15 @@ HEADERS += \
     stega/steganography.h \
     tablePrinter/tableprinter.h \
     onetimepadgeneratorwgt.h \
-    ticker.h
+    ticker.h \
+    webBrowser/browserwindow.h \
+    webBrowser/downloadmanagerwidget.h \
+    webBrowser/downloadwidget.h \
+    webBrowser/tabwidget.h \
+    webBrowser/webpage.h \
+    webBrowser/webpopupwindow.h \
+    webBrowser/webview.h \
+    webBrowser/browser.h
 
 FORMS += \
     passwordwidget.ui \
@@ -100,12 +116,17 @@ FORMS += \
     settingswgt.ui \
     generatepassword.ui \
     onetimepadgeneratorwgt.ui \
-    ticker.ui
+    ticker.ui \
+    webBrowser/certificateerrordialog.ui \
+    webBrowser/downloadmanagerwidget.ui \
+    webBrowser/downloadwidget.ui \
+    webBrowser/passworddialog.ui
 
 RESOURCES += \
     fonts.qrc \
     icons.qrc \
-    totalcryptosprices.qrc
+    totalcryptosprices.qrc \
+    webBrowser/data/simplebrowser.qrc
 win32{
 #QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
 INCLUDEPATH += C:\OpenSSL-Win32\include
