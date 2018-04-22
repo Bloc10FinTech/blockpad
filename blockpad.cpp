@@ -28,6 +28,8 @@
 #include <QInputDialog>
 #include <QGraphicsScene>
 #include <QMenu>
+#include <QLabel>
+#include <QDateTime>
 #include "tablePrinter/tableprinter.h"
 
 #define defReplyType "ReplyType"
@@ -117,6 +119,27 @@ BlockPad::BlockPad(QWidget *parent) :
         #endif
         }
         slotFontSizeChanged(fontSize);
+    }
+    //add time
+    currentTimeId = startTimer(1000);
+    {
+        QLabel* pLabelTime = new QLabel(this);
+        pLabelTime->setText("the time is " +
+        QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy") + "    ");
+        ui->tabWidget->setCornerWidget(pLabelTime, Qt::TopRightCorner);
+    }
+}
+
+void BlockPad::timerEvent(QTimerEvent *event)
+{
+    if(currentTimeId == event->timerId())
+    {
+        QLabel * lbl = qobject_cast<QLabel *>(ui->tabWidget->cornerWidget());
+        if(lbl != nullptr)
+        {
+            lbl->setText("the time is " +
+                         QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy") + "    ");
+        }
     }
 }
 

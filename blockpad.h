@@ -49,6 +49,7 @@ private:
     enum TypeRequest {CheckUpdate, DescriptionUpdate, DownloadUpdate};
     bool bRightButtonFiles {false};
     void documentChanged(QString nameDocument);
+    int currentTimeId {-1};
 
     //print data
     void renderHeader(QPainter &painter, QString header,
@@ -61,6 +62,7 @@ private:
     const int textMargins = 12; // in millimeters
     const int borderMargins = 10; // in millimeters
 protected:
+    void timerEvent(QTimerEvent *event);
 public slots:
     void slotLoadDecrypt();
     void slotSaveEncrypt();

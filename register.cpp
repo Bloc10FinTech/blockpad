@@ -310,6 +310,7 @@ void Register::setMode(ModeRegistr newMode)
         ui->widgetEmail->setEnabled(false);
         ui->widgetPassword->setEnabled(false);
         ui->pushButtonLogin->setEnabled(true);
+        ui->pushButtonGetCode->setEnabled(false);
         if(mode == ModeRegistr::modeLock)
         {
             ui->comboBoxEmail->hide();
