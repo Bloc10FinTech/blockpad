@@ -25,7 +25,7 @@ private:
     ModeRegistr mode{New};
     ModeRegistr prevMode{New};
     QSettings settings;
-    void send2FA();
+    bool send2FA();
     void setMode(ModeRegistr newMode);
     void login2FA();
     void sendEmailToGetResponse();

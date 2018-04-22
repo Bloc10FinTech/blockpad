@@ -507,8 +507,8 @@ void Register::slotLoginClicked()
                 bool on = settings.value("2FA_On").toBool();
                 if(on)
                 {
-                    setMode(ModeRegistr::mode2FA);                  
-                    send2FA();
+                    if(send2FA())
+                        setMode(ModeRegistr::mode2FA);
                 }
                 else
                 {
@@ -537,7 +537,7 @@ void Register::onLock()
     setMode(ModeRegistr::modeLock);
 }
 
-void Register::send2FA()
+bool Register::send2FA()
 {
     SmtpClient smtp("smtp.sendgrid.net", 465 , SmtpClient::SslConnection);
     smtp.setUser("apikey");
@@ -581,21 +581,21 @@ void Register::send2FA()
     {
         QMessageBox::critical(nullptr, windowTitle(),
                               "Failed to connect to smtp host!");
-        return;
+        return false;
     }
 
     if (!smtp.login())
     {
         QMessageBox::critical(nullptr, windowTitle(),
                               "Failed to login to smtp host!");
-        return;
+        return false;
     }
 
     if (!smtp.sendMail(message))
     {
         QMessageBox::critical(nullptr, windowTitle(),
                               "Failed to send mail to smtp host!");
-        return;
+        return false;
     }
 
     smtp.quit();
@@ -607,6 +607,7 @@ void Register::send2FA()
                                  + QString::number(resendTime) + " seconds");
     resendId = startTimer(1000);
     ui->pushButtonGetCode->setEnabled(false);
+    return true;
 }
 
 void Register::slotCreateNewBlockPad()

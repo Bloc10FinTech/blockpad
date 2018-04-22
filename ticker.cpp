@@ -207,22 +207,26 @@ void Ticker::RePaint()
                ui->graphicsView->height());
     if(graphItems.isEmpty() && tc100Index >= 0 && tcw100Index >= 0)
     {
+        int shiftFontSize = 0;
+    #ifdef __APPLE__
+        shiftFontSize = 4;
+    #endif
         //tc100Index and tcw100Index
         {
             auto firstTc100 = addTextItem("$" + QString::number(tc100Index),
-                                    QFont("Roboto", 13),
+                                    QFont("Roboto", 13+shiftFontSize),
                                     graphItems, specialId::firstId);
             firstTc100->setDefaultTextColor(Qt::darkGreen);
             auto secondTc100 = addTextItem("Price of Tc100: ",
-                                    QFont("Roboto", 15, QFont::Bold),
+                                    QFont("Roboto", 15+shiftFontSize, QFont::Bold),
                                     graphItems);
             secondTc100->setDefaultTextColor(Qt::black);
             auto firstTcw100 = addTextItem(QString::number(tcw100Index),
-                                    QFont("Roboto", 13),
+                                    QFont("Roboto", 13+shiftFontSize),
                                     graphItems, specialId::firstId);
             firstTcw100->setDefaultTextColor(Qt::darkGreen);
             auto secondTcw100 = addTextItem("TCw100: ",
-                                    QFont("Roboto", 15, QFont::Bold),
+                                    QFont("Roboto", 15+shiftFontSize, QFont::Bold),
                                     graphItems);
             secondTcw100->setDefaultTextColor(Qt::black);
         }
@@ -234,10 +238,6 @@ void Ticker::RePaint()
             name.remove(".svg");
             if(cryptoPrices.contains(name))
             {
-                int shiftFontSize = 0;
-            #ifdef __APPLE__
-                shiftFontSize = 4;
-            #endif
                 QString arrowText;
                 QString text;
                 bool bPlus = false;
