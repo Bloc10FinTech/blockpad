@@ -135,7 +135,7 @@ void MainWidget::slotLockScreen()
             QStyle::alignedRect(
                 Qt::LeftToRight,
                 Qt::AlignCenter,
-                QSize(400,250),
+                QSize(400,heigth),
                 qApp->desktop()->availableGeometry()
             )
         );

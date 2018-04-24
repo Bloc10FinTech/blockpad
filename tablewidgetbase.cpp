@@ -170,35 +170,34 @@ QByteArray TableWidgetBase::dataToEncrypt()
 
 void TableWidgetBase::slotEditedShortcut()
 {
-    int curRow = currentRow();
-    if(curRow >= 0)
+    if(rowHighlighting >= 0)
     {
         for(int iCol=0; iCol<columnCount(); iCol++)
         {
             if(!neverEditableColumns.contains(iCol))
             {
-                if(item(curRow,iCol))
+                if(item(rowHighlighting,iCol))
                 {
-                    item(curRow,iCol)->setFlags(item(curRow,iCol)->flags().setFlag(Qt::ItemIsEditable, true));
-                    item(curRow,iCol)->setBackgroundColor(Qt::white);
-                    item(curRow,iCol)->setIcon(QIcon());
-                    item(curRow,iCol)->setToolTip("");
+                    item(rowHighlighting,iCol)->setFlags(item(rowHighlighting,iCol)->flags().setFlag(Qt::ItemIsEditable, true));
+                    item(rowHighlighting,iCol)->setBackgroundColor(Qt::white);
+                    item(rowHighlighting,iCol)->setIcon(QIcon());
+                    item(rowHighlighting,iCol)->setToolTip("");
                 }
                 else
                 {
-                    cellWidget(curRow,iCol)->setProperty("locked", false);
-                    cellWidget(curRow,iCol)->setProperty("highlighted", false);
+                    cellWidget(rowHighlighting,iCol)->setProperty("locked", false);
+                    cellWidget(rowHighlighting,iCol)->setProperty("highlighted", false);
                 }
             }
             else
             {
-                if(item(curRow,iCol))
+                if(item(rowHighlighting,iCol))
                 {
-                    item(curRow,iCol)->setBackgroundColor(defColorNoEditable);
+                    item(rowHighlighting,iCol)->setBackgroundColor(defColorNoEditable);
                 }
                 else
                 {
-                    cellWidget(curRow,iCol)->setProperty("highlighted", false);
+                    cellWidget(rowHighlighting,iCol)->setProperty("highlighted", false);
                 }
             }
         }
