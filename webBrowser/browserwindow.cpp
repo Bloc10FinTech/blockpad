@@ -137,6 +137,11 @@ BrowserWindow::BrowserWindow(Browser *browser, QWebEngineProfile *profile)
     }
 }
 
+void BrowserWindow::slotNewUrl(QUrl newUrl)
+{
+    m_tabWidget->setUrl(newUrl);
+}
+
 QSize BrowserWindow::sizeHint() const
 {
     QRect desktopRect = QApplication::desktop()->screenGeometry();

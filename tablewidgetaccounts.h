@@ -2,6 +2,7 @@
 #define TABLEWIDGETACCOUNTS_H
 #include "tablewidgetbase.h"
 #include <QObject>
+#include <QUrl>
 enum  columnsAccount {WebSite, Username, Password, N_ColumnsAccount};
 
 class TableWidgetAccounts : public TableWidgetBase
@@ -23,6 +24,7 @@ private slots:
 
 signals:
     void allwaysChecked(bool allways);
+    void sigClickedUrl(QUrl url);
 };
 
 #endif // TABLEWIDGETACCOUNTS_H

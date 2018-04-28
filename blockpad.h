@@ -12,13 +12,16 @@
 #include "settingswgt.h"
 #include "onetimepadgeneratorwgt.h"
 #include "generatepassword.h"
+#include "activatewgt.h"
 #include "highlighter.h"
 #include <QPrinter>
+#include <QUrl>
 #include "webBrowser/browser.h"
 
 #include <QGraphicsPixmapItem>
 
 class QListWidgetItem;
+class QWebEngineView;
 
 namespace Ui {
 class BlockPad;
@@ -41,6 +44,7 @@ private:
     QPointer<OneTimePadGeneratorWgt> oneTimePadGenWgt;
     QPointer<QProgressDialog> progressUpdates;
     QPointer<QNetworkReply> updatingReply;
+    QPointer<ActivateWgt> activLicenseWgt;
     QSettings settings;
     QNetworkAccessManager * nam;
     QNetworkAccessManager * namUpdate;
@@ -52,6 +56,9 @@ private:
     void documentChanged(QString nameDocument);
     int currentTimeId {-1};
     Browser browser;
+    BrowserWindow * web_browserWindow {nullptr};
+    void successActivation(bool bSuccess);
+    QWebEngineView * webEngineView;
     //print data
     void renderHeader(QPainter &painter, QString header,
                       const QRectF& textRect, qreal footerHeight, int pageNumber);
@@ -76,6 +83,7 @@ private slots:
     void slotCurrentWgtChanged();
     void slotBlockPadNewChanges();
     void slotPasswGenClicked();
+    void slotActivateClicked();
     void slotFontSizeChanged(int pointSize);
     void slotReplyFinished(QNetworkReply *reply);
     void slotPrintClicked();
@@ -86,6 +94,7 @@ private slots:
     void slotFileClicked(QListWidgetItem *item);
     void slotFilesContextMenu(QPoint);
     void slotFilesItemFinishEditing();
+    void slotUrlClicked(QUrl url);
     //updates
     void slotUpdateAvailable(QString link, QString version,
                              QString description,  bool bManually = false);

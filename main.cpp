@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
             if(fontSize == 0)
             {
             #if defined(WIN32) || defined(WIN64)
-                fontSize = 12;
+                fontSize = 13;
             #endif
             #ifdef __APPLE__
                 fontSize = 15;

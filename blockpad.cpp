@@ -57,7 +57,7 @@ BlockPad::BlockPad(QWidget *parent) :
     //add ads
     {
         ui->mainVerticalLayout->setAlignment(Qt::AlignCenter);
-        QWebEngineView * webEngineView = new QWebEngineView(this);
+        webEngineView = new QWebEngineView(this);
         AdsWebEnginePage * page = new AdsWebEnginePage(this);
         webEngineView->setPage(page);
         ui->mainVerticalLayout->addWidget(webEngineView);
@@ -81,6 +81,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotOneTimePadGeneratorClicked);
         connect(ui->pushButtonGeneratePassword, &QPushButton::clicked,
                 this, &BlockPad::slotPasswGenClicked);
+        connect(ui->pushButtonLicenseActivate, &QPushButton::clicked,
+                this, &BlockPad::slotActivateClicked);
         connect(ui->pushButtonSave, &QPushButton::clicked,
                 this, &BlockPad::slotSaveEncrypt);
         connect(ui->pushButtonRemoveRow, &QPushButton::clicked,
@@ -107,6 +109,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotFilesItemFinishEditing);
         connect(ui->listWidgetFiles, SIGNAL(customContextMenuRequested(QPoint)),
                 this, SLOT(slotFilesContextMenu(QPoint)));
+        connect(ui->tableWidgetAccounts, &TableWidgetAccounts::sigClickedUrl,
+                this, &BlockPad::slotUrlClicked);
     }
     //change font size
     {
@@ -134,12 +138,18 @@ BlockPad::BlockPad(QWidget *parent) :
     }
     //add web browser
     {
-        auto web_browserWindow = new BrowserWindow(&browser, QWebEngineProfile::defaultProfile());
+        web_browserWindow = new BrowserWindow(&browser, QWebEngineProfile::defaultProfile());
         web_browserWindow->setParent(this);
         QHBoxLayout *layout = new QHBoxLayout;
         layout->addWidget(web_browserWindow);
         ui->WebBrowser->setLayout(layout);
     }
+}
+
+void BlockPad::slotUrlClicked(QUrl url)
+{
+    ui->tabWidget->setCurrentWidget(ui->WebBrowser);
+    web_browserWindow->slotNewUrl(url);
 }
 
 void BlockPad::timerEvent(QTimerEvent *event)
@@ -551,6 +561,15 @@ void BlockPad::slotPasswGenClicked()
     }
 }
 
+void BlockPad::slotActivateClicked()
+{
+    if(activLicenseWgt.isNull())
+    {
+        activLicenseWgt = new ActivateWgt(nullptr);
+        activLicenseWgt->show();
+    }
+}
+
 void BlockPad::slotSettingsClicked()
 {
     if(setWgt.isNull())
@@ -572,6 +591,7 @@ void BlockPad::Init()
 {
     slotLoadDecrypt();
     slotSaveEncrypt();
+
     ui->codeEdit->setFocus();
     bool noUpdate = settings.value("noUpdating").toBool();
     //dont know width of splitter in this place - it is reason why
@@ -592,6 +612,8 @@ void BlockPad::closeSeparateWgts()
         oneTimePadGenWgt->close();
     if(!genPasswWgt.isNull())
         genPasswWgt->close();
+    if(!activLicenseWgt.isNull())
+        activLicenseWgt->close();
 }
 
 void BlockPad::slotCompleteRowClicked()
@@ -876,6 +898,32 @@ void BlockPad::slotSaveEncrypt()
             allData.append((const char *)&size_, sizeof(int));
             allData.append(password);
         }
+        //license
+        {
+            auto license = qApp->property(defLicenseProperty).toString();
+            int size_ = license.size();
+            allData.append((const char *)&size_, sizeof(int));
+            allData.append(license);
+        }
+        //mac address
+        {
+            auto macAddr = qApp->property(defMacAddressProperty).toString();
+            int size_ = macAddr.size();
+            allData.append((const char *)&size_, sizeof(int));
+            allData.append(macAddr);
+        }
+        //id
+        {
+            auto idServer = qApp->property(defIdProperty).toString();
+            int size_ = idServer.size();
+            allData.append((const char *)&size_, sizeof(int));
+            allData.append(idServer);
+        }
+        //date start
+        {
+            auto dateStart = qApp->property(defDateStart).toLongLong();
+            allData.append((const char *)&dateStart, sizeof(qlonglong));
+        }
         //table coin records
         allData.append(ui->tableWidgetCoinRecords->dataToEncrypt());
         //table accounts
@@ -920,6 +968,7 @@ void BlockPad::slotLoadDecrypt()
 {
     QByteArray allData;
     QString fileName = qApp->property(defFileProperty).toString();
+    qApp->setProperty(defIdProperty, "none");
     //fill allData
     {
         QFile file(fileName);
@@ -928,6 +977,7 @@ void BlockPad::slotLoadDecrypt()
             //QMessageBox::critical(this, "BlockPad", "Can not open file to read - " + fileName);
             ui->listWidgetFiles->addItem("main");
             documentChanged("main");
+            successActivation(false);
             return;
         }
         allData = file.readAll();
@@ -939,6 +989,8 @@ void BlockPad::slotLoadDecrypt()
         Crypto c =Crypto::Instance();
         c.decrypt(allData,allDecryptoData);
     }
+    QString saveMacAddr;
+    QString license;
     //parse allDecryptoData
     {
         int pos = 0;
@@ -974,6 +1026,35 @@ void BlockPad::slotLoadDecrypt()
             pos+=size;
             //qApp->setProperty(defPasswordProperty, password);
         }
+        //license
+        {
+            int size = *((int *)allDecryptoData.mid(pos, sizeof(int)).data());
+            pos+=sizeof(int);
+            license = allDecryptoData.mid(pos, size);
+            pos+=size;
+            qApp->setProperty(defLicenseProperty, license);
+        }
+        //mac address
+        {
+            int size = *((int *)allDecryptoData.mid(pos, sizeof(int)).data());
+            pos+=sizeof(int);
+            saveMacAddr = allDecryptoData.mid(pos, size);
+            pos+=size;
+        }
+        //id
+        {
+            int size = *((int *)allDecryptoData.mid(pos, sizeof(int)).data());
+            pos+=sizeof(int);
+            auto id = allDecryptoData.mid(pos, size);
+            pos+=size;
+            qApp->setProperty(defIdProperty, id);
+        }
+        //date start
+        {
+            qlonglong dateStart = *((qlonglong *)allDecryptoData.mid(pos, sizeof(qlonglong)).data());
+            pos+=sizeof(qint64);
+            qApp->setProperty(defDateStart, dateStart);
+        }
         ui->tableWidgetCoinRecords->slotLoadData(allDecryptoData, pos);
         ui->tableWidgetAccounts->slotLoadData(allDecryptoData, pos);
         auto allDocuments = ui->codeEdit->slotLoadData(allDecryptoData, pos);
@@ -988,6 +1069,39 @@ void BlockPad::slotLoadDecrypt()
             }
         }
         documentChanged(currentName);
+    }
+    //check license
+    {
+        if(license.isEmpty())
+            successActivation(false);
+        else
+        {
+            if(saveMacAddr == Utilities::macAddress())
+                successActivation(true);
+            else
+            {
+                ui->pushButtonLicenseActivate->
+                        setIcon(QIcon("://Icons/licenseNoActivate.png"));
+            }
+        }
+    }
+}
+
+void BlockPad::successActivation(bool bSuccess)
+{
+    if(bSuccess)
+    {
+        ui->pushButtonLicenseActivate->
+                setIcon(QIcon("://Icons/licenseActivate.png"));
+        webEngineView->hide();
+        ui->pushButtonBackUp->show();
+    }
+    else
+    {
+        ui->pushButtonLicenseActivate->
+                setIcon(QIcon("://Icons/licenseNoActivate.png"));
+        webEngineView->show();
+        ui->pushButtonBackUp->hide();
     }
 }
 

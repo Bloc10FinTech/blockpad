@@ -5,6 +5,10 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QNetworkInterface>
+
+#define defNetworkAdapterName "ethernet"
+
 void Utilities::setAppFamilyFont(   QWidget * wgt,
                                     int pointSize,
                                     int weight,
@@ -34,4 +38,30 @@ QString Utilities::applicationPath()
     dir.cdUp();
     return dir.path();
 #endif
+}
+
+QString Utilities::macAddress()
+{
+    QString macAddr;
+    auto interfaces = QNetworkInterface::allInterfaces();
+    foreach(auto inface, interfaces)
+    {
+        if (inface.humanReadableName().toLower().contains(defNetworkAdapterName)
+                &&
+            inface.name().toLower().contains(defNetworkAdapterName))
+        {
+            macAddr = inface.hardwareAddress();
+            return macAddr;
+        }
+    }
+    foreach(auto inface, interfaces)
+    {
+        if (inface.name().toLower().contains(defNetworkAdapterName))
+        {
+            macAddr = inface.hardwareAddress();
+            return macAddr;
+        }
+    }
+    macAddr = interfaces[0].hardwareAddress();
+    return macAddr;
 }

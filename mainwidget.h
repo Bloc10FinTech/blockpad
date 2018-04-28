@@ -18,9 +18,11 @@ public:
     ~MainWidget();
 protected:
     void closeEvent(QCloseEvent *event);
+    void showEvent(QShowEvent *event);
 private:
     Ui::MainWidget *ui;
     QSettings settings;
+    bool bFirstShow{true};
 #ifdef __APPLE__
     void updateUpdateTools();
 #endif

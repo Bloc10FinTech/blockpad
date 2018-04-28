@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>486</width>
+    <width>686</width>
     <height>345</height>
    </rect>
   </property>
@@ -25,7 +25,7 @@
     border-radius: 3px;
     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                       stop: 0 #f6f7fa, stop: 1 #dadbde);
-	min-width: 150px;
+	min-width: 200px;
 }
 
 QPushButton:pressed {
@@ -41,23 +41,35 @@ QPushButton:default {
     border-color: navy; /* make the default button prominent */
 }
 
-QLineEdit {
+QLineEdit{
     border: 2px solid #8f8f91;
     border-radius: 3px;
-	min-width:200px;
-	max-width:200px;
+	min-width:270px;
+	max-width:270px;
 }
 
-QComboBox {
+QComboBox{
     border: 2px solid #8f8f91;
     border-radius: 3px;
-	min-width:200px;
-	max-width:200px;
-}</string>
+	min-width:270px;
+	max-width:270px;
+}
+
+QComboBox[nullProp=true]{
+	min-width:0px;
+	max-width:0px;
+}
+</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QLabel" name="labelHello">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="font">
       <font>
        <italic>true</italic>
@@ -82,6 +94,9 @@ QComboBox {
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="spacing">
           <number>0</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -111,20 +126,20 @@ QComboBox {
          <item>
           <widget class="QLabel" name="labelEmail">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -134,10 +149,36 @@ QComboBox {
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEditEmail"/>
+          <widget class="QLineEdit" name="lineEditEmail">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBoxEmail"/>
+          <widget class="QComboBox" name="comboBoxEmail">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>4</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="nullProp" stdset="0">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_4">
@@ -180,7 +221,7 @@ QComboBox {
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>0</width>
              <height>20</height>
             </size>
            </property>
@@ -189,20 +230,20 @@ QComboBox {
          <item>
           <widget class="QLabel" name="labelPassword">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -212,7 +253,14 @@ QComboBox {
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEditPassword"/>
+          <widget class="QLineEdit" name="lineEditPassword">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_6">
@@ -221,7 +269,7 @@ QComboBox {
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>0</width>
              <height>20</height>
             </size>
            </property>
@@ -255,7 +303,7 @@ QComboBox {
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>0</width>
              <height>20</height>
             </size>
            </property>
@@ -264,20 +312,20 @@ QComboBox {
          <item>
           <widget class="QLabel" name="labelCode">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -287,7 +335,14 @@ QComboBox {
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEditCode"/>
+          <widget class="QLineEdit" name="lineEditCode">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_10">
@@ -296,7 +351,7 @@ QComboBox {
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>0</width>
              <height>20</height>
             </size>
            </property>
@@ -330,7 +385,7 @@ QComboBox {
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>0</width>
              <height>20</height>
             </size>
            </property>
@@ -340,13 +395,13 @@ QComboBox {
           <widget class="QLabel" name="labelFalshGetCode">
            <property name="minimumSize">
             <size>
-             <width>150</width>
+             <width>190</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>150</width>
+             <width>190</width>
              <height>16777215</height>
             </size>
            </property>
@@ -365,7 +420,7 @@ QComboBox {
            </property>
            <property name="minimumSize">
             <size>
-             <width>154</width>
+             <width>204</width>
              <height>0</height>
             </size>
            </property>
@@ -381,7 +436,7 @@ QComboBox {
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>0</width>
              <height>20</height>
             </size>
            </property>
@@ -415,7 +470,7 @@ QComboBox {
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>0</width>
              <height>20</height>
             </size>
            </property>
@@ -425,13 +480,13 @@ QComboBox {
           <widget class="QLabel" name="labelFalsh">
            <property name="minimumSize">
             <size>
-             <width>150</width>
+             <width>190</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>150</width>
+             <width>190</width>
              <height>16777215</height>
             </size>
            </property>
@@ -450,7 +505,7 @@ QComboBox {
            </property>
            <property name="minimumSize">
             <size>
-             <width>154</width>
+             <width>204</width>
              <height>0</height>
             </size>
            </property>
@@ -466,7 +521,7 @@ QComboBox {
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>0</width>
              <height>20</height>
             </size>
            </property>

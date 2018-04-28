@@ -32,20 +32,6 @@ MainWidget::MainWidget(QWidget *parent) :
     {
         b2FA = settings.value("2FA_On").toBool();
     }
-    ui->regist->Init();
-#if defined(WIN32) || defined(WIN64)
-    int heigth = 310;
-    if(b2FA)
-        heigth = 380;
-#endif
-#ifdef __APPLE__
-    int heigth = 325;
-    if(b2FA)
-        heigth = 395;
-#endif
-    ui->regist->setFixedSize(500, heigth);
-    ui->stackedWidget->setFixedSize(500, heigth);
-    adjustSize();
 #ifdef __APPLE__
     if(settings.value("updateToolsVersion").toString()
             != defVersionApplication
@@ -53,6 +39,21 @@ MainWidget::MainWidget(QWidget *parent) :
             + "/UpdateBlockPad.app").exists())
         QtConcurrent::run(this, &MainWidget::updateUpdateTools);
 #endif
+}
+
+void MainWidget::showEvent(QShowEvent *event)
+{
+    if(bFirstShow)
+    {
+        ui->blockPad->setMinimumWidth(0);
+        ui->blockPad->setMinimumHeight(0);
+        ui->regist->Init();
+        ui->regist->adjustSize();
+        ui->stackedWidget->setFixedSize(ui->regist->size());
+        setFixedSize(ui->regist->size());
+        bFirstShow = false;
+    }
+    QWidget::showEvent(event);
 }
 
 #ifdef __APPLE__
@@ -108,34 +109,23 @@ void MainWidget::slotLockScreen()
         ui->stackedWidget->setCurrentWidget(ui->regist);
         ui->blockPad->closeSeparateWgts();
         ui->blockPad->activateWidgets(false);
-        ui->regist->onLock();
-        showNormal();
         ui->blockPad->setMinimumWidth(0);
         ui->blockPad->setMinimumHeight(0);
+        ui->regist->onLock();
+        ui->regist->adjustSize();
+        ui->stackedWidget->setFixedSize(ui->regist->size());
+        setFixedSize(ui->regist->size());
+        showNormal();
         bool b2FA = false;
         if(settings.value("2FA_On").type() != QVariant::Invalid)
         {
             b2FA = settings.value("2FA_On").toBool();
         }
-    #if defined(WIN32) || defined(WIN64)
-        int heigth = 200;
-        if(b2FA)
-            heigth = 250;
-    #endif
-    #ifdef __APPLE__
-        int heigth = 225;
-        if(b2FA)
-            heigth = 265;
-    #endif
-        ui->regist->setFixedSize(400, heigth);
-        ui->stackedWidget->setFixedSize(400, heigth);
-        this->setFixedSize(400, heigth);
-        adjustSize();
         setGeometry(
             QStyle::alignedRect(
                 Qt::LeftToRight,
                 Qt::AlignCenter,
-                QSize(400,heigth),
+                QSize(ui->regist->size()),
                 qApp->desktop()->availableGeometry()
             )
         );
@@ -145,15 +135,13 @@ void MainWidget::slotLockScreen()
 
 void MainWidget::slotSuccessRegistered()
 {
-    ui->stackedWidget->setCurrentWidget(ui->blockPad);
-    ui->regist->setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
-    ui->stackedWidget->setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
+    ui->stackedWidget->setCurrentWidget(ui->blockPad);   
+    setMinimumSize(0,0);
     setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
-    ui->regist->setMinimumSize(0,0);
     ui->stackedWidget->setMinimumSize(0,0);
+    ui->stackedWidget->setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
     ui->blockPad->setMinimumWidth(800);
     ui->blockPad->setMinimumHeight(400);
-    setMinimumSize(0,0);
     showMaximized();
     ui->blockPad->Init();
     ui->blockPad->activateWidgets(true);
@@ -162,16 +150,14 @@ void MainWidget::slotSuccessRegistered()
 
 void MainWidget::slotSuccessUnlocked()
 {
-    ui->stackedWidget->setCurrentWidget(ui->blockPad);
-    ui->regist->setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
-    ui->stackedWidget->setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
+    ui->stackedWidget->setCurrentWidget(ui->blockPad);   
+    setMinimumSize(0,0);
     setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
-    ui->regist->setMinimumSize(0,0);
     ui->stackedWidget->setMinimumSize(0,0);
+    ui->stackedWidget->setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
     ui->blockPad->setMinimumWidth(800);
     ui->blockPad->setMinimumHeight(400);
     ui->blockPad->activateWidgets(true);
-    setMinimumSize(0,0);
     showMaximized();
 }
 

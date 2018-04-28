@@ -19,6 +19,10 @@ class QWidget;
 //properties qapplication
 #define defEmailProperty "email"
 #define defPasswordProperty "password"
+#define defLicenseProperty "license"
+#define defIdProperty "id"
+#define defDateStart "date_start"
+#define defMacAddressProperty "macAddress"
 #define defFileProperty "fileBlockpad"
 #define def2FA_Code "2FA_Code"
 
@@ -29,5 +33,6 @@ namespace Utilities {
                             bool italic = false);
     QString filesDirectory();
     QString applicationPath();
+    QString macAddress();
 }
 #endif // GLOBAL_H

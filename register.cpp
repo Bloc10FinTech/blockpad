@@ -65,6 +65,7 @@ Register::Register(QWidget *parent) :
         connect(ui->labelHello, &QLabel::linkActivated,
                 this, &Register::slotHelloLinkActivated);
     }
+    ui->lineEditEmail->setVisible(false);
 }
 
 void Register::timerEvent(QTimerEvent *event)
@@ -157,6 +158,7 @@ void Register::Init()
         }
     }
     ui->comboBoxEmail->addItems(emails);
+    ui->comboBoxEmail->setSizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow);
     ui->comboBoxEmail->setCurrentText(settings.value(defCurrentEmail).toString());
     //registration
     if(_listEmailPassws.isEmpty())
@@ -166,6 +168,9 @@ void Register::Init()
         setMode(ModeRegistr::OpenBlockPad);
     if(!fileInit.isEmpty())
         OpenFile(fileInit);
+    ui->comboBoxEmail->setProperty("nullProp", false);
+    ui->comboBoxEmail->style()->unpolish(ui->comboBoxEmail);
+    ui->comboBoxEmail->style()->polish(ui->comboBoxEmail);
 }
 
 void Register::slotOpenFile()
@@ -276,6 +281,8 @@ void Register::setMode(ModeRegistr newMode)
         ui->groupBoxAuthorizeData->setTitle("Create new Blockpad");
         ui->comboBoxEmail->hide();
         ui->lineEditEmail->show();
+//        ui->comboBoxEmail->setProperty("nullProp", true);
+//        ui->lineEditEmail->setProperty("nullProp", false);
         ui->lineEditEmail->setFocus();
         }
         break;
@@ -285,6 +292,8 @@ void Register::setMode(ModeRegistr newMode)
         ui->pushButtonLogin->setText("Login");
         ui->lineEditEmail->hide();
         ui->comboBoxEmail->show();
+//        ui->comboBoxEmail->setProperty("nullProp", false);
+//        ui->lineEditEmail->setProperty("nullProp", true);
         ui->lineEditPassword->setFocus();
         }
         break;
@@ -298,6 +307,8 @@ void Register::setMode(ModeRegistr newMode)
         ui->labelStatus->clear();
         ui->comboBoxEmail->hide();
         ui->lineEditEmail->show();
+//        ui->comboBoxEmail->setProperty("nullProp", true);
+//        ui->lineEditEmail->setProperty("nullProp", false);
         ui->lineEditEmail->setEnabled(false);
         ui->lineEditEmail->setText(qApp->property(defEmailProperty).toString());
         ui->lineEditPassword->setFocus();
@@ -315,6 +326,8 @@ void Register::setMode(ModeRegistr newMode)
         {
             ui->comboBoxEmail->hide();
             ui->lineEditEmail->show();
+//            ui->comboBoxEmail->setProperty("nullProp", true);
+//            ui->lineEditEmail->setProperty("nullProp", false);
             ui->widgetCreate->hide();
             ui->widgetOpenFile->hide();
             ui->labelHello->hide();
@@ -323,6 +336,8 @@ void Register::setMode(ModeRegistr newMode)
         {
             ui->comboBoxEmail->hide();
             ui->lineEditEmail->show();
+//            ui->comboBoxEmail->setProperty("nullProp", true);
+//            ui->lineEditEmail->setProperty("nullProp", false);
         }
         if(mode != ModeRegistr::modeLock
                 &&
@@ -330,11 +345,19 @@ void Register::setMode(ModeRegistr newMode)
         {
             ui->lineEditEmail->hide();
             ui->comboBoxEmail->show();
+//            ui->comboBoxEmail->setProperty("nullProp", false);
+//            ui->lineEditEmail->setProperty("nullProp", true);
         }
         ui->lineEditCode->setFocus();
         }
         break;
     }
+//    style()->unpolish(this);
+//    style()->polish(this);
+//    ui->comboBoxEmail->style()->unpolish(ui->comboBoxEmail);
+//    ui->comboBoxEmail->style()->polish(ui->comboBoxEmail);
+//    ui->lineEditEmail->style()->unpolish(ui->lineEditEmail);
+//    ui->lineEditEmail->style()->polish(ui->lineEditEmail);
     prevMode = mode;
     mode = newMode;
 }

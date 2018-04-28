@@ -62,7 +62,9 @@ SOURCES += \
     webBrowser/webpage.cpp \
     webBrowser/webpopupwindow.cpp \
     webBrowser/webview.cpp \
-    webBrowser/browser.cpp
+    webBrowser/browser.cpp \
+    networklicenseserver.cpp \
+    activatewgt.cpp
 
 HEADERS += \
     global.h \
@@ -106,7 +108,9 @@ HEADERS += \
     webBrowser/webpage.h \
     webBrowser/webpopupwindow.h \
     webBrowser/webview.h \
-    webBrowser/browser.h
+    webBrowser/browser.h \
+    networklicenseserver.h \
+    activatewgt.h
 
 FORMS += \
     passwordwidget.ui \
@@ -120,7 +124,8 @@ FORMS += \
     webBrowser/certificateerrordialog.ui \
     webBrowser/downloadmanagerwidget.ui \
     webBrowser/downloadwidget.ui \
-    webBrowser/passworddialog.ui
+    webBrowser/passworddialog.ui \
+    activatewgt.ui
 
 RESOURCES += \
     fonts.qrc \

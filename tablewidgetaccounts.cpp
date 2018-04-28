@@ -58,7 +58,8 @@ void TableWidgetAccounts::mousePressEvent(QMouseEvent *event)
     {
         auto editData = item(row, column)->text();
         auto nameUrl = RichItemDelegate::nameWebSite(editData);
-        QDesktopServices::openUrl(QUrl(nameUrl));
+        emit sigClickedUrl(QUrl::fromUserInput(nameUrl));
+        //QDesktopServices::openUrl(QUrl(nameUrl));
     }
     TableWidgetBase::mousePressEvent(event);
 }

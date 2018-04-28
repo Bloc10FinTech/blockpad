@@ -78,6 +78,9 @@ public:
 protected:
     void closeEvent(QCloseEvent *event) override;
 
+public slots:
+    void slotNewUrl(QUrl newUrl);
+
 private slots:
     void handleNewWindowTriggered();
     void handleNewIncognitoWindowTriggered();
