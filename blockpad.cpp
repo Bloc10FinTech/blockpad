@@ -177,7 +177,7 @@ void BlockPad::timerEvent(QTimerEvent *event)
     }
     if(adsId == event->timerId())
     {
-        webEngineView->setUrl(QUrl("http://blockpad.io/adserv1.php"));
+        webEngineView->reload();
     }
     if(backupId == event->timerId())
     {
@@ -914,6 +914,13 @@ void BlockPad::slotCurrentWgtChanged()
         ui->pushButtonSave->hide();
         ui->pushButtonAddFile->hide();
         ui->tableWidgetCoinRecords->Init();
+    }
+    if(ui->tabWidget->currentWidget() == ui->WebBrowser)
+    {
+        ui->pushButtonCompleteRow->hide();
+        ui->pushButtonRemoveRow->hide();
+        ui->pushButtonSave->hide();
+        ui->pushButtonAddFile->hide();
     }
 }
 
