@@ -5,7 +5,6 @@ EventsWaiting::EventsWaiting(QObject *parent): QObject(parent)
     if(settings.value("LockScreen_Time").type() != QVariant::Invalid)
         iTimeLockScreen = settings.value("LockScreen_Time").toInt();
     idTimer = startTimer(iTimeLockScreen * 60 * 1000);
-    iTimeLockScreen =0;
 }
 
 EventsWaiting::~EventsWaiting()

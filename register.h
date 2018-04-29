@@ -21,7 +21,8 @@ private:
     Ui::Register *ui;
     QList<QPair<QString, QString> > _listEmailPassws;
     enum ModeRegistr {New, OpenBlockPad, modeLock, mode2FA};
-    QList<QString> nameFiles;
+    QList<QString> nameFiles;   
+    QMap<QString, QString> fileIds;
     ModeRegistr mode{New};
     ModeRegistr prevMode{New};
     QSettings settings;
@@ -32,6 +33,7 @@ private:
     void OpenFile(QString blockpad);
     int resendId {0};
     int resendTime{60}; //seconds
+    QString currentEmail();
 private slots:
     void slotCreateNewBlockPad();
     void slotLoginClicked();
@@ -39,6 +41,7 @@ private slots:
     void slotFinishEditingLogin();
     void slotFinishEditingPassword();
     void slotFinishEditingCode2FA();
+    void slotFinishChoosingId();
     void slotHelloLinkActivated(QString link);
 protected:
     void timerEvent(QTimerEvent *event);

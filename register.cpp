@@ -56,6 +56,9 @@ Register::Register(QWidget *parent) :
         connect(ui->comboBoxEmail, &QComboBox::currentTextChanged,
                 this, &Register::slotFinishEditingLogin);
 
+        connect(ui->comboBoxId, &QComboBox::currentTextChanged,
+                this, &Register::slotFinishChoosingId);
+
         connect(ui->lineEditPassword, &QLineEdit::returnPressed,
                 this, &Register::slotFinishEditingPassword);
 
@@ -66,6 +69,16 @@ Register::Register(QWidget *parent) :
                 this, &Register::slotHelloLinkActivated);
     }
     ui->lineEditEmail->setVisible(false);
+}
+
+void Register::slotFinishChoosingId()
+{
+    if(ui->comboBoxId->currentText() != defNoneId)
+    {
+        auto file = fileIds.key(ui->comboBoxId->currentText());
+        int displayIndex = nameFiles.indexOf(file);
+        ui->comboBoxEmail->setCurrentIndex(displayIndex);
+    }
 }
 
 void Register::timerEvent(QTimerEvent *event)
@@ -149,17 +162,33 @@ void Register::Init()
         }
     }
     Crypto c =Crypto::Instance();
-    _listEmailPassws = c.listEmailPassws(nameFiles);
     QStringList emails;
+    _listEmailPassws = c.listEmailPassws(nameFiles,
+                                         fileIds,
+                                         emails);
+    ui->comboBoxEmail->addItems(emails);
+    ui->comboBoxId->addItem(defNoneId);
+    ui->comboBoxId->addItems(fileIds.values());
+    //load current email
     {
-        foreach(auto pair, _listEmailPassws)
+        auto currentFile = settings.value(defCurrentFile).toString();
+        int currentIndex = nameFiles.indexOf(currentFile);
+        if(currentIndex != -1)
         {
-            emails.append(pair.first);
+            ui->comboBoxEmail->setCurrentIndex(currentIndex);
         }
     }
-    ui->comboBoxEmail->addItems(emails);
-    ui->comboBoxEmail->setSizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow);
-    ui->comboBoxEmail->setCurrentText(settings.value(defCurrentEmail).toString());
+    //current id
+    {
+        if(ui->comboBoxEmail->currentIndex()!= -1)
+        {
+            auto currentFile = nameFiles[ui->comboBoxEmail->currentIndex()];
+            if(fileIds.contains(currentFile))
+                ui->comboBoxId->setCurrentText(fileIds[currentFile]);
+            else
+                ui->comboBoxId->setCurrentText(defNoneId);
+        }
+    }
     //registration
     if(_listEmailPassws.isEmpty())
         setMode(ModeRegistr::New);
@@ -171,6 +200,16 @@ void Register::Init()
     ui->comboBoxEmail->setProperty("nullProp", false);
     ui->comboBoxEmail->style()->unpolish(ui->comboBoxEmail);
     ui->comboBoxEmail->style()->polish(ui->comboBoxEmail);
+    if(ui->comboBoxEmail->currentIndex()!= -1)
+        ui->comboBoxEmail->setToolTip(nameFiles[ui->comboBoxEmail->currentIndex()]);
+}
+
+QString Register::currentEmail ()
+{
+    QString res;
+    if(ui->comboBoxEmail->currentIndex() >= 0)
+        res = _listEmailPassws[ui->comboBoxEmail->currentIndex()].first;
+    return res;
 }
 
 void Register::slotOpenFile()
@@ -189,23 +228,41 @@ void Register::OpenFile(QString blockpad)
     {
         bool bSuccess = true;
         Crypto c =Crypto::Instance();
-        auto pair = c.pairEmailPassw(blockpad, bSuccess);
+        QString id;
+        auto pair = c.pairEmailPassw(blockpad, bSuccess,id);
         if(!bSuccess)
         {
             QMessageBox::critical(nullptr, windowTitle(), "The file is damaged");
         }
         else
         {
+            int index=1;
+            auto email = pair.first;
+            auto displayEmail = pair.first;
             if(!nameFiles.contains(blockpad)
                     &&
                !nameFiles.contains(QString(blockpad).replace("/", "\\"))
                     &&
                !nameFiles.contains(QString(blockpad).replace("\\", "/")))
             {
+                while(1)
+                {
+                    if(ui->comboBoxEmail->findText(displayEmail) == -1)
+                         break;
+                    else
+                    {
+                        displayEmail = email+ " (" + QString::number(index) + ")";
+                        index++;
+                    }
+                }
                 nameFiles.append(blockpad);
                 _listEmailPassws.append(pair);
-                ui->comboBoxEmail->addItem(pair.first);
-                ui->comboBoxEmail->setCurrentText(pair.first);
+                ui->comboBoxEmail->addItem(displayEmail);
+                if(!fileIds.contains(id))
+                {
+                    fileIds[blockpad] = id;
+                    ui->comboBoxId->addItem(id);
+                }
                 //add to external blockpads
                 {
                     QFile extBlocksFile(Utilities::filesDirectory()
@@ -226,10 +283,11 @@ void Register::OpenFile(QString blockpad)
                     extBlocksFile.close();
                 }
             }
+            ui->comboBoxEmail->setCurrentIndex(nameFiles.indexOf(blockpad));
+            ui->comboBoxId->setCurrentText(id);
         }
     }
     setMode(ModeRegistr::OpenBlockPad);
-
 }
 
 void Register::slotFinishEditingPassword()
@@ -243,6 +301,18 @@ void Register::slotFinishEditingPassword()
 void Register::slotFinishEditingLogin()
 {
     ui->lineEditPassword->setFocus();
+    if(!ui->comboBoxEmail->isHidden()
+            &&
+       ui->comboBoxEmail->currentIndex() != -1)
+        ui->comboBoxEmail->setToolTip(nameFiles[ui->comboBoxEmail->currentIndex()]);
+    if(!ui->widgetId->isHidden())
+    {
+        auto currentFile = nameFiles[ui->comboBoxEmail->currentIndex()];
+        if(fileIds.contains(currentFile))
+            ui->comboBoxId->setCurrentText(fileIds[currentFile]);
+        else
+            ui->comboBoxId->setCurrentText(defNoneId);
+    }
 }
 
 void Register::slotFinishEditingCode2FA()
@@ -260,6 +330,8 @@ void Register::setMode(ModeRegistr newMode)
     ui->widgetOpenFile->show();
     ui->labelHello->show();
     ui->pushButtonGetCode->setEnabled(true);
+    ui->widgetId->hide();
+    ui->labelEmpty->show();
     if(newMode != ModeRegistr::mode2FA)
     {
         ui->lineEditPassword->clear();
@@ -281,9 +353,8 @@ void Register::setMode(ModeRegistr newMode)
         ui->groupBoxAuthorizeData->setTitle("Create new Blockpad");
         ui->comboBoxEmail->hide();
         ui->lineEditEmail->show();
-//        ui->comboBoxEmail->setProperty("nullProp", true);
-//        ui->lineEditEmail->setProperty("nullProp", false);
         ui->lineEditEmail->setFocus();
+        ui->comboBoxId->setCurrentText(defNoneId);
         }
         break;
         case ModeRegistr::OpenBlockPad:
@@ -292,9 +363,9 @@ void Register::setMode(ModeRegistr newMode)
         ui->pushButtonLogin->setText("Login");
         ui->lineEditEmail->hide();
         ui->comboBoxEmail->show();
-//        ui->comboBoxEmail->setProperty("nullProp", false);
-//        ui->lineEditEmail->setProperty("nullProp", true);
         ui->lineEditPassword->setFocus();
+        ui->widgetId->show();
+        ui->labelEmpty->hide();
         }
         break;
         case ModeRegistr::modeLock:
@@ -307,11 +378,10 @@ void Register::setMode(ModeRegistr newMode)
         ui->labelStatus->clear();
         ui->comboBoxEmail->hide();
         ui->lineEditEmail->show();
-//        ui->comboBoxEmail->setProperty("nullProp", true);
-//        ui->lineEditEmail->setProperty("nullProp", false);
         ui->lineEditEmail->setEnabled(false);
         ui->lineEditEmail->setText(qApp->property(defEmailProperty).toString());
         ui->lineEditPassword->setFocus();
+        ui->widgetId->hide();
         }
         break;
         case ModeRegistr::mode2FA:
@@ -326,8 +396,6 @@ void Register::setMode(ModeRegistr newMode)
         {
             ui->comboBoxEmail->hide();
             ui->lineEditEmail->show();
-//            ui->comboBoxEmail->setProperty("nullProp", true);
-//            ui->lineEditEmail->setProperty("nullProp", false);
             ui->widgetCreate->hide();
             ui->widgetOpenFile->hide();
             ui->labelHello->hide();
@@ -336,8 +404,6 @@ void Register::setMode(ModeRegistr newMode)
         {
             ui->comboBoxEmail->hide();
             ui->lineEditEmail->show();
-//            ui->comboBoxEmail->setProperty("nullProp", true);
-//            ui->lineEditEmail->setProperty("nullProp", false);
         }
         if(mode != ModeRegistr::modeLock
                 &&
@@ -345,19 +411,13 @@ void Register::setMode(ModeRegistr newMode)
         {
             ui->lineEditEmail->hide();
             ui->comboBoxEmail->show();
-//            ui->comboBoxEmail->setProperty("nullProp", false);
-//            ui->lineEditEmail->setProperty("nullProp", true);
+            ui->widgetId->show();
+            ui->labelEmpty->hide();
         }
         ui->lineEditCode->setFocus();
         }
         break;
     }
-//    style()->unpolish(this);
-//    style()->polish(this);
-//    ui->comboBoxEmail->style()->unpolish(ui->comboBoxEmail);
-//    ui->comboBoxEmail->style()->polish(ui->comboBoxEmail);
-//    ui->lineEditEmail->style()->unpolish(ui->lineEditEmail);
-//    ui->lineEditEmail->style()->polish(ui->lineEditEmail);
     prevMode = mode;
     mode = newMode;
 }
@@ -476,22 +536,17 @@ void Register::slotLoginClicked()
     if(!ui->lineEditPassword->text().isEmpty())
     {
         bool success = false;
-        int iSuccess = -1;
         //login
         if(mode == ModeRegistr::OpenBlockPad)
         {
-            for(int i=0; i<_listEmailPassws.size(); i++)
-            {
-                auto pair = _listEmailPassws[i];
-                if(pair.first == ui->comboBoxEmail->currentText()
-                        &&
-                   pair.second == ui->lineEditPassword->text())
+//            for(int i=0; i<_listEmailPassws.size(); i++)
+//            {
+                auto pair = _listEmailPassws[ui->comboBoxEmail->currentIndex()];
+                if(pair.second == ui->lineEditPassword->text())
                 {
                     success = true;
-                    iSuccess = i;
-                    break;
                 }
-            }
+//            }
         }
         if(mode == ModeRegistr::modeLock)
         {
@@ -507,20 +562,35 @@ void Register::slotLoginClicked()
             if(mode == ModeRegistr::New)
                 qApp->setProperty(defEmailProperty, ui->lineEditEmail->text());
             else
-                qApp->setProperty(defEmailProperty, ui->comboBoxEmail->currentText());
+                qApp->setProperty(defEmailProperty, currentEmail());
             qApp->setProperty(defPasswordProperty, ui->lineEditPassword->text());
             QString fileName;
             //fill fileName
             {
                 if(mode == ModeRegistr::OpenBlockPad)
-                    fileName = nameFiles[iSuccess];
+                    fileName = nameFiles[ui->comboBoxEmail->currentIndex()];
                 if(mode == ModeRegistr::New)
                 {
                     auto email = ui->lineEditEmail->text();
                     auto name_email = email.split("@")[0];
-                    fileName = Utilities::filesDirectory()
+                    auto baseName = Utilities::filesDirectory()
                             + "/" + defPathBlockpads + QString("/")
-                            + name_email + "_blockpad.bloc";
+                            + name_email + "_blockpad";
+                    fileName = baseName + ".bloc";
+                    if(QFile(fileName).exists())
+                    {
+                        int index = 1;
+                        while(1)
+                        {
+                            if(!QFile(baseName + "_"
+                               + QString::number(index) + ".bloc").exists())
+                                break;
+                            else
+                                index++;
+                        }
+                        fileName = baseName + "_"
+                           + QString::number(index) + ".bloc";
+                    }
                 }
                 if(mode == ModeRegistr::modeLock)
                     fileName = qApp->property(defFileProperty).toString();
@@ -536,8 +606,8 @@ void Register::slotLoginClicked()
                 }
                 else
                 {
-                    settings.setValue(defCurrentEmail,
-                                      qApp->property(defEmailProperty).toString());
+                    settings.setValue(defCurrentFile,
+                                      qApp->property(defFileProperty).toString());
                     if(mode == ModeRegistr::New)
                         QtConcurrent::run(this, &Register::sendEmailToGetResponse);
                     if(mode == ModeRegistr::modeLock)

@@ -684,6 +684,9 @@ max-height:50;
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonLicenseActivate">
+           <property name="toolTip">
+            <string>License Activation</string>
+           </property>
            <property name="text">
             <string/>
            </property>

@@ -17,8 +17,12 @@ public:
         static Crypto singleton;
         return singleton;
     }
-    QList<QPair<QString, QString> > listEmailPassws(QList<QString>& nameFiles);
-    QPair<QString, QString> pairEmailPassw(QString fileName, bool &bSuccess);
+    QList<QPair<QString, QString> > listEmailPassws(QList<QString>& nameFiles,
+                                                    QMap<QString, QString> &fileIds,
+                                                    QStringList &displayEmails);
+    QPair<QString, QString> pairEmailPassw(QString fileName,
+                                           bool &bSuccess,
+                                           QString & id);
     void encrypt(QByteArray ba_plain_text,
                  QByteArray &ba_cipher_text,
                  QByteArray &ba_Iv);

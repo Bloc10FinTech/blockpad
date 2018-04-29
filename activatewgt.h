@@ -33,6 +33,8 @@ private slots:
                               QString strError);
     void slotCheckFinished(bool bSuccess,
                            QString strError);
+signals:
+    void sigSuccessActivated();
 };
 
 #endif // ACTIVATEWGT_H

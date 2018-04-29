@@ -23,7 +23,7 @@ NetworkLicenseServer::NetworkLicenseServer(QObject *parent):
     }
 }
 
-void NetworkLicenseServer::sendActivateRequest(QString license)
+void NetworkLicenseServer::sendActivateRequest(QString license, QString devName)
 {
     QByteArray data;
     //fill data
@@ -32,7 +32,7 @@ void NetworkLicenseServer::sendActivateRequest(QString license)
         object["cmd"] = "Activate";
         object["license_key"] = license;
         object["mac_address"] = Utilities::macAddress() + settings.value("device_name").toString();
-        object["device_name"] = settings.value("device_name").toString();
+        object["device_name"] = devName;
         //fill hash
         {
             QByteArray hashData;
@@ -121,6 +121,6 @@ void NetworkLicenseServer::slotReplyFinished(QNetworkReply *reply)
     }
     if(typeReply == "Check")
     {
-        activateFinished(reply);
+        checkFinished(reply);
     }
 }

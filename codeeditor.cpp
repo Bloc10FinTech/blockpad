@@ -119,7 +119,7 @@ QByteArray CodeEditor::dataToEncrypt()
         auto doc= allDocuments[nameDocument];
         if(doc == document())
             bVisible = true;
-        auto allText = doc->toPlainText();
+        auto allText = doc->toPlainText().toUtf8();
         int length = allText.size();
         res.append((const char *)&length, sizeof(int));
         res.append(allText);
@@ -168,7 +168,7 @@ QMap<QString, QTextDocument *> CodeEditor::slotLoadData(QByteArray allLoadData, 
         int textSize = *((int *)allLoadData.mid(pos, sizeof(int)).data());
         pos+=sizeof(int);
 
-        QString plainText = allLoadData.mid(pos, textSize);
+        QString plainText = QString::fromUtf8(allLoadData.mid(pos, textSize));
 
         doc->setPlainText(plainText);
         pos+=textSize;

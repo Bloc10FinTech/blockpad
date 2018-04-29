@@ -39,6 +39,7 @@ public:
     void closeSeparateWgts();
 private:
     Ui::BlockPad *ui;
+    NetworkLicenseServer netwLicenseServer;
     QPointer<SettingsWgt> setWgt;
     QPointer<GeneratePassword> genPasswWgt;
     QPointer<OneTimePadGeneratorWgt> oneTimePadGenWgt;
@@ -59,6 +60,10 @@ private:
     BrowserWindow * web_browserWindow {nullptr};
     void successActivation(bool bSuccess);
     QWebEngineView * webEngineView;
+    int adsId {0};
+    //backup files
+    int backupId{0};
+    void updateBackUpFiles();
     //print data
     void renderHeader(QPainter &painter, QString header,
                       const QRectF& textRect, qreal footerHeight, int pageNumber);
@@ -94,7 +99,8 @@ private slots:
     void slotFileClicked(QListWidgetItem *item);
     void slotFilesContextMenu(QPoint);
     void slotFilesItemFinishEditing();
-    void slotUrlClicked(QUrl url);
+    void slotOpenUrlWebTab(QUrl url);
+    void slotSuccessActivated();
     //updates
     void slotUpdateAvailable(QString link, QString version,
                              QString description,  bool bManually = false);
@@ -105,6 +111,10 @@ private slots:
     void slotDownloadUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
     void slotCheckUpdateFinished(QNetworkReply *reply);
     void slotDescriptionFinished(QNetworkReply *reply);
+    //check license
+    void slotCheckLicenseNetworkError(QNetworkReply::NetworkError);
+    void slotCheckResult(bool bSuccess,QString strError);
+    void slotPremiumVersionClicked();
 signals:
     void sigScreenLock_Time(int time);
     void sigUpdateAvailable(QString link, QString version, QString description, bool bManually);

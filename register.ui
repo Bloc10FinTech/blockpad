@@ -25,7 +25,7 @@
     border-radius: 3px;
     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                       stop: 0 #f6f7fa, stop: 1 #dadbde);
-	min-width: 200px;
+	min-width: 160px;
 }
 
 QPushButton:pressed {
@@ -44,15 +44,14 @@ QPushButton:default {
 QLineEdit{
     border: 2px solid #8f8f91;
     border-radius: 3px;
-	min-width:270px;
-	max-width:270px;
+	min-width:220px;
 }
 
 QComboBox{
     border: 2px solid #8f8f91;
     border-radius: 3px;
-	min-width:270px;
-	max-width:270px;
+	min-width:220px;
+    max-width:220px;
 }
 
 QComboBox[nullProp=true]{
@@ -80,6 +79,13 @@ QComboBox[nullProp=true]{
      </property>
      <property name="wordWrap">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelEmpty">
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>
@@ -175,6 +181,13 @@ QComboBox[nullProp=true]{
              <height>16777215</height>
             </size>
            </property>
+           <property name="styleSheet">
+            <string notr="true">QLineEdit{
+    border: 2px solid #8f8f91;
+    border-radius: 3px;
+	min-width:150px;
+}</string>
+           </property>
            <property name="nullProp" stdset="0">
             <bool>true</bool>
            </property>
@@ -182,6 +195,104 @@ QComboBox[nullProp=true]{
          </item>
          <item>
           <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="widgetId" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <spacer name="horizontalSpacer_13">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelId">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Id</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBoxId">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>224</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLineEdit{
+    border: 2px solid #8f8f91;
+    border-radius: 3px;
+	min-width:150px;
+}</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_14">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -395,13 +506,13 @@ QComboBox[nullProp=true]{
           <widget class="QLabel" name="labelFalshGetCode">
            <property name="minimumSize">
             <size>
-             <width>190</width>
+             <width>180</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>190</width>
+             <width>180</width>
              <height>16777215</height>
             </size>
            </property>
@@ -420,7 +531,7 @@ QComboBox[nullProp=true]{
            </property>
            <property name="minimumSize">
             <size>
-             <width>204</width>
+             <width>164</width>
              <height>0</height>
             </size>
            </property>
@@ -480,13 +591,13 @@ QComboBox[nullProp=true]{
           <widget class="QLabel" name="labelFalsh">
            <property name="minimumSize">
             <size>
-             <width>190</width>
+             <width>180</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>190</width>
+             <width>180</width>
              <height>16777215</height>
             </size>
            </property>
@@ -505,7 +616,7 @@ QComboBox[nullProp=true]{
            </property>
            <property name="minimumSize">
             <size>
-             <width>204</width>
+             <width>164</width>
              <height>0</height>
             </size>
            </property>

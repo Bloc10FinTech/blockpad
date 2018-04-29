@@ -120,7 +120,7 @@ void Ticker::timerEvent(QTimerEvent *event)
 void Ticker::slotStart(bool bOn)
 {
     if(bOn)
-        tickerId = startTimer(100);
+        tickerId = startTimer(25);
     else
         killTimer(tickerId);
 }
@@ -323,7 +323,7 @@ void Ticker::RePaint()
     for(int i=0;i<graphItems.size(); i++)
     {
         auto graphItem = graphItems[i];
-        graphItem->setX(graphItem->x() +3);
+        graphItem->setX(graphItem->x() +1);
     }
 }
 

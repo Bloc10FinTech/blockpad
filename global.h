@@ -13,8 +13,10 @@ class QWidget;
 #define defPathBlockpads "blockpads"
 #define defExternalBlockpads "external_blockpads"
 
+#define defNoneId "none"
+
 //settings
-#define defCurrentEmail "CurrentEmail"
+#define defCurrentFile "CurrentFile"
 
 //properties qapplication
 #define defEmailProperty "email"
@@ -22,9 +24,9 @@ class QWidget;
 #define defLicenseProperty "license"
 #define defIdProperty "id"
 #define defDateStart "date_start"
-#define defMacAddressProperty "macAddress"
 #define defFileProperty "fileBlockpad"
 #define def2FA_Code "2FA_Code"
+#define defLicenseIsActive "LicenseIsActive"
 
 namespace Utilities {
     void setAppFamilyFont(  QWidget * wgt,

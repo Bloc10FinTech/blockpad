@@ -36,6 +36,7 @@
 
 #define defReplyType "ReplyType"
 #define defDefaultNameFile "new "
+#define defBackupStepTime 60
 
 BlockPad::BlockPad(QWidget *parent) :
     QWidget(parent),
@@ -63,6 +64,7 @@ BlockPad::BlockPad(QWidget *parent) :
         ui->mainVerticalLayout->addWidget(webEngineView);
         webEngineView->setUrl(QUrl("http://blockpad.io/adserv1.php"));
         webEngineView->setFixedHeight(110);
+        adsId = startTimer(60*1000);
     }
     nam = new QNetworkAccessManager(this);
     //signals-slots connects
@@ -77,6 +79,10 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotPrintClicked);
         connect(ui->pushButtonAddFile, &QPushButton::clicked,
                 this, &BlockPad::slotAddBlockPadFile);
+        connect(ui->pushButtonProVersion, &QPushButton::clicked,
+                this, &BlockPad::slotPremiumVersionClicked);
+        connect(ui->pushButtonBackUp, &QPushButton::clicked,
+                this, &BlockPad::slotPremiumVersionClicked);
         connect(ui->pushButton1TimePad, &QPushButton::clicked,
                 this, &BlockPad::slotOneTimePadGeneratorClicked);
         connect(ui->pushButtonGeneratePassword, &QPushButton::clicked,
@@ -110,7 +116,11 @@ BlockPad::BlockPad(QWidget *parent) :
         connect(ui->listWidgetFiles, SIGNAL(customContextMenuRequested(QPoint)),
                 this, SLOT(slotFilesContextMenu(QPoint)));
         connect(ui->tableWidgetAccounts, &TableWidgetAccounts::sigClickedUrl,
-                this, &BlockPad::slotUrlClicked);
+                this, &BlockPad::slotOpenUrlWebTab);
+        connect(&netwLicenseServer, &NetworkLicenseServer::sigNetworkError,
+                this, &BlockPad::slotCheckLicenseNetworkError);
+        connect(&netwLicenseServer, &NetworkLicenseServer::sigCheckFinished,
+                this, &BlockPad::slotCheckResult);
     }
     //change font size
     {
@@ -146,7 +156,7 @@ BlockPad::BlockPad(QWidget *parent) :
     }
 }
 
-void BlockPad::slotUrlClicked(QUrl url)
+void BlockPad::slotOpenUrlWebTab(QUrl url)
 {
     ui->tabWidget->setCurrentWidget(ui->WebBrowser);
     web_browserWindow->slotNewUrl(url);
@@ -165,6 +175,35 @@ void BlockPad::timerEvent(QTimerEvent *event)
                          + "    ");
         }
     }
+    if(adsId == event->timerId())
+    {
+        webEngineView->setUrl(QUrl("http://blockpad.io/adserv1.php"));
+    }
+    if(backupId == event->timerId())
+    {
+        updateBackUpFiles();
+    }
+}
+
+void BlockPad::slotCheckLicenseNetworkError(QNetworkReply::NetworkError err)
+{
+    QMessageBox::information(this, "Check License",
+                             "Network error = " + err);
+}
+
+void BlockPad::slotCheckResult(bool bSuccess,QString strError)
+{
+    if(!bSuccess)
+    {
+        QMessageBox::critical(this, windowTitle(),
+                              "The license is no longer valid! Please contact with http://bloc10.com!");
+        successActivation(false);
+    }
+}
+
+void BlockPad::updateBackUpFiles()
+{
+    netwLicenseServer.sendCheckRequest(qApp->property(defLicenseProperty).toString());
 }
 
 void BlockPad::slotFilesContextMenu(QPoint pos)
@@ -567,6 +606,8 @@ void BlockPad::slotActivateClicked()
     {
         activLicenseWgt = new ActivateWgt(nullptr);
         activLicenseWgt->show();
+        connect(activLicenseWgt, &ActivateWgt::sigSuccessActivated,
+                this, &BlockPad::slotSuccessActivated);
     }
 }
 
@@ -840,6 +881,11 @@ void BlockPad::slotAddBlockPadFile()
     }
 }
 
+void BlockPad::slotPremiumVersionClicked()
+{
+    slotOpenUrlWebTab(QUrl("https://dev.fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
+}
+
 void BlockPad::slotCurrentWgtChanged()
 {
     auto buttons = ui->ToolsWgt->findChildren<QPushButton *>();
@@ -847,6 +893,11 @@ void BlockPad::slotCurrentWgtChanged()
     {
         button->show();
     }
+    bool isLicenseActive = qApp->property(defLicenseIsActive).toBool();
+    if(isLicenseActive)
+        ui->pushButtonProVersion->hide();
+    else
+        ui->pushButtonBackUp->hide();
     if(ui->tabWidget->currentWidget() == ui->Development)
     {
         ui->pushButtonCompleteRow->hide();
@@ -907,7 +958,7 @@ void BlockPad::slotSaveEncrypt()
         }
         //mac address
         {
-            auto macAddr = qApp->property(defMacAddressProperty).toString();
+            auto macAddr = Utilities::macAddress();
             int size_ = macAddr.size();
             allData.append((const char *)&size_, sizeof(int));
             allData.append(macAddr);
@@ -959,6 +1010,11 @@ void BlockPad::slotSaveEncrypt()
     ui->pushButtonSave->setEnabled(false);
 }
 
+void BlockPad::slotSuccessActivated()
+{
+    successActivation(true);
+}
+
 void BlockPad::slotBlockPadNewChanges()
 {
     ui->pushButtonSave->setEnabled(true);
@@ -968,7 +1024,7 @@ void BlockPad::slotLoadDecrypt()
 {
     QByteArray allData;
     QString fileName = qApp->property(defFileProperty).toString();
-    qApp->setProperty(defIdProperty, "none");
+    qApp->setProperty(defIdProperty, defNoneId);
     //fill allData
     {
         QFile file(fileName);
@@ -1080,8 +1136,7 @@ void BlockPad::slotLoadDecrypt()
                 successActivation(true);
             else
             {
-                ui->pushButtonLicenseActivate->
-                        setIcon(QIcon("://Icons/licenseNoActivate.png"));
+                successActivation(false);
             }
         }
     }
@@ -1095,6 +1150,9 @@ void BlockPad::successActivation(bool bSuccess)
                 setIcon(QIcon("://Icons/licenseActivate.png"));
         webEngineView->hide();
         ui->pushButtonBackUp->show();
+        ui->pushButtonProVersion->hide();
+        backupId = startTimer(defBackupStepTime * 1000);
+        updateBackUpFiles();
     }
     else
     {
@@ -1102,7 +1160,13 @@ void BlockPad::successActivation(bool bSuccess)
                 setIcon(QIcon("://Icons/licenseNoActivate.png"));
         webEngineView->show();
         ui->pushButtonBackUp->hide();
+        ui->pushButtonProVersion->show();
+        killTimer(backupId);
+        qApp->setProperty(defLicenseProperty, "");
+        qApp->setProperty(defIdProperty, "");
     }
+    slotSaveEncrypt();
+    qApp->setProperty(defLicenseIsActive, bSuccess);
 }
 
 void BlockPad::documentChanged(QString nameDocument)

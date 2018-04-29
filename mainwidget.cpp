@@ -135,16 +135,16 @@ void MainWidget::slotLockScreen()
 
 void MainWidget::slotSuccessRegistered()
 {
-    ui->stackedWidget->setCurrentWidget(ui->blockPad);   
+    ui->stackedWidget->setCurrentWidget(ui->blockPad);
     setMinimumSize(0,0);
     setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
     ui->stackedWidget->setMinimumSize(0,0);
     ui->stackedWidget->setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
     ui->blockPad->setMinimumWidth(800);
     ui->blockPad->setMinimumHeight(400);
-    showMaximized();
     ui->blockPad->Init();
     ui->blockPad->activateWidgets(true);
+    showMaximized();
 }
 
 
@@ -157,7 +157,11 @@ void MainWidget::slotSuccessUnlocked()
     ui->stackedWidget->setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
     ui->blockPad->setMinimumWidth(800);
     ui->blockPad->setMinimumHeight(400);
+    ui->blockPad->setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
     ui->blockPad->activateWidgets(true);
+    //it is very strange but without this line will show not maximized
+    //but only ui->blockPad minimum size(800x400)
+    hide();
     showMaximized();
 }
 

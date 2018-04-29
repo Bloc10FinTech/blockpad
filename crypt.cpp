@@ -4,6 +4,7 @@
 #include <QFile>
 #include "global.h"
 #include "stega/steganography.h"
+
 Crypto::Crypto()
 {
     //fill baKey
@@ -33,16 +34,40 @@ QByteArray Crypto::generateIv()
     return res;
 }
 
-QList<QPair<QString, QString>> Crypto::listEmailPassws(QList<QString> &nameFiles)
+QList<QPair<QString, QString>> Crypto::listEmailPassws( QList<QString> &nameFiles,
+                                                        QMap<QString, QString> & fileIds,
+                                                        QStringList & displayEmails)
 {
     QList<QPair<QString, QString>> res;
     QList<QString> newNameFiles;
     foreach(auto name, nameFiles)
     {
        bool bSuccess = true;
-       auto pair = pairEmailPassw(name, bSuccess);
+       QString id;
+       auto pair = pairEmailPassw(name, bSuccess, id);
+       auto email = pair.first;
+       auto displyEmail = pair.first;
+       int index=1;
        if(bSuccess)
        {
+           while(1)
+           {
+               if(!displayEmails.contains(displyEmail))
+               {
+                    displayEmails.append(displyEmail);
+                    break;
+               }
+               else
+               {
+                   displyEmail = email+ " (" + QString::number(index) + ")";
+                   index++;
+               }
+           }
+
+           if(!id.isEmpty() && id !=defNoneId)
+           {
+               fileIds[name] = id;
+           }
            res.append(pair);
            newNameFiles.append(name);
        }
@@ -51,7 +76,9 @@ QList<QPair<QString, QString>> Crypto::listEmailPassws(QList<QString> &nameFiles
     return res;
 }
 
-QPair<QString, QString> Crypto::pairEmailPassw(QString fileName, bool & bSuccess)
+QPair<QString, QString> Crypto::pairEmailPassw(QString fileName,
+                                               bool & bSuccess,
+                                               QString &id)
 {
     unsigned char * defKey = reinterpret_cast<unsigned char *>(baKey.data());
     bSuccess = true;
@@ -92,9 +119,9 @@ QPair<QString, QString> Crypto::pairEmailPassw(QString fileName, bool & bSuccess
     int pos = 0;
 
     QStringList texts;
-    texts << ""<< "" << "";
+    texts << ""<< "" << ""<<""<<""<<"";
     QList<int> sizes;
-    sizes << 0<< 0 <<0;
+    sizes << 0<< 0 <<0 <<0 <<0<<0;
     //version encryption protocol
     int versionProtocol = -1;
 
@@ -115,7 +142,7 @@ QPair<QString, QString> Crypto::pairEmailPassw(QString fileName, bool & bSuccess
         delete[] plaintext;
     }
 
-    for(int i=0; i<3; i++)
+    for(int i=0; i<6; i++)
     {
         //fill sizes[i]
         {
@@ -154,6 +181,7 @@ QPair<QString, QString> Crypto::pairEmailPassw(QString fileName, bool & bSuccess
     }
     pair.first = texts[1];
     pair.second = texts[2];
+    id = texts[5];
     EVP_CIPHER_CTX_free(ctxDecrypt);
     return pair;
 }

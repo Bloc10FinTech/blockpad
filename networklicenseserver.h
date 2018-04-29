@@ -11,7 +11,7 @@ class NetworkLicenseServer : public QObject
     Q_OBJECT
 public:
     NetworkLicenseServer(QObject *parent=Q_NULLPTR);
-    void sendActivateRequest(QString license);
+    void sendActivateRequest(QString license, QString devName);
     void sendCheckRequest(QString license);
 private:
     QNetworkAccessManager * nam;
