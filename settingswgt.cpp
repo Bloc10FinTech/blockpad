@@ -55,6 +55,17 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
             ui->spinBoxXMinutesLockScreen->setValue(time);
         }
 
+        if(settings.value("Save_Cache").type() != QVariant::Invalid)
+        {
+            auto bOn = settings.value("Save_Cache").toBool();
+            ui->checkBoxSaveCache->setChecked(bOn);
+        }
+        else
+        {
+            settings.setValue("Save_Cache", true);
+            ui->checkBoxSaveCache->setChecked(true);
+        }
+
         ui->checkBoxCheckUpdates->setChecked(!settings.value("noUpdating").toBool());
         settings.sync();
     }
@@ -77,6 +88,8 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
                 this, &SettingsWgt::slotPasswordVisibleClicked);
         connect(ui->checkBox2FA_On, &QCheckBox::toggled,
                 this, &SettingsWgt::slot2FA_On_Clicked);
+        connect(ui->checkBoxSaveCache, &QCheckBox::toggled,
+                this, &SettingsWgt::slotSaveCache_Clicked);
         connect(ui->checkBoxHighlightingCode, &QCheckBox::toggled,
                 this, &SettingsWgt::slotCheckHighlightingText);
         connect(ui->checkBoxCheckUpdates, &QCheckBox::toggled,
@@ -87,6 +100,13 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
                 this, SLOT(slotFontSizeFinishEditing()));
     }
 
+}
+
+void SettingsWgt::slotSaveCache_Clicked(bool bOn)
+{
+    settings.setValue("Save_Cache", bOn);
+    settings.sync();
+    emit sigSaveCache(bOn);
 }
 
 void SettingsWgt::slotCheckHighlightingText(bool bCheck)

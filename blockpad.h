@@ -17,8 +17,9 @@
 #include <QPrinter>
 #include <QUrl>
 #include "webBrowser/browser.h"
-
+#include <QFutureWatcher>
 #include <QGraphicsPixmapItem>
+#include "webBrowser/browser.h"
 
 class QListWidgetItem;
 class QWebEngineView;
@@ -62,8 +63,11 @@ private:
     QWebEngineView * webEngineView;
     int adsId {0};
     //backup files
-    int backupId{0};
-    void updateBackUpFiles();
+    int checkLicenseId{0};
+    void updateBackUpFile();
+    std::atomic_bool finishWgt;
+    QFutureWatcher<void> fW_UpdateBackUp;
+    void checkLicense();
     //print data
     void renderHeader(QPainter &painter, QString header,
                       const QRectF& textRect, qreal footerHeight, int pageNumber);

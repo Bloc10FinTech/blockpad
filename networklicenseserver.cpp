@@ -31,7 +31,11 @@ void NetworkLicenseServer::sendActivateRequest(QString license, QString devName)
         QJsonObject object;
         object["cmd"] = "Activate";
         object["license_key"] = license;
+#ifdef TEST_LICENSE
         object["mac_address"] = Utilities::macAddress() + settings.value("device_name").toString();
+#else
+        object["mac_address"] = Utilities::macAddress();
+#endif
         object["device_name"] = devName;
         //fill hash
         {
@@ -61,7 +65,11 @@ void NetworkLicenseServer::sendCheckRequest(QString license)
         object["cmd"] = "Check";
         object["id"] = qApp->property(defIdProperty).toString();
         object["license_key"] = license;
+#ifdef TEST_LICENSE
         object["mac_address"] = Utilities::macAddress() + settings.value("device_name").toString();
+#else
+        object["mac_address"] = Utilities::macAddress();
+#endif
         //fill hash
         {
             QByteArray hashData;

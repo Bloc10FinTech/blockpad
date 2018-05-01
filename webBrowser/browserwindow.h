@@ -54,6 +54,7 @@
 #include <QMainWindow>
 #include <QTime>
 #include <QWebEnginePage>
+#include <QWebEngineProfile>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -74,13 +75,15 @@ public:
     TabWidget *tabWidget() const;
     WebView *currentTab() const;
     Browser *browser() { return m_browser; }
-
+    QByteArray saveData();
+    void loadData(QByteArray allLoadData, int &pos);
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 public slots:
     void slotNewUrl(QUrl newUrl);
-
+    void slotSaveCache(bool on)
+    {bNoCache = !on;}
 private slots:
     void handleNewWindowTriggered();
     void handleNewIncognitoWindowTriggered();
@@ -90,7 +93,7 @@ private slots:
     void handleWebViewLoadProgress(int);
     void handleWebViewTitleChanged(const QString &title);
     void handleWebActionEnabledChanged(QWebEnginePage::WebAction action, bool enabled);
-
+    void slotCookieAdded(const QNetworkCookie &cookie);
 private:
     QMenu *createFileMenu(TabWidget *tabWidget);
     QMenu *createEditMenu();
@@ -99,6 +102,9 @@ private:
     QMenu *createHelpMenu();
     QToolBar *createToolBar();
 
+    QByteArray baAllCookies;
+    int nCookies {0};
+    bool bNoCache {false};
 private:
     Browser *m_browser;
     QWebEngineProfile *m_profile;

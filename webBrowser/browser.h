@@ -65,7 +65,7 @@ public:
 
     QVector<BrowserWindow*> windows() { return m_windows; }
 
-    BrowserWindow *createWindow(bool offTheRecord = false);
+    BrowserWindow *createWindow(bool offTheRecord = true);
 
     DownloadManagerWidget &downloadManagerWidget() { return m_downloadManagerWidget; }
 

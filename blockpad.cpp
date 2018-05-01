@@ -38,11 +38,23 @@
 #define defDefaultNameFile "new "
 #define defBackupStepTime 60
 
+#if defined(WIN32) || defined(WIN64)
+#include <aws/core/Aws.h>
+#include <aws/s3/S3Client.h>
+#include <aws/s3/model/Bucket.h>
+#include <aws/core/auth/AWSCredentialsProvider.h>
+#include <aws/s3/model/PutObjectRequest.h>
+#include <aws/s3/model/GetObjectRequest.h>
+#include <iostream>
+#include <fstream>
+#endif
+
 BlockPad::BlockPad(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::BlockPad)
 {
     ui->setupUi(this);
+    finishWgt.store(false);
     ui->tabWidget->setCurrentWidget(ui->Development);
     //load settings
     {
@@ -148,7 +160,7 @@ BlockPad::BlockPad(QWidget *parent) :
     }
     //add web browser
     {
-        web_browserWindow = new BrowserWindow(&browser, QWebEngineProfile::defaultProfile());
+        web_browserWindow = browser.createWindow(true);
         web_browserWindow->setParent(this);
         QHBoxLayout *layout = new QHBoxLayout;
         layout->addWidget(web_browserWindow);
@@ -179,9 +191,9 @@ void BlockPad::timerEvent(QTimerEvent *event)
     {
         webEngineView->reload();
     }
-    if(backupId == event->timerId())
+    if(checkLicenseId == event->timerId())
     {
-        updateBackUpFiles();
+        checkLicense();
     }
 }
 
@@ -201,7 +213,108 @@ void BlockPad::slotCheckResult(bool bSuccess,QString strError)
     }
 }
 
-void BlockPad::updateBackUpFiles()
+void BlockPad::updateBackUpFile()
+{
+    //aws test
+    {
+        Aws::SDKOptions options;
+        options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Debug;
+        Aws::InitAPI(options);
+        Aws::String accessKey = "AKIAIFY7ILAN7LFVX7HA";
+        Aws::String sequreKey = "bwqDslr0tv2ZVtBKLq60wQILFaeLF4ep6s3hmb10";
+        Aws::Auth::AWSCredentials credentionals(accessKey,sequreKey);
+        Aws::S3::S3Client s3_client(credentionals);
+//        auto outcome = s3_client.ListBuckets();
+
+//        if (outcome.IsSuccess())
+//        {
+//            std::cout << "Your Amazon S3 buckets:" << std::endl;
+
+//            Aws::Vector<Aws::S3::Model::Bucket> bucket_list =
+//                outcome.GetResult().GetBuckets();
+
+//            for (auto const &bucket : bucket_list)
+//            {
+//                std::cout << "  * " << bucket.GetName() << std::endl;
+//            }
+//        }
+//        else
+//        {
+//            std::cout << "ListBuckets error: "
+//                << outcome.GetError().GetExceptionName() << " - "
+//                << outcome.GetError().GetMessage() << std::endl;
+//        }
+        QString strKey = qApp->property(defLicenseProperty).toString()
+                +"/" + settings.value("device_name").toString()
+                +"/" + qApp->property(defIdProperty).toString()
+                +"/" + QFileInfo(qApp->property(defFileProperty).toString()).fileName();
+        auto stdKey = strKey.toStdString();
+        const char * Key =stdKey.data();
+        qDebug() << "settings.value(\"device_name\").toString() = "
+                 << settings.value("device_name").toString();
+        qDebug() << "key = " << Key;
+        qreal dbAllSleepTime = 0;
+        while(qApp->property(defLicenseIsActive).toBool()
+                &&
+           !finishWgt.load())
+        {
+            if(dbAllSleepTime >= defBackupStepTime)
+            {
+                dbAllSleepTime = 0;
+                Aws::S3::Model::PutObjectRequest object_request;
+                object_request.WithBucket("blockpadcloud").WithKey(Key).WithServerSideEncryption(Aws::S3::Model::ServerSideEncryption::AES256);
+
+                Aws::String file_name = qApp->property(defFileProperty).toString().toStdString().data();
+
+                // Binary files must also have the std::ios_base::bin flag or'ed in
+                auto input_data = Aws::MakeShared<Aws::FStream>("PutObjectInputStream",
+                    file_name.c_str(), std::ios_base::in | std::ios_base::binary);
+
+                object_request.SetBody(input_data);
+
+                auto put_object_outcome = s3_client.PutObject(object_request);
+
+                if (put_object_outcome.IsSuccess())
+                {
+                    std::cout << "Done!" << std::endl;
+                }
+                else
+                {
+                    std::cout << "PutObject error: " <<
+                        put_object_outcome.GetError().GetExceptionName() << " " <<
+                        put_object_outcome.GetError().GetMessage() << std::endl;
+                }
+            }
+            thread()->msleep(50);
+            dbAllSleepTime += 0.05;
+        }
+
+//        {
+//            Aws::S3::Model::GetObjectRequest object_request;
+//            object_request.WithBucket("blockpadcloud").WithKey(Key);
+
+//            auto get_object_outcome = s3_client.GetObject(object_request);
+
+//            if (get_object_outcome.IsSuccess())
+//            {
+//                Aws::OFStream local_file;
+//                local_file.open("C:\\Users\\user\\Desktop\\download.bloc", std::ios::out | std::ios::binary);
+//                local_file << get_object_outcome.GetResult().GetBody().rdbuf();
+//                std::cout << "Done!" << std::endl;
+//            }
+//            else
+//            {
+//                std::cout << "GetObject error: " <<
+//                    get_object_outcome.GetError().GetExceptionName() << " " <<
+//                    get_object_outcome.GetError().GetMessage() << std::endl;
+//            }
+//        }
+        Aws::ShutdownAPI(options);
+    }
+
+}
+
+void BlockPad::checkLicense()
 {
     netwLicenseServer.sendCheckRequest(qApp->property(defLicenseProperty).toString());
 }
@@ -623,6 +736,8 @@ void BlockPad::slotSettingsClicked()
                 this, &BlockPad::slotFontSizeChanged);
         connect(setWgt, &SettingsWgt::sigHighlightingCode,
                 ui->codeEdit, &CodeEditor::slotHighlightingCode);
+        connect(setWgt, &SettingsWgt::sigSaveCache,
+                web_browserWindow, &BrowserWindow::slotSaveCache);
         connect(setWgt, &SettingsWgt::sigPasswordVisible,
                 ui->tableWidgetAccounts, &TableWidgetAccounts::slotAllwaysChecked);
     }
@@ -988,6 +1103,8 @@ void BlockPad::slotSaveEncrypt()
         allData.append(ui->tableWidgetAccounts->dataToEncrypt());
         //cryptopad
         allData.append(ui->codeEdit->dataToEncrypt());
+        //cookies
+        allData.append(web_browserWindow->saveData());
         auto hash = QMessageAuthenticationCode::hash(allData,
                                                      (QByteArray)defHashKey,QCryptographicHash::Sha256);
         int size = hash.size();
@@ -1132,6 +1249,8 @@ void BlockPad::slotLoadDecrypt()
             }
         }
         documentChanged(currentName);
+        //cookies
+        web_browserWindow->loadData(allDecryptoData, pos);
     }
     //check license
     {
@@ -1158,8 +1277,9 @@ void BlockPad::successActivation(bool bSuccess)
         webEngineView->hide();
         ui->pushButtonBackUp->show();
         ui->pushButtonProVersion->hide();
-        backupId = startTimer(defBackupStepTime * 1000);
-        updateBackUpFiles();
+        checkLicenseId = startTimer(defBackupStepTime * 1000);
+        fW_UpdateBackUp.setFuture(QtConcurrent::run(this, &BlockPad::updateBackUpFile));
+        checkLicense();
     }
     else
     {
@@ -1168,12 +1288,15 @@ void BlockPad::successActivation(bool bSuccess)
         webEngineView->show();
         ui->pushButtonBackUp->hide();
         ui->pushButtonProVersion->show();
-        killTimer(backupId);
+        killTimer(checkLicenseId);
         qApp->setProperty(defLicenseProperty, "");
         qApp->setProperty(defIdProperty, "");
     }
     slotSaveEncrypt();
     qApp->setProperty(defLicenseIsActive, bSuccess);
+    //test
+    //checkLicenseId = startTimer(10*1000);
+    //fW_UpdateBackUp.setFuture(QtConcurrent::run(this, &BlockPad::updateBackUpFile));
 }
 
 void BlockPad::documentChanged(QString nameDocument)
@@ -1196,6 +1319,8 @@ void BlockPad::documentChanged(QString nameDocument)
 
 BlockPad::~BlockPad()
 {
+    finishWgt.store(true);
+    fW_UpdateBackUp.waitForFinished();
     delete ui;
 }
 

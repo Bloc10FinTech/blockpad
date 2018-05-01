@@ -66,6 +66,8 @@
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <QWebEngineProfile>
+#include <QWebEngineCookieStore>
+#include <QDebug>
 
 BrowserWindow::BrowserWindow(Browser *browser, QWebEngineProfile *profile)
     : m_browser(browser)
@@ -134,6 +136,61 @@ BrowserWindow::BrowserWindow(Browser *browser, QWebEngineProfile *profile)
     {
         statusBar()->close();
         menuBar()->close();
+    }
+
+    connect(m_profile->cookieStore(), &QWebEngineCookieStore::cookieAdded,
+            this, &BrowserWindow::slotCookieAdded);
+    qDebug() << "nCookies" <<nCookies;
+    //m_profile->cookieStore()->deleteAllCookies();
+    //m_profile->setHttpCacheType(QWebEngineProfile::MemoryHttpCache);
+}
+
+
+void BrowserWindow::slotCookieAdded(const QNetworkCookie &cookie)
+{
+    QByteArray baData = cookie.toRawForm();
+    if(!baAllCookies.contains(baData) && !bNoCache)
+    {
+        auto size = baData.size();
+        baAllCookies.append((const char *)&size, sizeof(int));
+        baAllCookies.append(baData);
+        nCookies++;
+        qDebug() << "name: " << cookie.name();
+        qDebug() << "value: " << cookie.value();
+        qDebug() << "path: " << cookie.path();
+        qDebug() << "domain: " << cookie.domain();
+    }
+}
+
+QByteArray BrowserWindow::saveData()
+{
+    QByteArray res;
+    res.append((const char *)&nCookies, sizeof(int));
+    res.append(baAllCookies);
+
+    return res;
+}
+
+void BrowserWindow::loadData(QByteArray allLoadData, int &pos)
+{
+    baAllCookies.clear();
+    int _nCookies {0};
+    //nCookies
+    {
+        _nCookies = *((int *)allLoadData.mid(pos, sizeof(int)).data());
+        pos += sizeof(int);
+    }
+    //add Cookies
+    for(int i=0; i<_nCookies; i++)
+    {
+        int size = *((int *)allLoadData.mid(pos, sizeof(int)).data());
+        pos += sizeof(int);
+        QByteArray baCookie = allLoadData.mid(pos, size);
+        pos += size;
+        auto list = QNetworkCookie::parseCookies(baCookie);
+        //must rewrite...
+        m_profile->cookieStore()->setCookie(list.first());
+        slotCookieAdded(list.first());
     }
 }
 

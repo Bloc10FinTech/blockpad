@@ -22,6 +22,7 @@ private slots:
     void slotFontAppChanged(QString newFamily);
     void slotPasswordVisibleClicked(bool bCheck);
     void slot2FA_On_Clicked(bool bCheck);
+    void slotSaveCache_Clicked(bool bOn);
     void slotCheckUpdatesStartUp(bool bCheck);
     void slotLockScreen_Time_FinishEditing();
     void slotFontSizeFinishEditing();
@@ -31,6 +32,7 @@ signals:
     void sigPasswordVisible(bool on);
     void sigFontSizeChanged(int pointSize);
     void sigHighlightingCode(bool on);
+    void sigSaveCache(bool on);
 };
 
 #endif // SETTINGSWGT_H
