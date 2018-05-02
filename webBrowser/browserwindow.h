@@ -118,6 +118,8 @@ private:
     QLineEdit *m_urlLineEdit;
     QAction *m_favAction;
     QString m_lastSearch;
+signals:
+    void newChanges();
 };
 
 #endif // BROWSERWINDOW_H

@@ -33,10 +33,11 @@
 #include "tablePrinter/tableprinter.h"
 #include "webBrowser/browserwindow.h"
 #include <QWebEngineProfile>
+#include "stega/steganography.h"
 
 #define defReplyType "ReplyType"
 #define defDefaultNameFile "new "
-#define defBackupStepTime 60
+#define defBackupStepTime 3*60*60
 
 #if defined(WIN32) || defined(WIN64)
 #include <aws/core/Aws.h>
@@ -55,6 +56,7 @@ BlockPad::BlockPad(QWidget *parent) :
 {
     ui->setupUi(this);
     finishWgt.store(false);
+    clickBackUp.store(false);
     ui->tabWidget->setCurrentWidget(ui->Development);
     //load settings
     {
@@ -79,61 +81,6 @@ BlockPad::BlockPad(QWidget *parent) :
         adsId = startTimer(60*1000);
     }
     nam = new QNetworkAccessManager(this);
-    //signals-slots connects
-    {
-        connect(ui->pushButtonCompleteRow, &QPushButton::clicked,
-                this, &BlockPad::slotCompleteRowClicked);
-        connect(ui->pushButtonUpdate, &QPushButton::clicked,
-                this, &BlockPad::slotUpdateClicking);
-        connect(ui->pushButtonSettings, &QPushButton::clicked,
-                this, &BlockPad::slotSettingsClicked);
-        connect(ui->pushButtonPrint, &QPushButton::clicked,
-                this, &BlockPad::slotPrintClicked);
-        connect(ui->pushButtonAddFile, &QPushButton::clicked,
-                this, &BlockPad::slotAddBlockPadFile);
-        connect(ui->pushButtonProVersion, &QPushButton::clicked,
-                this, &BlockPad::slotPremiumVersionClicked);
-        connect(ui->pushButtonBackUp, &QPushButton::clicked,
-                this, &BlockPad::slotPremiumVersionClicked);
-        connect(ui->pushButton1TimePad, &QPushButton::clicked,
-                this, &BlockPad::slotOneTimePadGeneratorClicked);
-        connect(ui->pushButtonGeneratePassword, &QPushButton::clicked,
-                this, &BlockPad::slotPasswGenClicked);
-        connect(ui->pushButtonLicenseActivate, &QPushButton::clicked,
-                this, &BlockPad::slotActivateClicked);
-        connect(ui->pushButtonSave, &QPushButton::clicked,
-                this, &BlockPad::slotSaveEncrypt);
-        connect(ui->pushButtonRemoveRow, &QPushButton::clicked,
-                this, &BlockPad::slotRemoveRowClicked);
-        connect(ui->tableWidgetAccounts, &TableWidgetAccounts::sigCompetingRow,
-                this, &BlockPad::slotRowSuccessfullyCompleted);
-        connect(ui->tableWidgetCoinRecords, &TableWidgetCoinRecords::sigCompetingRow,
-                this, &BlockPad::slotRowSuccessfullyCompleted);
-        connect(ui->tabWidget, &QTabWidget::currentChanged,
-                this, &BlockPad::slotCurrentWgtChanged);
-        connect(ui->codeEdit, &CodeEditor::newChanges,
-                this, &BlockPad::slotBlockPadNewChanges);
-        connect(this, &BlockPad::sigUpdateAvailable,
-                this, &BlockPad::slotUpdateAvailable);
-        connect(nam, &QNetworkAccessManager::finished,
-                this, &BlockPad::slotReplyFinished);
-        connect(this, &BlockPad::sig_No_UpdateAvailable,
-                this, &BlockPad::slot_No_UpdateAvailable);
-        connect(this, &BlockPad::sigErrorParsing,
-                this, &BlockPad::slotErrorUpdateParsing);
-        connect(ui->listWidgetFiles, &QListWidget::itemClicked,
-                this, &BlockPad::slotFileClicked);
-        connect(ui->listWidgetFiles, &QListWidget::currentTextChanged,
-                this, &BlockPad::slotFilesItemFinishEditing);
-        connect(ui->listWidgetFiles, SIGNAL(customContextMenuRequested(QPoint)),
-                this, SLOT(slotFilesContextMenu(QPoint)));
-        connect(ui->tableWidgetAccounts, &TableWidgetAccounts::sigClickedUrl,
-                this, &BlockPad::slotOpenUrlWebTab);
-        connect(&netwLicenseServer, &NetworkLicenseServer::sigNetworkError,
-                this, &BlockPad::slotCheckLicenseNetworkError);
-        connect(&netwLicenseServer, &NetworkLicenseServer::sigCheckFinished,
-                this, &BlockPad::slotCheckResult);
-    }
     //change font size
     {
         auto fontSize = settings.value("FontSize").toInt();
@@ -166,6 +113,70 @@ BlockPad::BlockPad(QWidget *parent) :
         layout->addWidget(web_browserWindow);
         ui->WebBrowser->setLayout(layout);
     }
+    //signals-slots connects
+    {
+        connect(ui->pushButtonCompleteRow, &QPushButton::clicked,
+                this, &BlockPad::slotCompleteRowClicked);
+        connect(ui->pushButtonUpdate, &QPushButton::clicked,
+                this, &BlockPad::slotUpdateClicking);
+        connect(ui->pushButtonSettings, &QPushButton::clicked,
+                this, &BlockPad::slotSettingsClicked);
+        connect(ui->pushButtonPrint, &QPushButton::clicked,
+                this, &BlockPad::slotPrintClicked);
+        connect(ui->pushButtonAddFile, &QPushButton::clicked,
+                this, &BlockPad::slotAddBlockPadFile);
+        connect(ui->pushButtonProVersion, &QPushButton::clicked,
+                this, &BlockPad::slotPremiumVersionClicked);
+        connect(ui->pushButtonBackUp, &QPushButton::clicked,
+                this, &BlockPad::slotBackUpClicked);
+        connect(ui->pushButton1TimePad, &QPushButton::clicked,
+                this, &BlockPad::slotOneTimePadGeneratorClicked);
+        connect(ui->pushButtonGeneratePassword, &QPushButton::clicked,
+                this, &BlockPad::slotPasswGenClicked);
+        connect(ui->pushButtonLicenseActivate, &QPushButton::clicked,
+                this, &BlockPad::slotActivateClicked);
+        connect(ui->pushButtonSave, &QPushButton::clicked,
+                this, &BlockPad::slotSaveEncrypt);
+        connect(ui->pushButtonRemoveRow, &QPushButton::clicked,
+                this, &BlockPad::slotRemoveRowClicked);
+        connect(ui->tableWidgetAccounts, &TableWidgetAccounts::sigCompetingRow,
+                this, &BlockPad::slotRowSuccessfullyCompleted);
+        connect(ui->tableWidgetCoinRecords, &TableWidgetCoinRecords::sigCompetingRow,
+                this, &BlockPad::slotRowSuccessfullyCompleted);
+        connect(ui->tabWidget, &QTabWidget::currentChanged,
+                this, &BlockPad::slotCurrentWgtChanged);
+        connect(ui->codeEdit, &CodeEditor::newChanges,
+                this, &BlockPad::slotBlockPadNewChanges);
+        connect(web_browserWindow, &BrowserWindow::newChanges,
+                this, &BlockPad::slotBlockPadNewChanges);
+        connect(this, &BlockPad::sigUpdateAvailable,
+                this, &BlockPad::slotUpdateAvailable);
+        connect(nam, &QNetworkAccessManager::finished,
+                this, &BlockPad::slotReplyFinished);
+        connect(this, &BlockPad::sig_No_UpdateAvailable,
+                this, &BlockPad::slot_No_UpdateAvailable);
+        connect(this, &BlockPad::sigErrorParsing,
+                this, &BlockPad::slotErrorUpdateParsing);
+        connect(ui->listWidgetFiles, &QListWidget::itemClicked,
+                this, &BlockPad::slotFileClicked);
+        connect(ui->listWidgetFiles, &QListWidget::currentTextChanged,
+                this, &BlockPad::slotFilesItemFinishEditing);
+        connect(ui->listWidgetFiles, SIGNAL(customContextMenuRequested(QPoint)),
+                this, SLOT(slotFilesContextMenu(QPoint)));
+        connect(ui->tableWidgetAccounts, &TableWidgetAccounts::sigClickedUrl,
+                this, &BlockPad::slotOpenUrlWebTab);
+        connect(&netwLicenseServer, &NetworkLicenseServer::sigNetworkError,
+                this, &BlockPad::slotCheckLicenseNetworkError);
+        connect(&netwLicenseServer, &NetworkLicenseServer::sigCheckFinished,
+                this, &BlockPad::slotCheckResult);
+    }
+
+}
+
+void BlockPad::slotBackUpClicked()
+{
+    clickBackUp.store(true);
+    slotPremiumVersionClicked();
 }
 
 void BlockPad::slotOpenUrlWebTab(QUrl url)
@@ -220,30 +231,24 @@ void BlockPad::updateBackUpFile()
         Aws::SDKOptions options;
         options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Debug;
         Aws::InitAPI(options);
-        Aws::String accessKey = "AKIAIFY7ILAN7LFVX7HA";
-        Aws::String sequreKey = "bwqDslr0tv2ZVtBKLq60wQILFaeLF4ep6s3hmb10";
+        Aws::String accessKey;
+        //fill accessKey
+        {
+            SteganoReaderWriter st;
+            st.decode_img("://Icons/1TimePad.png");
+            QString str = st.read_data();
+            accessKey = str.toStdString().data();
+        }
+        Aws::String sequreKey;
+        //fill sequreKey
+        {
+            SteganoReaderWriter st;
+            st.decode_img("://Icons/UpdateIcon.png");
+            QString str = st.read_data();
+            sequreKey = str.toStdString().data();
+        }
         Aws::Auth::AWSCredentials credentionals(accessKey,sequreKey);
         Aws::S3::S3Client s3_client(credentionals);
-//        auto outcome = s3_client.ListBuckets();
-
-//        if (outcome.IsSuccess())
-//        {
-//            std::cout << "Your Amazon S3 buckets:" << std::endl;
-
-//            Aws::Vector<Aws::S3::Model::Bucket> bucket_list =
-//                outcome.GetResult().GetBuckets();
-
-//            for (auto const &bucket : bucket_list)
-//            {
-//                std::cout << "  * " << bucket.GetName() << std::endl;
-//            }
-//        }
-//        else
-//        {
-//            std::cout << "ListBuckets error: "
-//                << outcome.GetError().GetExceptionName() << " - "
-//                << outcome.GetError().GetMessage() << std::endl;
-//        }
         QString strKey = qApp->property(defLicenseProperty).toString()
                 +"/" + settings.value("device_name").toString()
                 +"/" + qApp->property(defIdProperty).toString()
@@ -253,12 +258,14 @@ void BlockPad::updateBackUpFile()
         qDebug() << "settings.value(\"device_name\").toString() = "
                  << settings.value("device_name").toString();
         qDebug() << "key = " << Key;
-        qreal dbAllSleepTime = 0;
-        while(qApp->property(defLicenseIsActive).toBool()
-                &&
-           !finishWgt.load())
+        qreal dbAllSleepTime = defBackupStepTime;
+        while(qApp->property(defLicenseIsActive).toBool())
         {
-            if(dbAllSleepTime >= defBackupStepTime)
+            if(dbAllSleepTime >= defBackupStepTime
+                    ||
+               finishWgt.load()
+                    ||
+               clickBackUp.load())
             {
                 dbAllSleepTime = 0;
                 Aws::S3::Model::PutObjectRequest object_request;
@@ -284,31 +291,14 @@ void BlockPad::updateBackUpFile()
                         put_object_outcome.GetError().GetExceptionName() << " " <<
                         put_object_outcome.GetError().GetMessage() << std::endl;
                 }
+                clickBackUp.store(false);
             }
+            if(finishWgt.load())
+                break;
             thread()->msleep(50);
             dbAllSleepTime += 0.05;
         }
 
-//        {
-//            Aws::S3::Model::GetObjectRequest object_request;
-//            object_request.WithBucket("blockpadcloud").WithKey(Key);
-
-//            auto get_object_outcome = s3_client.GetObject(object_request);
-
-//            if (get_object_outcome.IsSuccess())
-//            {
-//                Aws::OFStream local_file;
-//                local_file.open("C:\\Users\\user\\Desktop\\download.bloc", std::ios::out | std::ios::binary);
-//                local_file << get_object_outcome.GetResult().GetBody().rdbuf();
-//                std::cout << "Done!" << std::endl;
-//            }
-//            else
-//            {
-//                std::cout << "GetObject error: " <<
-//                    get_object_outcome.GetError().GetExceptionName() << " " <<
-//                    get_object_outcome.GetError().GetMessage() << std::endl;
-//            }
-//        }
         Aws::ShutdownAPI(options);
     }
 

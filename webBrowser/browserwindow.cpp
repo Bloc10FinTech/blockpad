@@ -155,6 +155,7 @@ void BrowserWindow::slotCookieAdded(const QNetworkCookie &cookie)
         baAllCookies.append((const char *)&size, sizeof(int));
         baAllCookies.append(baData);
         nCookies++;
+        emit newChanges();
         qDebug() << "name: " << cookie.name();
         qDebug() << "value: " << cookie.value();
         qDebug() << "path: " << cookie.path();

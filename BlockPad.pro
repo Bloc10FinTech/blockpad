@@ -20,7 +20,7 @@ DEFINES += ENABLE_BCRYPT_ENCRYPTION
 DEFINES += USE_IMPORT_EXPORT
 DEFINES += AWS_S3_EXPORTS
 DEFINES += QT_DEPRECATED_WARNINGS
-#DEFINES += QT_NO_DEBUG_OUTPUT
+DEFINES += QT_NO_DEBUG_OUTPUT
 #DEFINES += TEST_LICENSE
 SOURCES += \
         main.cpp \
@@ -171,7 +171,7 @@ ICON = BlockPad.icns
 }
 
 win32{
-install.path = C:/Users/user/Documents/GitHub/BlockPadBin
+install.path = C:/Users/alex.user-ion/Documents/GitHub/BlockPadBin
 CONFIG(release, debug|release):install.files += $$OUT_PWD/release/BlockPad.exe
 CONFIG(debug, debug|release):install.files += $$OUT_PWD/debug/BlockPad.exe
 INSTALLS +=install

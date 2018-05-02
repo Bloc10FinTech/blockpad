@@ -66,6 +66,7 @@ private:
     int checkLicenseId{0};
     void updateBackUpFile();
     std::atomic_bool finishWgt;
+    std::atomic_bool clickBackUp;
     QFutureWatcher<void> fW_UpdateBackUp;
     void checkLicense();
     //print data
@@ -105,6 +106,7 @@ private slots:
     void slotFilesItemFinishEditing();
     void slotOpenUrlWebTab(QUrl url);
     void slotSuccessActivated();
+    void slotBackUpClicked();
     //updates
     void slotUpdateAvailable(QString link, QString version,
                              QString description,  bool bManually = false);
