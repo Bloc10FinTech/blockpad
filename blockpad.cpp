@@ -988,7 +988,7 @@ void BlockPad::slotAddBlockPadFile()
 
 void BlockPad::slotPremiumVersionClicked()
 {
-    slotOpenUrlWebTab(QUrl("https://dev.fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
+    slotOpenUrlWebTab(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
 }
 
 void BlockPad::slotCurrentWgtChanged()

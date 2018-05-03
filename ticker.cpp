@@ -177,13 +177,15 @@ QGraphicsTextItem * Ticker::addTextItem(QString html,
     items.append(textItem);
 #if defined(WIN32) || defined(WIN64)
     if(id != specialId::arrowId)
-        textItem->moveBy(0,fontSizeDefault - font.pointSize());
+        textItem->moveBy(0,fontSizeDefault - font.pointSize()+3);
+    else
+        textItem->moveBy(0,3);
 #endif
 #ifdef __APPLE__
     if(id != specialId::arrowId)
-        textItem->moveBy(0,fontSizeDefault + 3- font.pointSize());
+        textItem->moveBy(0,fontSizeDefault + 6- font.pointSize());
     else
-        textItem->moveBy(0,3);
+        textItem->moveBy(0,6);
 #endif
     textItem->setFont(font);
     return textItem;
@@ -194,10 +196,11 @@ QGraphicsSvgItem * Ticker::addSvgItem(QSvgRenderer *render,
 {
     auto graphItem = new QGraphicsSvgItem();
     graphItem->setSharedRenderer(render);
-    graphItem->setScale(((double)ui->graphicsView->height() - 2)/ render->defaultSize().width());
+    graphItem->setScale(((double)ui->graphicsView->height() - 12)/ render->defaultSize().width());
     ui->graphicsView->scene()->addItem(graphItem);
     graphItem->setX(leftPosition()
                   - shiftElements -ui->graphicsView->height());
+    graphItem->moveBy(0,5);
     items.append(graphItem);
     return graphItem;
 }

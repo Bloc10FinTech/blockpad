@@ -69,16 +69,16 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
         ui->checkBoxCheckUpdates->setChecked(!settings.value("noUpdating").toBool());
         settings.sync();
     }
-    //add pixmap to label
-    {
-        QPixmap p("://Icons/Block10_Logo.png");
-        int w = ui->labelLogo->width();
-        int h = ui->labelLogo->height();
+//    //add pixmap to label
+//    {
+//        QPixmap p("://Icons/Block10_Logo.png");
+//        int w = ui->labelLogo->width();
+//        int h = ui->labelLogo->height();
 
-        ui->labelLogo->setPixmap(p.scaled(w,h,
-                                          Qt::KeepAspectRatio,
-                                          Qt::SmoothTransformation));
-    }
+//        ui->labelLogo->setPixmap(p.scaled(w,h,
+//                                          Qt::KeepAspectRatio,
+//                                          Qt::SmoothTransformation));
+//    }
     ui->labelVersion->setText(defVersionApplication + QString(" (Qt 5.10)"));
     //signals-slots connects
     {
