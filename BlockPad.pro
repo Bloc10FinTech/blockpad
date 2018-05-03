@@ -20,7 +20,7 @@ DEFINES += ENABLE_BCRYPT_ENCRYPTION
 DEFINES += USE_IMPORT_EXPORT
 DEFINES += AWS_S3_EXPORTS
 DEFINES += QT_DEPRECATED_WARNINGS
-DEFINES += QT_NO_DEBUG_OUTPUT
+#DEFINES += QT_NO_DEBUG_OUTPUT
 #DEFINES += TEST_LICENSE
 SOURCES += \
         main.cpp \
@@ -167,6 +167,10 @@ PRE_TARGETDEPS += $$PWD/../../openssl/openssl-1.0.2n/lib/libcrypto.a
 LIBS += -L$$PWD/../../openssl/openssl-1.0.2n/lib/ -lssl
 PRE_TARGETDEPS += $$PWD/../../openssl/openssl-1.0.2n/lib/libssl.a
 
+macx: LIBS += -L$$PWD/../../../../usr/local/lib/ -laws-cpp-sdk-s3 -laws-cpp-sdk-core -laws-cpp-sdk-transfer
+
+INCLUDEPATH += $$PWD/../../../../usr/local/include
+DEPENDPATH += $$PWD/../../../../usr/local/include
 ICON = BlockPad.icns
 }
 
@@ -178,6 +182,8 @@ INSTALLS +=install
 
 CONFIG(release, debug|release): LIBS += -L$$PWD/'../../../../../Program Files (x86)/aws-cpp-sdk-all/bin/' -laws-cpp-sdk-core -laws-cpp-sdk-s3 -laws-cpp-sdk-transfer
 CONFIG(debug, debug|release): LIBS += -L$$PWD/'../../../../../Program Files (x86)/aws-cpp-sdk-all/bin-debug/' -laws-cpp-sdk-core -laws-cpp-sdk-s3 -laws-cpp-sdk-transfer
+#CONFIG(release, debug|release): LIBS +=  -laws-cpp-sdk-core -laws-cpp-sdk-s3 -laws-cpp-sdk-transfer
+#CONFIG(debug, debug|release): LIBS +=  -laws-cpp-sdk-core -laws-cpp-sdk-s3 -laws-cpp-sdk-transfer
 
 
 INCLUDEPATH += $$PWD/'../../../../../Program Files (x86)/aws-cpp-sdk-all/include'
@@ -190,3 +196,4 @@ install.path = $$OUT_PWD/BlockPad.app/Contents/UpdateTools/
 install.files += /Users/admin/Desktop/build-UpdateBlockPad-Desktop_Qt_5_10_0_clang_64bit-Release/UpdateBlockPad.app
 INSTALLS +=install
 }
+

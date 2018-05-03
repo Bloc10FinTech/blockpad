@@ -326,6 +326,7 @@ void Register::setMode(ModeRegistr newMode)
     ui->widgetCode->setEnabled(false);
     ui->widgetEmail->setEnabled(true);
     ui->widgetPassword->setEnabled(true);
+    ui->widgetId->setEnabled(true);
     ui->widgetCreate->show();
     ui->widgetOpenFile->show();
     ui->labelHello->show();
@@ -389,6 +390,7 @@ void Register::setMode(ModeRegistr newMode)
         ui->groupBoxAuthorizeData->setTitle("Input code from email");
         ui->widgetCode->setEnabled(true);
         ui->widgetEmail->setEnabled(false);
+        ui->widgetId->setEnabled(false);
         ui->widgetPassword->setEnabled(false);
         ui->pushButtonLogin->setEnabled(true);
         ui->pushButtonGetCode->setEnabled(false);

@@ -11,9 +11,9 @@ ActivateWgt::ActivateWgt(QWidget *parent) :
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose);
     Utilities::setAppFamilyFont(ui->labelTitle, 16,QFont::Bold);
-    Utilities::setAppFamilyFont(ui->labelStatus, 13,QFont::Bold);
-    Utilities::setAppFamilyFont(ui->labelDescriptionDevName, 12,QFont::Normal, true);
-    Utilities::setAppFamilyFont(ui->labelDescriptionLicenseKey, 12,QFont::Normal, true);
+    Utilities::setAppFamilyFont(ui->labelStatus, qApp->font().pointSize()+1,QFont::Bold);
+    Utilities::setAppFamilyFont(ui->labelDescriptionDevName, qApp->font().pointSize(),QFont::Normal, true);
+    Utilities::setAppFamilyFont(ui->labelDescriptionLicenseKey, qApp->font().pointSize(),QFont::Normal, true);
     auto devName = settings.value("device_name").toString();
     if(!devName.isEmpty())
     {
@@ -71,6 +71,7 @@ ActivateWgt::ActivateWgt(QWidget *parent) :
     ui->widgetCheck->hide();
     ui->widgetId->hide();
 #endif
+    adjustSize();
 }
 
 void ActivateWgt::slotIdFinished()

@@ -39,7 +39,7 @@
 #define defDefaultNameFile "new "
 #define defBackupStepTime 3*60*60
 
-#if defined(WIN32) || defined(WIN64)
+//#if defined(WIN32) || defined(WIN64)
 #include <aws/core/Aws.h>
 #include <aws/s3/S3Client.h>
 #include <aws/s3/model/Bucket.h>
@@ -48,7 +48,7 @@
 #include <aws/s3/model/GetObjectRequest.h>
 #include <iostream>
 #include <fstream>
-#endif
+//#endif
 
 BlockPad::BlockPad(QWidget *parent) :
     QWidget(parent),
@@ -108,7 +108,7 @@ BlockPad::BlockPad(QWidget *parent) :
     //add web browser
     {
         web_browserWindow = browser.createWindow(true);
-        web_browserWindow->setParent(this);
+        //web_browserWindow->setParent(this);
         QHBoxLayout *layout = new QHBoxLayout;
         layout->addWidget(web_browserWindow);
         ui->WebBrowser->setLayout(layout);
