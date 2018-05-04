@@ -73,10 +73,6 @@ BrowserWindow *Browser::createWindow(bool offTheRecord)
     profile->setPersistentCookiesPolicy(QWebEngineProfile::NoPersistentCookies);
     qDebug() << "offTheRecord: " << profile->isOffTheRecord();
     auto mainWindow = new BrowserWindow(this, profile);
-    m_windows.append(mainWindow);
-    QObject::connect(mainWindow, &QObject::destroyed, [this, mainWindow]() {
-        m_windows.removeOne(mainWindow);
-    });
     //mainWindow->show();
     return mainWindow;
 }

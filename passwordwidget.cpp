@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QKeyEvent>
 #include "global.h"
+#include <QStyleFactory>
 
 PasswordWidget::PasswordWidget(QWidget *parent, bool noPassword) :
     QFrame(parent),
@@ -15,6 +16,7 @@ PasswordWidget::PasswordWidget(QWidget *parent, bool noPassword) :
     pixmap = pixmap.scaled(15, 15);
     ui->labelIcon->setPixmap(pixmap);
     setLocked(false);
+    setStyle(QStyleFactory::create("Windows"));
     //diseble = enable palettes
     {
         auto pal = palette();
@@ -48,6 +50,8 @@ PasswordWidget::PasswordWidget(QWidget *parent, bool noPassword) :
     }
     if(noPassword)
         ui->checkBoxVisible->hide();
+
+    ui->lineEditPassword->setAttribute(Qt::WA_MacShowFocusRect,0);
 }
 
 void PasswordWidget::slotVisibleClicked(bool bCheck)

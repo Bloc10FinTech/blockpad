@@ -12,6 +12,7 @@
 #include <QMetaEnum>
 #include <QMenu>
 #include <QClipboard>
+#include <QStyleFactory>
 
 TableWidgetBase::TableWidgetBase(QWidget *parent):
     QTableWidget(parent)
@@ -25,6 +26,7 @@ TableWidgetBase::TableWidgetBase(QWidget *parent):
                 this, &TableWidgetBase::slotEditedShortcut);
     }
     setSelectionMode(QAbstractItemView::NoSelection);
+    setStyle(QStyleFactory::create("Windows"));
 }
 
 void TableWidgetBase::addRow(QStringList initTexts)
