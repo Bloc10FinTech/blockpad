@@ -16,7 +16,9 @@ PasswordWidget::PasswordWidget(QWidget *parent, bool noPassword) :
     pixmap = pixmap.scaled(15, 15);
     ui->labelIcon->setPixmap(pixmap);
     setLocked(false);
+#ifdef __APPLE__
     setStyle(QStyleFactory::create("Windows"));
+#endif
     //diseble = enable palettes
     {
         auto pal = palette();

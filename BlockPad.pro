@@ -54,7 +54,6 @@ SOURCES += \
     stega/lodepng.cpp \
     stega/steganography.cpp \
     tablePrinter/tableprinter.cpp \
-    onetimepadgeneratorwgt.cpp \
     ticker.cpp \
     webBrowser/browserwindow.cpp \
     webBrowser/downloadmanagerwidget.cpp \
@@ -65,7 +64,9 @@ SOURCES += \
     webBrowser/webview.cpp \
     webBrowser/browser.cpp \
     networklicenseserver.cpp \
-    activatewgt.cpp
+    activatewgt.cpp \
+    fileencryptionwgt.cpp \
+    onetimepadgenerator.cpp
 
 HEADERS += \
     global.h \
@@ -100,7 +101,6 @@ HEADERS += \
     stega/lodepng.h \
     stega/steganography.h \
     tablePrinter/tableprinter.h \
-    onetimepadgeneratorwgt.h \
     ticker.h \
     webBrowser/browserwindow.h \
     webBrowser/downloadmanagerwidget.h \
@@ -111,7 +111,9 @@ HEADERS += \
     webBrowser/webview.h \
     webBrowser/browser.h \
     networklicenseserver.h \
-    activatewgt.h
+    activatewgt.h \
+    fileencryptionwgt.h \
+    onetimepadgenerator.h
 
 FORMS += \
     passwordwidget.ui \
@@ -126,7 +128,8 @@ FORMS += \
     webBrowser/downloadmanagerwidget.ui \
     webBrowser/downloadwidget.ui \
     webBrowser/passworddialog.ui \
-    activatewgt.ui
+    activatewgt.ui \
+    onetimepadgenerator.ui
 
 RESOURCES += \
     fonts.qrc \

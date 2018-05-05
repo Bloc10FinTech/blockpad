@@ -65,10 +65,13 @@ QGroupBox::title {
      <item>
       <widget class="QLabel" name="labelTitleOneTimePad">
        <property name="text">
-        <string>One-Time Pad Encryption</string>
+        <string>&quot;Single File Encryption System&quot; using One Time Pad (as a computer file) with Steganography</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

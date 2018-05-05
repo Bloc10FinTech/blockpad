@@ -103,7 +103,7 @@ void ActivateWgt::slotActivateClicked()
 void ActivateWgt::slotNetworkError(QNetworkReply::NetworkError err)
 {
     QMessageBox::information(this, "License Activation",
-                             "Network error = " + err);
+                             "Network error = " + QString::number(err));
 }
 
 void ActivateWgt::slotActivateFinished(bool bSuccess,

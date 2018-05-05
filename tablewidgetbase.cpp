@@ -26,7 +26,9 @@ TableWidgetBase::TableWidgetBase(QWidget *parent):
                 this, &TableWidgetBase::slotEditedShortcut);
     }
     setSelectionMode(QAbstractItemView::NoSelection);
+#ifdef __APPLE__
     setStyle(QStyleFactory::create("Windows"));
+#endif
 }
 
 void TableWidgetBase::addRow(QStringList initTexts)

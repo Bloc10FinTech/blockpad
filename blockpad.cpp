@@ -129,14 +129,16 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotPremiumVersionClicked);
         connect(ui->pushButtonBackUp, &QPushButton::clicked,
                 this, &BlockPad::slotBackUpClicked);
-        connect(ui->pushButton1TimePad, &QPushButton::clicked,
-                this, &BlockPad::slotOneTimePadGeneratorClicked);
+        connect(ui->pushButtonSingleFileEncryptionSystem, &QPushButton::clicked,
+                this, &BlockPad::slotFileEncryptionClicked);
         connect(ui->pushButtonGeneratePassword, &QPushButton::clicked,
                 this, &BlockPad::slotPasswGenClicked);
         connect(ui->pushButtonLicenseActivate, &QPushButton::clicked,
                 this, &BlockPad::slotActivateClicked);
         connect(ui->pushButtonSave, &QPushButton::clicked,
                 this, &BlockPad::slotSaveEncrypt);
+        connect(ui->pushButtonOneTimePadGenerator, &QPushButton::clicked,
+                this, &BlockPad::slotOneTimePadGeneratorClicked);
         connect(ui->pushButtonRemoveRow, &QPushButton::clicked,
                 this, &BlockPad::slotRemoveRowClicked);
         connect(ui->tableWidgetAccounts, &TableWidgetAccounts::sigCompetingRow,
@@ -171,6 +173,15 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotCheckResult);
     }
 
+}
+
+void BlockPad::slotOneTimePadGeneratorClicked()
+{
+    if(oneTimePadGenWgt.isNull())
+    {
+        oneTimePadGenWgt = new OneTimePadGenerator(nullptr);
+        oneTimePadGenWgt->show();
+    }
 }
 
 void BlockPad::slotBackUpClicked()
@@ -211,7 +222,7 @@ void BlockPad::timerEvent(QTimerEvent *event)
 void BlockPad::slotCheckLicenseNetworkError(QNetworkReply::NetworkError err)
 {
     QMessageBox::information(this, "Check License",
-                             "Network error = " + err);
+                             "Network error = " + QString::number(err));
 }
 
 void BlockPad::slotCheckResult(bool bSuccess,QString strError)
@@ -376,12 +387,12 @@ void BlockPad::slotFilesItemFinishEditing()
     item->setFlags(item->flags() & (~Qt::ItemIsEditable));
 }
 
-void BlockPad::slotOneTimePadGeneratorClicked()
+void BlockPad::slotFileEncryptionClicked()
 {
-    if(oneTimePadGenWgt.isNull())
+    if(fileEncryptionWgt.isNull())
     {
-        oneTimePadGenWgt = new OneTimePadGeneratorWgt(nullptr);
-        oneTimePadGenWgt->show();
+        fileEncryptionWgt = new FileEncryptionWgt(nullptr);
+        fileEncryptionWgt->show();
     }
 }
 
@@ -754,12 +765,14 @@ void BlockPad::closeSeparateWgts()
 {
     if(!setWgt.isNull())
         setWgt->close();
-    if(!oneTimePadGenWgt.isNull())
-        oneTimePadGenWgt->close();
+    if(!fileEncryptionWgt.isNull())
+        fileEncryptionWgt->close();
     if(!genPasswWgt.isNull())
         genPasswWgt->close();
     if(!activLicenseWgt.isNull())
         activLicenseWgt->close();
+    if(!oneTimePadGenWgt.isNull())
+        oneTimePadGenWgt->close();
 }
 
 void BlockPad::slotCompleteRowClicked()

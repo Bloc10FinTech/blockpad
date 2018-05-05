@@ -8,13 +8,13 @@ namespace Ui {
 class OneTimePadGeneratorWgt;
 }
 
-class OneTimePadGeneratorWgt : public QWidget
+class FileEncryptionWgt : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit OneTimePadGeneratorWgt(QWidget *parent = 0);
-    ~OneTimePadGeneratorWgt();
+    explicit FileEncryptionWgt(QWidget *parent = 0);
+    ~FileEncryptionWgt();
 
 private:
     Ui::OneTimePadGeneratorWgt *ui;

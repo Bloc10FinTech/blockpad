@@ -10,7 +10,7 @@
 #include "tablewidgetaccounts.h"
 #include "tablewidgetcoinrecords.h"
 #include "settingswgt.h"
-#include "onetimepadgeneratorwgt.h"
+#include "fileencryptionwgt.h"
 #include "generatepassword.h"
 #include "activatewgt.h"
 #include "highlighter.h"
@@ -20,6 +20,7 @@
 #include <QFutureWatcher>
 #include <QGraphicsPixmapItem>
 #include "webBrowser/browser.h"
+#include "onetimepadgenerator.h"
 
 class QListWidgetItem;
 class QWebEngineView;
@@ -43,10 +44,11 @@ private:
     NetworkLicenseServer netwLicenseServer;
     QPointer<SettingsWgt> setWgt;
     QPointer<GeneratePassword> genPasswWgt;
-    QPointer<OneTimePadGeneratorWgt> oneTimePadGenWgt;
+    QPointer<FileEncryptionWgt> fileEncryptionWgt;
     QPointer<QProgressDialog> progressUpdates;
     QPointer<QNetworkReply> updatingReply;
     QPointer<ActivateWgt> activLicenseWgt;
+    QPointer<OneTimePadGenerator> oneTimePadGenWgt;
     QSettings settings;
     QNetworkAccessManager * nam;
     QNetworkAccessManager * namUpdate;
@@ -97,7 +99,7 @@ private slots:
     void slotFontSizeChanged(int pointSize);
     void slotReplyFinished(QNetworkReply *reply);
     void slotPrintClicked();
-    void slotOneTimePadGeneratorClicked();
+    void slotFileEncryptionClicked();
     void slotAddBlockPadFile();
     void slotDeleteBlockPadFile();
     void slotRenameBlockPadFile();
@@ -107,6 +109,7 @@ private slots:
     void slotOpenUrlWebTab(QUrl url);
     void slotSuccessActivated();
     void slotBackUpClicked();
+    void slotOneTimePadGeneratorClicked();
     //updates
     void slotUpdateAvailable(QString link, QString version,
                              QString description,  bool bManually = false);

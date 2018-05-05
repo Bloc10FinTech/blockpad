@@ -1,4 +1,4 @@
-#include "onetimepadgeneratorwgt.h"
+#include "fileencryptionwgt.h"
 #include "ui_onetimepadgeneratorwgt.h"
 #include "global.h"
 #include <QFileDialog>
@@ -10,7 +10,7 @@
 #define defSuccessEncrypt "Encryption completed successfully!"
 #define defSuccessDecrypt "Decryption completed successfully!"
 
-OneTimePadGeneratorWgt::OneTimePadGeneratorWgt(QWidget *parent) :
+FileEncryptionWgt::FileEncryptionWgt(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::OneTimePadGeneratorWgt)
 {
@@ -27,9 +27,9 @@ OneTimePadGeneratorWgt::OneTimePadGeneratorWgt(QWidget *parent) :
     //signals/slots connection
     {
         connect(ui->radioButtonEncrypt, &QRadioButton::clicked,
-                this, &OneTimePadGeneratorWgt::slotEncryptChoosed);
+                this, &FileEncryptionWgt::slotEncryptChoosed);
         connect(ui->radioButtonDecrypt, &QRadioButton::clicked,
-                this, &OneTimePadGeneratorWgt::slotDecryptChoosed);
+                this, &FileEncryptionWgt::slotDecryptChoosed);
 
         QList<QPushButton *> buttons = {ui->pushButtonEncryptedFileDecrypt,
                                        ui->pushButtonEncryptedFileEncrypt,
@@ -41,21 +41,21 @@ OneTimePadGeneratorWgt::OneTimePadGeneratorWgt(QWidget *parent) :
         foreach( auto btn, buttons)
         {
             connect(btn, &QPushButton::clicked,
-                    this,&OneTimePadGeneratorWgt::slotGetFileName);
+                    this,&FileEncryptionWgt::slotGetFileName);
         }
 
         connect(ui->pushButtonEncrypt, &QPushButton::clicked,
-                this, &OneTimePadGeneratorWgt::slotEncryptClicked);
+                this, &FileEncryptionWgt::slotEncryptClicked);
 
         connect(ui->pushButtonDecrypt, &QPushButton::clicked,
-                this, &OneTimePadGeneratorWgt::slotDecryptClicked);
+                this, &FileEncryptionWgt::slotDecryptClicked);
 
         connect(&futureWatcher, &QFutureWatcher<QString>::finished,
-                this, &OneTimePadGeneratorWgt::slotEncryptDecryptFinished);
+                this, &FileEncryptionWgt::slotEncryptDecryptFinished);
     }
 }
 
-void OneTimePadGeneratorWgt::slotEncryptDecryptFinished()
+void FileEncryptionWgt::slotEncryptDecryptFinished()
 {
     auto de_en_result = futureWatcher.result();
     ui->labelStatus->clear();
@@ -70,7 +70,7 @@ void OneTimePadGeneratorWgt::slotEncryptDecryptFinished()
                               de_en_result);
 }
 
-void OneTimePadGeneratorWgt::slotGetFileName()
+void FileEncryptionWgt::slotGetFileName()
 {
     bool bSaveFile = false;
     if((ui->radioButtonEncrypt->isChecked()
@@ -112,21 +112,21 @@ void OneTimePadGeneratorWgt::slotGetFileName()
     }
 }
 
-void OneTimePadGeneratorWgt::slotEncryptClicked()
+void FileEncryptionWgt::slotEncryptClicked()
 {
     ui->labelStatus->setText("Encryption in process. Do not close the windows until encryption is complete.");
     ui->groupBoxMain->setEnabled(false);
-    futureWatcher.setFuture(QtConcurrent::run(this, &OneTimePadGeneratorWgt::encryptKeyFile));
+    futureWatcher.setFuture(QtConcurrent::run(this, &FileEncryptionWgt::encryptKeyFile));
 }
 
-void OneTimePadGeneratorWgt::slotDecryptClicked()
+void FileEncryptionWgt::slotDecryptClicked()
 {
     ui->labelStatus->setText("Decryption in process. Do not close the windows until decryption is complete.");
     ui->groupBoxMain->setEnabled(false);
-    futureWatcher.setFuture(QtConcurrent::run(this, &OneTimePadGeneratorWgt::decryptKeyFile));
+    futureWatcher.setFuture(QtConcurrent::run(this, &FileEncryptionWgt::decryptKeyFile));
 }
 
-QString OneTimePadGeneratorWgt::decryptKeyFile()
+QString FileEncryptionWgt::decryptKeyFile()
 {
     QString nameOriginal = ui->lineEditOriginalFileDecrypt->text();
     QString nameKey = ui->lineEditKeyFileDecrypt->text();
@@ -198,7 +198,7 @@ QString OneTimePadGeneratorWgt::decryptKeyFile()
     return defSuccessDecrypt;
 }
 
-QString OneTimePadGeneratorWgt::encryptKeyFile()
+QString FileEncryptionWgt::encryptKeyFile()
 {
     QString nameOriginal = ui->lineEditOriginalFileEncrypt->text();
     QString nameKey = ui->lineEditKeyFileEncrypt->text();
@@ -271,19 +271,19 @@ QString OneTimePadGeneratorWgt::encryptKeyFile()
     return defSuccessEncrypt;
 }
 
-void OneTimePadGeneratorWgt::slotEncryptChoosed()
+void FileEncryptionWgt::slotEncryptChoosed()
 {
     ui->groupBoxDeCrypt->hide();
     ui->groupBoxEncrypt->show();
 }
 
-void OneTimePadGeneratorWgt::slotDecryptChoosed()
+void FileEncryptionWgt::slotDecryptChoosed()
 {
     ui->groupBoxEncrypt->hide();
     ui->groupBoxDeCrypt->show();
 }
 
-OneTimePadGeneratorWgt::~OneTimePadGeneratorWgt()
+FileEncryptionWgt::~FileEncryptionWgt()
 {
     delete ui;
 }
