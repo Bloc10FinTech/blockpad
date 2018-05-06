@@ -621,6 +621,8 @@ void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
                                        + Utilities::filesDirectory() + "\" \""
                                        + Utilities::applicationPath() + "\"");
 #endif
+        finishWgt.store(true);
+        fW_UpdateBackUp.waitForFinished();
         exit(0);
     }
     ui->pushButtonUpdate->setEnabled(true);
