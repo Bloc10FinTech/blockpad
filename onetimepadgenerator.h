@@ -19,7 +19,7 @@ public:
 private:
     Ui::OneTimePadGenerator *ui;
     QRandomGenerator randomGenerator;
-    QString numbers {"123456789"};
+    QString numbers {"0123456789"};
     QString lowercases {"abcdefghjklmnpqrstuvwxyz"};
     QString uppercases {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
     QString gibberishs  {"@#$%*&{}[]()/'\"\\`~,;:.!?<>^+-=_"};

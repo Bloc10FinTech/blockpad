@@ -66,7 +66,8 @@ SOURCES += \
     networklicenseserver.cpp \
     activatewgt.cpp \
     fileencryptionwgt.cpp \
-    onetimepadgenerator.cpp
+    onetimepadgenerator.cpp \
+    messagescramblerwgt.cpp
 
 HEADERS += \
     global.h \
@@ -113,7 +114,8 @@ HEADERS += \
     networklicenseserver.h \
     activatewgt.h \
     fileencryptionwgt.h \
-    onetimepadgenerator.h
+    onetimepadgenerator.h \
+    messagescramblerwgt.h
 
 FORMS += \
     passwordwidget.ui \
@@ -129,7 +131,8 @@ FORMS += \
     webBrowser/downloadwidget.ui \
     webBrowser/passworddialog.ui \
     activatewgt.ui \
-    onetimepadgenerator.ui
+    onetimepadgenerator.ui \
+    messagescramblerwgt.ui
 
 RESOURCES += \
     fonts.qrc \

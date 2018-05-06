@@ -21,6 +21,7 @@
 #include <QGraphicsPixmapItem>
 #include "webBrowser/browser.h"
 #include "onetimepadgenerator.h"
+#include "messagescramblerwgt.h"
 
 class QListWidgetItem;
 class QWebEngineView;
@@ -48,6 +49,7 @@ private:
     QPointer<QProgressDialog> progressUpdates;
     QPointer<QNetworkReply> updatingReply;
     QPointer<ActivateWgt> activLicenseWgt;
+    QPointer<MessageScramblerWgt> messScramblerWgt;
     QPointer<OneTimePadGenerator> oneTimePadGenWgt;
     QSettings settings;
     QNetworkAccessManager * nam;
@@ -109,6 +111,7 @@ private slots:
     void slotOpenUrlWebTab(QUrl url);
     void slotSuccessActivated();
     void slotBackUpClicked();
+    void slotMessageScramblerClicked();
     void slotOneTimePadGeneratorClicked();
     //updates
     void slotUpdateAvailable(QString link, QString version,

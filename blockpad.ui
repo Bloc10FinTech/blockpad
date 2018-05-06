@@ -514,6 +514,7 @@ min-width:50;
 min-height:50;
 max-width:50;
 max-height:50;
+qproperty-iconSize: 50px 50px;
 }</string>
         </property>
         <property name="frameShape">
@@ -684,12 +685,35 @@ max-height:50;
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonOneTimePadGenerator">
+           <property name="toolTip">
+            <string>One-Time Pad Generator</string>
+           </property>
            <property name="text">
             <string/>
            </property>
            <property name="icon">
             <iconset resource="icons.qrc">
              <normaloff>:/Icons/NewOneTimePadGenerator.png</normaloff>:/Icons/NewOneTimePadGenerator.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonMessageScrambler">
+           <property name="toolTip">
+            <string>Secret Message Text Scrambler</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/Icons/encrypted-email.png</normaloff>:/Icons/encrypted-email.png</iconset>
            </property>
            <property name="iconSize">
             <size>

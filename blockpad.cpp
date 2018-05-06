@@ -137,6 +137,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotActivateClicked);
         connect(ui->pushButtonSave, &QPushButton::clicked,
                 this, &BlockPad::slotSaveEncrypt);
+        connect(ui->pushButtonMessageScrambler, &QPushButton::clicked,
+                this, &BlockPad::slotMessageScramblerClicked);
         connect(ui->pushButtonOneTimePadGenerator, &QPushButton::clicked,
                 this, &BlockPad::slotOneTimePadGeneratorClicked);
         connect(ui->pushButtonRemoveRow, &QPushButton::clicked,
@@ -175,6 +177,19 @@ BlockPad::BlockPad(QWidget *parent) :
 
 }
 
+void BlockPad::slotMessageScramblerClicked()
+{
+    if(messScramblerWgt.isNull())
+    {
+        messScramblerWgt = new MessageScramblerWgt(nullptr);
+        messScramblerWgt->show();
+        connect(messScramblerWgt.data(), &MessageScramblerWgt::sigGenerateOneTimePad,
+                this, &BlockPad::slotOneTimePadGeneratorClicked);
+    }
+    else
+        messScramblerWgt->activateWindow();
+}
+
 void BlockPad::slotOneTimePadGeneratorClicked()
 {
     if(oneTimePadGenWgt.isNull())
@@ -182,6 +197,8 @@ void BlockPad::slotOneTimePadGeneratorClicked()
         oneTimePadGenWgt = new OneTimePadGenerator(nullptr);
         oneTimePadGenWgt->show();
     }
+    else
+        oneTimePadGenWgt->activateWindow();
 }
 
 void BlockPad::slotBackUpClicked()
@@ -343,7 +360,6 @@ void BlockPad::slotFileClicked(QListWidgetItem *item)
     documentChanged(nameDocument);
 }
 
-
 void BlockPad::slotDeleteBlockPadFile()
 {
     auto row = ui->listWidgetFiles->currentRow();
@@ -394,6 +410,8 @@ void BlockPad::slotFileEncryptionClicked()
         fileEncryptionWgt = new FileEncryptionWgt(nullptr);
         fileEncryptionWgt->show();
     }
+    else
+        fileEncryptionWgt->activateWindow();
 }
 
 void BlockPad::slotReplyFinished(QNetworkReply *reply)
@@ -712,6 +730,8 @@ void BlockPad::slotPasswGenClicked()
         genPasswWgt = new GeneratePassword(nullptr);
         genPasswWgt->show();
     }
+    else
+        genPasswWgt->activateWindow();
 }
 
 void BlockPad::slotActivateClicked()
@@ -723,6 +743,8 @@ void BlockPad::slotActivateClicked()
         connect(activLicenseWgt, &ActivateWgt::sigSuccessActivated,
                 this, &BlockPad::slotSuccessActivated);
     }
+    else
+        activLicenseWgt->activateWindow();
 }
 
 void BlockPad::slotSettingsClicked()
@@ -742,6 +764,8 @@ void BlockPad::slotSettingsClicked()
         connect(setWgt, &SettingsWgt::sigPasswordVisible,
                 ui->tableWidgetAccounts, &TableWidgetAccounts::slotAllwaysChecked);
     }
+    else
+        setWgt->activateWindow();
 }
 
 void BlockPad::Init()
@@ -773,6 +797,8 @@ void BlockPad::closeSeparateWgts()
         activLicenseWgt->close();
     if(!oneTimePadGenWgt.isNull())
         oneTimePadGenWgt->close();
+    if(!messScramblerWgt.isNull())
+        messScramblerWgt->close();
 }
 
 void BlockPad::slotCompleteRowClicked()

@@ -26,5 +26,6 @@
         <file>Icons/Pro_Version.png</file>
         <file>Icons/NewOneTimePadGenerator.png</file>
         <file>Icons/help.png</file>
+        <file>Icons/encrypted-email.png</file>
     </qresource>
 </RCC>
