@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>529</width>
-    <height>485</height>
+    <height>504</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -374,6 +374,5 @@ QPushButton:default {
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup"/>
-  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

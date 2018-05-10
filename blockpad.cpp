@@ -137,6 +137,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotActivateClicked);
         connect(ui->pushButtonSave, &QPushButton::clicked,
                 this, &BlockPad::slotSaveEncrypt);
+        connect(ui->pushButtonReadMe, &QPushButton::clicked,
+                this, &BlockPad::slotReadMeClicked);
         connect(ui->pushButtonMessageScrambler, &QPushButton::clicked,
                 this, &BlockPad::slotMessageScramblerClicked);
         connect(ui->pushButtonOneTimePadGenerator, &QPushButton::clicked,
@@ -175,6 +177,11 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotCheckResult);
     }
 
+}
+
+void BlockPad::slotReadMeClicked()
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile("BlockPadReadMe.rtf"));
 }
 
 void BlockPad::slotMessageScramblerClicked()
@@ -422,6 +429,10 @@ void BlockPad::slotReplyFinished(QNetworkReply *reply)
         slotCheckUpdateFinished(reply);
     if(TypeRequest::DescriptionUpdate == type)
         slotDescriptionFinished(reply);
+    if(TypeRequest::CheckUpdateAddDocs == type)
+        slotCheckUpdateAddDocsFinished(reply);
+    if(TypeRequest::DownloadUpdateAddDocs == type)
+        slotDownloadUpdateAddDocsFinished(reply);
 }
 
 void BlockPad::slotCheckUpdateFinished(QNetworkReply *reply)
@@ -515,6 +526,94 @@ void BlockPad::descriptionVersion(QString link,
     reply->setProperty(defReplyType, TypeRequest::DescriptionUpdate);
 }
 
+void BlockPad::slotCheckUpdateAddDocsFinished(QNetworkReply *reply)
+{
+    auto error = reply->error();
+    if(error != QNetworkReply::NoError)
+    {
+        return;
+    }
+    auto data = (QString)(reply->readAll());
+    QString downloadLink;
+    QString webNameFile;
+    int indexStartNode = 0;
+    //fill webNameFile and downloadLink
+    while(indexStartNode != -1)
+    {
+        indexStartNode = data.indexOf("class=\"nodeFileName\"",
+                                         indexStartNode+1);
+        //fill webNameFile
+        {
+            auto indexStartFile = data.indexOf("\">", indexStartNode);
+            if(indexStartFile != -1)
+            {
+                auto indexFinishFile = data.indexOf("</a>", indexStartFile);
+                if(indexFinishFile != -1)
+                {
+                    webNameFile = data.mid(indexStartFile,
+                                        indexFinishFile - indexStartFile)
+                            .remove("\">");
+                }
+            }
+        }
+        if(webNameFile.contains("BlockPadReadMe"))
+        {
+            auto indexStartDownload = data.indexOf("href=\"", indexStartNode);
+            auto indexEndDownload = data.indexOf("\">", indexStartNode);
+
+            if(indexStartDownload != -1
+                    &&
+               indexEndDownload != -1)
+                downloadLink = "https://bintray.com" +
+                                data.mid(indexStartDownload,
+                                indexEndDownload - indexStartDownload)
+                                .remove("href=\"");
+
+            break;
+        }
+    }
+//    QString currentNameFile = settings.value(defReadMeVersion).toString();
+//    if(currentNameFile.isEmpty())
+//        currentNameFile = "BlockPadReadMe.rtf";
+//    if(currentNameFile != webNameFile)
+    {
+        QNetworkRequest request(downloadLink);
+        auto reply = nam->get(request);
+        reply->setProperty(defReplyType, TypeRequest::DownloadUpdateAddDocs);
+    }
+}
+
+void BlockPad::slotDownloadUpdateAddDocsFinished(QNetworkReply *reply)
+{
+    auto error = reply->error();
+    if(error != QNetworkReply::NoError)
+        return;
+    //redirect
+    {
+        QVariant redirectUrl =
+                 reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+
+        if(!redirectUrl.toUrl().isEmpty())
+        {
+            auto replyNew = nam->get(QNetworkRequest(redirectUrl.toUrl()));
+            replyNew->setProperty(defReplyType, TypeRequest::DownloadUpdateAddDocs);
+            return;
+        }
+    }
+
+    QUrl url = reply->url();
+    QByteArray dataReply = reply->readAll();
+    QString path = url.path();
+    QString filename = QFileInfo(path).fileName();
+    QFile file(filename);
+    if(file.open(QIODevice::WriteOnly))
+    {
+        file.write(dataReply);
+        file.close();
+    }
+    settings.setValue(defReadMeVersion, filename);
+}
+
 void BlockPad::slotDescriptionFinished(QNetworkReply *reply)
 {
     auto error = reply->error();
@@ -550,6 +649,22 @@ void BlockPad::slotDescriptionFinished(QNetworkReply *reply)
     }
     emit sigUpdateAvailable(downloadLink, latestVersion,
                             descriptionNewVersion, bManually);
+}
+
+void BlockPad::checkAddDocs()
+{
+    QUrl url;
+#if defined(WIN32) || defined(WIN64)
+    url = QUrl("https://bintray.com/version/files/bloc10fintech/BlockPad/BlockPad_stable_windows/"
+               + QString(defVersionApplication));
+#endif
+#ifdef __APPLE__
+    url = QUrl("https://bintray.com/version/files/bloc10fintech/BlockPad/BlockPad_stable_mac/"
+               + QString(defVersionApplication));
+#endif
+    QNetworkRequest request(url);
+    auto reply = nam->get(request);
+    reply->setProperty(defReplyType, TypeRequest::CheckUpdateAddDocs);
 }
 
 void BlockPad::slotUpdateClicking()
@@ -781,7 +896,10 @@ void BlockPad::Init()
     //we get width of code editor 999999 (Of course this is more than required)
     ui->splitterBlockPad->setSizes(QList<int>() <<999999<<100);
     if(!noUpdate)
+    {
         checkUpdates();
+        checkAddDocs();
+    }
         //    QtConcurrent::run(this, &BlockPad::checkUpdates, false);
     else
         ui->pushButtonUpdate->setEnabled(true);

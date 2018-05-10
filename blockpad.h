@@ -57,7 +57,8 @@ private:
     void checkUpdates(bool bManually = false);
     void descriptionVersion(QString link, QString version, bool bManually);
     void downloadUpdateVersion(QString link, QString version);
-    enum TypeRequest {CheckUpdate, DescriptionUpdate, DownloadUpdate};
+    enum TypeRequest {CheckUpdate, DescriptionUpdate, DownloadUpdate,
+                      CheckUpdateAddDocs, DownloadUpdateAddDocs};
     bool bRightButtonFiles {false};
     void documentChanged(QString nameDocument);
     int currentTimeId {-1};
@@ -73,6 +74,7 @@ private:
     std::atomic_bool clickBackUp;
     QFutureWatcher<void> fW_UpdateBackUp;
     void checkLicense();
+    void checkAddDocs();
     //print data
     void renderHeader(QPainter &painter, QString header,
                       const QRectF& textRect, qreal footerHeight, int pageNumber);
@@ -113,6 +115,7 @@ private slots:
     void slotBackUpClicked();
     void slotMessageScramblerClicked();
     void slotOneTimePadGeneratorClicked();
+    void slotReadMeClicked();
     //updates
     void slotUpdateAvailable(QString link, QString version,
                              QString description,  bool bManually = false);
@@ -123,6 +126,8 @@ private slots:
     void slotDownloadUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
     void slotCheckUpdateFinished(QNetworkReply *reply);
     void slotDescriptionFinished(QNetworkReply *reply);
+    void slotCheckUpdateAddDocsFinished(QNetworkReply *reply);
+    void slotDownloadUpdateAddDocsFinished(QNetworkReply *reply);
     //check license
     void slotCheckLicenseNetworkError(QNetworkReply::NetworkError);
     void slotCheckResult(bool bSuccess,QString strError);

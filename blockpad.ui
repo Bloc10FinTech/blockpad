@@ -515,6 +515,7 @@ min-height:50;
 max-width:50;
 max-height:50;
 qproperty-iconSize: 50px 50px;
+qproperty-text:&quot;&quot; 
 }</string>
         </property>
         <property name="frameShape">
@@ -720,6 +721,17 @@ qproperty-iconSize: 50px 50px;
              <width>50</width>
              <height>50</height>
             </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonReadMe">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/Icons/Readme.png</normaloff>:/Icons/Readme.png</iconset>
            </property>
           </widget>
          </item>

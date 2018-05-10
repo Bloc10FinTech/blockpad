@@ -17,6 +17,7 @@ class QWidget;
 
 //settings
 #define defCurrentFile "CurrentFile"
+#define defReadMeVersion "ReadMeVersion"
 
 //properties qapplication
 #define defEmailProperty "email"

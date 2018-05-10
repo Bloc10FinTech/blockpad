@@ -20,7 +20,7 @@ DEFINES += ENABLE_BCRYPT_ENCRYPTION
 DEFINES += USE_IMPORT_EXPORT
 DEFINES += AWS_S3_EXPORTS
 DEFINES += QT_DEPRECATED_WARNINGS
-#DEFINES += QT_NO_DEBUG_OUTPUT
+DEFINES += QT_NO_DEBUG_OUTPUT
 #DEFINES += TEST_LICENSE
 SOURCES += \
         main.cpp \
@@ -184,7 +184,12 @@ win32{
 install.path = C:/Users/alex.user-ion/Documents/GitHub/BlockPadBin
 CONFIG(release, debug|release):install.files += $$OUT_PWD/release/BlockPad.exe
 CONFIG(debug, debug|release):install.files += $$OUT_PWD/debug/BlockPad.exe
+install.files += BlockPadReadMe.rtf
 INSTALLS +=install
+
+local_install.path = $$OUT_PWD
+local_install.files += BlockPadReadMe.rtf
+INSTALLS +=local_install
 
 CONFIG(release, debug|release): LIBS += -L$$PWD/'../../../../../Program Files (x86)/aws-cpp-sdk-all/bin/' -laws-cpp-sdk-core -laws-cpp-sdk-s3 -laws-cpp-sdk-transfer
 CONFIG(debug, debug|release): LIBS += -L$$PWD/'../../../../../Program Files (x86)/aws-cpp-sdk-all/bin-debug/' -laws-cpp-sdk-core -laws-cpp-sdk-s3 -laws-cpp-sdk-transfer
@@ -201,5 +206,9 @@ macx{
 install.path = $$OUT_PWD/BlockPad.app/Contents/UpdateTools/
 install.files += /Users/admin/Desktop/build-UpdateBlockPad-Desktop_Qt_5_10_0_clang_64bit-Release/UpdateBlockPad.app
 INSTALLS +=install
+
+addDocs_install.path = $$OUT_PWD/BlockPad.app/Contents/Resources
+addDocs_install.files = BlockPadReadMe.rtf
+QMAKE_BUNDLE_DATA += addDocs_install
 }
 
