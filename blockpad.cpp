@@ -199,7 +199,14 @@ void BlockPad::slotSearchClicked()
 
 void BlockPad::slotReadMeClicked()
 {
-    QDesktopServices::openUrl(QUrl::fromLocalFile("BlockPadReadMe.rtf"));
+    QString readMeFile;
+#ifdef __APPLE__
+    readMeFile = QApplication::applicationDirPath() + "/../Resources/BlockPadReadMe.rtf";
+#endif
+#if defined(WIN32) || defined(WIN64)
+    readMeFile = QApplication::applicationDirPath() + "BlockPadReadMe.rtf";
+#endif
+    QDesktopServices::openUrl(QUrl::fromLocalFile(readMeFile));
 }
 
 void BlockPad::slotMessageScramblerClicked()

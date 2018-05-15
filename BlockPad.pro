@@ -210,7 +210,7 @@ install.path = $$OUT_PWD/BlockPad.app/Contents/UpdateTools/
 install.files += /Users/admin/Desktop/build-UpdateBlockPad-Desktop_Qt_5_10_0_clang_64bit-Release/UpdateBlockPad.app
 INSTALLS +=install
 
-addDocs_install.path = $$OUT_PWD/BlockPad.app/Contents/Resources
+addDocs_install.path = Contents/Resources/
 addDocs_install.files = BlockPadReadMe.rtf
 QMAKE_BUNDLE_DATA += addDocs_install
 }
