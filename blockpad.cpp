@@ -282,7 +282,7 @@ void BlockPad::updateBackUpFile()
     //aws test
     {
         Aws::SDKOptions options;
-        options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Debug;
+        options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Off;
         Aws::InitAPI(options);
         Aws::String accessKey;
         //fill accessKey

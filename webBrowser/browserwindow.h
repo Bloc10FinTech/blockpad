@@ -51,6 +51,7 @@
 #ifndef BROWSERWINDOW_H
 #define BROWSERWINDOW_H
 
+#include <QNetworkCookie>
 #include <QMainWindow>
 #include <QTime>
 #include <QWebEnginePage>
