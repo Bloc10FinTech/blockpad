@@ -53,6 +53,7 @@
 
 #include <QIcon>
 #include <QWebEngineView>
+#include "webBrowser/browserwindow.h"
 
 class WebPage;
 
@@ -61,7 +62,7 @@ class WebView : public QWebEngineView
     Q_OBJECT
 
 public:
-    WebView(QWidget *parent = nullptr);
+    WebView(BrowserWindow *mainWindow, QWidget *parent = nullptr);
     void setPage(WebPage *page);
 
     int loadProgress() const;
@@ -78,7 +79,7 @@ signals:
 
 private:
     void createWebActionTrigger(QWebEnginePage *page, QWebEnginePage::WebAction);
-
+    BrowserWindow *mainWindow;
 private:
     int m_loadProgress;
 };

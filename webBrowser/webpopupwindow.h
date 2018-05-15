@@ -52,7 +52,7 @@
 #define WEBPOPUPWINDOW_H
 
 #include <QWidget>
-
+#include "webBrowser/browserwindow.h"
 QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QWebEngineProfile;
@@ -66,7 +66,8 @@ class WebPopupWindow : public QWidget
     Q_OBJECT
 
 public:
-    WebPopupWindow(QWebEngineProfile *profile);
+    WebPopupWindow(QWebEngineProfile *profile,
+                   BrowserWindow * mainWindow);
     WebView *view() const;
 
 private slots:

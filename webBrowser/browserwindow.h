@@ -79,7 +79,6 @@ public:
     void loadData(QByteArray allLoadData, int &pos);
 protected:
     void closeEvent(QCloseEvent *event) override;
-
 public slots:
     void slotNewUrl(QUrl newUrl);
     void slotSaveCache(bool on)
@@ -94,6 +93,7 @@ private slots:
     void handleWebViewTitleChanged(const QString &title);
     void handleWebActionEnabledChanged(QWebEnginePage::WebAction action, bool enabled);
     void slotCookieAdded(const QNetworkCookie &cookie);
+    void slotCookieRemoved(const QNetworkCookie &cookie);
 private:
     QMenu *createFileMenu(TabWidget *tabWidget);
     QMenu *createEditMenu();
@@ -102,8 +102,7 @@ private:
     QMenu *createHelpMenu();
     QToolBar *createToolBar();
 
-    QByteArray baAllCookies;
-    int nCookies {0};
+    QList<QNetworkCookie> allCookies;
     bool bNoCache {false};
 private:
     Browser *m_browser;

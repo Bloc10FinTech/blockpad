@@ -57,9 +57,12 @@
 #include <QToolButton>
 #include <QLabel>
 
-TabWidget::TabWidget(QWebEngineProfile *profile, QWidget *parent)
+TabWidget::TabWidget(BrowserWindow *mainWindow,
+                     QWebEngineProfile *profile,
+                     QWidget *parent)
     : QTabWidget(parent)
     , m_profile(profile)
+    , mainWindow(mainWindow)
 {
     QTabBar *tabBar = this->tabBar();
     tabBar->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
@@ -219,7 +222,7 @@ WebView *TabWidget::createTab()
 
 WebView *TabWidget::createBackgroundTab()
 {
-    WebView *webView = new WebView;
+    WebView *webView = new WebView(mainWindow);
     WebPage *webPage = new WebPage(m_profile, webView);
     webView->setPage(webPage);
     setupView(webView);

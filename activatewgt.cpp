@@ -14,6 +14,7 @@ ActivateWgt::ActivateWgt(QWidget *parent) :
     Utilities::setAppFamilyFont(ui->labelStatus, qApp->font().pointSize()+1,QFont::Bold);
     Utilities::setAppFamilyFont(ui->labelDescriptionDevName, qApp->font().pointSize(),QFont::Normal, true);
     Utilities::setAppFamilyFont(ui->labelDescriptionLicenseKey, qApp->font().pointSize(),QFont::Normal, true);
+#ifndef TEST_LICENSE
     auto devName = settings.value("device_name").toString();
     if(!devName.isEmpty())
     {
@@ -41,6 +42,7 @@ ActivateWgt::ActivateWgt(QWidget *parent) :
         ui->labelStatus->setProperty("activated", false);
         ui->labelStatus->setText("License not activated");
     }
+#endif
     ui->lineEditLicenseKey->setText(qApp->property(defLicenseProperty).toString());
     ui->labelDescriptionDevName->setText("Device name is used to manage your devices in checkout page. Be carefull with device name choise! Device name must be unical among all other your device names. After you was activated license in your device you can not change device name. You can allways see your device name here");
     ui->labelDescriptionLicenseKey->setText("To get license key please click \"Premium version\". You can allways see your license key in this page.");
@@ -155,6 +157,10 @@ void ActivateWgt::slotDeviceNameFinished()
 
 void ActivateWgt::slotCheckClicked()
 {
+    qApp->setProperty(defLicenseProperty, ui->lineEditLicenseKey->text());
+    qApp->setProperty(defIdProperty, ui->lineEditId->text());
+    settings.setValue("device_name", ui->lineEditDeviceName->text());
+    settings.sync();
     netwLicenseServer.sendCheckRequest(ui->lineEditLicenseKey->text());
 }
 

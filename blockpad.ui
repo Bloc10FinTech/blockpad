@@ -785,6 +785,20 @@ qproperty-text:&quot;&quot;
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="pushButtonSearch">
+           <property name="toolTip">
+            <string>Search</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/Icons/find.png</normaloff>:/Icons/find.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="pushButtonSave">
            <property name="toolTip">
             <string>Save BlockPad files</string>

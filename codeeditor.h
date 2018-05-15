@@ -56,6 +56,7 @@
 #include <QMap>
 #include <QTextBlockUserData>
 #include <QByteArray>
+#include <QPointer>
 #include "highlighter.h"
 
 QT_BEGIN_NAMESPACE
@@ -87,16 +88,9 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
     void keyPressEvent(QKeyEvent *event);
     void paintEvent(QPaintEvent *event) override;
-public slots:
-    void slotHighlightingCode(bool on);
-private slots:
-    void updateLineNumberAreaWidth(int newBlockCount);
-    void highlightCurrentLine();
-    void updateLineNumberArea(const QRect &, int);
-    void matchBrackets();
 private:
     QWidget *lineNumberArea;
-    Highlighter *highlighter;
+    QPointer<Highlighter> highlighter;
     QObject documentsParent;
     QMap<QString, QTextDocument *> allDocuments;
     int _lineNumberAreaWidth;
@@ -109,6 +103,15 @@ private:
     bool matchRightBrackets(QTextBlock currentBlock,
                             int index, int numberRightBracket);
     void createBracketsSelection(int position);
+public slots:
+    void slotHighlightingCode(bool on);
+    void slotFindAllCurrentFile(QString strCurrentFile, bool bRegExp,
+                                bool bMatchWholeWord, bool bMatchCase);
+private slots:
+    void updateLineNumberAreaWidth(int newBlockCount);
+    void highlightCurrentLine();
+    void updateLineNumberArea(const QRect &, int);
+    void matchBrackets();
 signals:
     void newChanges();
 };

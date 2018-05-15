@@ -77,6 +77,13 @@ struct UBracketInfo
     int position;
 };
 
+struct USearchInfo
+{
+    int posStart;
+    int length;
+    QColor color;
+};
+
 class TextBlockUserData : public QTextBlockUserData
 {
 public:
@@ -103,11 +110,30 @@ public:
     {
         m_brackets = brackets_in;
     }
-    ~TextBlockUserData(){}
+    void addFindInfo(QVector <USearchInfo *>  info)
+    {
+        findInfo = info;
+    }
+    QVector <USearchInfo *> finds()
+    {
+        return findInfo;
+    }
+    ~TextBlockUserData()
+    {
+        foreach(auto bracket, m_brackets)
+        {
+            delete bracket;
+        }
+        foreach(auto info, findInfo)
+        {
+            delete info;
+        }
+    }
 private:
     QString _time;
     int _revision;
     QVector <UBracketInfo *> m_brackets;
+    QVector <USearchInfo *> findInfo;
 };
 
 class Highlighter : public QSyntaxHighlighter
@@ -116,17 +142,29 @@ class Highlighter : public QSyntaxHighlighter
 
 public:
     Highlighter(QTextDocument *parent = 0);
-
+    void markSearch(const QString & strMark, bool bRegExp,
+                    bool bMatchWholeWord, bool bMatchCase, bool bFind);
 protected:
     void highlightBlock(const QString &text) override;
 
 private:
-    struct HighlightingRule
+    struct HighlightingRegExpRule
     {
         QRegularExpression pattern;
         QTextCharFormat format;
     };
-    QVector<HighlightingRule> highlightingRules;
+    struct HighlightingTextRule
+    {
+        QString findText;
+        bool bMatchWholeWord;
+        bool bMatchCase;
+        QTextCharFormat format;
+    };
+    QVector<HighlightingRegExpRule> highlightingRules;
+    QVector<HighlightingRegExpRule> markRegExpRules;
+    QVector<HighlightingTextRule> markTextRules;
+    HighlightingRegExpRule findRegExpRule;
+    HighlightingTextRule findTextRule;
     QSettings settings;
     QRegularExpression commentStartExpression;
     QRegularExpression commentEndExpression;

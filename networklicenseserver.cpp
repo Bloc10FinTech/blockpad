@@ -9,7 +9,7 @@
 #include <QMessageAuthenticationCode>
 #include <QCryptographicHash>
 
-#define defLicenseWebSite "https://dev.fxbot.market/blockpad/blockpad.php"
+#define defLicenseWebSite "https://fxbot.market/blockpad/blockpad.php"
 
 NetworkLicenseServer::NetworkLicenseServer(QObject *parent):
     QObject(parent)
@@ -32,7 +32,7 @@ void NetworkLicenseServer::sendActivateRequest(QString license, QString devName)
         object["cmd"] = "Activate";
         object["license_key"] = license;
 #ifdef TEST_LICENSE
-        object["mac_address"] = Utilities::macAddress() + settings.value("device_name").toString();
+        object["mac_address"] = Utilities::macAddress() + devName;
 #else
         object["mac_address"] = Utilities::macAddress();
 #endif
@@ -108,6 +108,7 @@ void NetworkLicenseServer::checkFinished(QNetworkReply *reply)
     auto data = reply->readAll();
     QJsonDocument document = QJsonDocument::fromJson(data);
     auto object = document.object();
+    qDebug() << "check answer: " << data;
     bool bSuccess = object.value("success").toBool();
     QString strError = object.value("error").toString();
     emit sigCheckFinished(bSuccess, strError);

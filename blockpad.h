@@ -22,6 +22,7 @@
 #include "webBrowser/browser.h"
 #include "onetimepadgenerator.h"
 #include "messagescramblerwgt.h"
+#include "searchwgt.h"
 
 class QListWidgetItem;
 class QWebEngineView;
@@ -51,6 +52,7 @@ private:
     QPointer<ActivateWgt> activLicenseWgt;
     QPointer<MessageScramblerWgt> messScramblerWgt;
     QPointer<OneTimePadGenerator> oneTimePadGenWgt;
+    QPointer<SearchWgt> search_Wgt;
     QSettings settings;
     QNetworkAccessManager * nam;
     QNetworkAccessManager * namUpdate;
@@ -116,6 +118,7 @@ private slots:
     void slotMessageScramblerClicked();
     void slotOneTimePadGeneratorClicked();
     void slotReadMeClicked();
+    void slotSearchClicked();
     //updates
     void slotUpdateAvailable(QString link, QString version,
                              QString description,  bool bManually = false);

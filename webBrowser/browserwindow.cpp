@@ -69,10 +69,11 @@
 #include <QWebEngineCookieStore>
 #include <QDebug>
 
+
 BrowserWindow::BrowserWindow(Browser *browser, QWebEngineProfile *profile)
     : m_browser(browser)
     , m_profile(profile)
-    , m_tabWidget(new TabWidget(profile, this))
+    , m_tabWidget(new TabWidget(this, profile, this))
     , m_progressBar(new QProgressBar(this))
     , m_historyBackAction(nullptr)
     , m_historyForwardAction(nullptr)
@@ -140,33 +141,48 @@ BrowserWindow::BrowserWindow(Browser *browser, QWebEngineProfile *profile)
 
     connect(m_profile->cookieStore(), &QWebEngineCookieStore::cookieAdded,
             this, &BrowserWindow::slotCookieAdded);
-    qDebug() << "nCookies" <<nCookies;
-    //m_profile->cookieStore()->deleteAllCookies();
-    //m_profile->setHttpCacheType(QWebEngineProfile::MemoryHttpCache);
+    connect(m_profile->cookieStore(), &QWebEngineCookieStore::cookieRemoved,
+            this, &BrowserWindow::slotCookieRemoved);
 }
 
+void BrowserWindow::slotCookieRemoved(const QNetworkCookie &cookie)
+{
+    if(!bNoCache)
+    {
+        allCookies.removeAll(cookie);
+        emit newChanges();
+        qDebug() << "slotCookieRemoved:";
+        qDebug() << "name: " << cookie.name();
+    }
+}
 
 void BrowserWindow::slotCookieAdded(const QNetworkCookie &cookie)
 {
-    QByteArray baData = cookie.toRawForm();
-    if(!baAllCookies.contains(baData) && !bNoCache)
+    if(!allCookies.contains(cookie) && !bNoCache)
     {
-        auto size = baData.size();
-        baAllCookies.append((const char *)&size, sizeof(int));
-        baAllCookies.append(baData);
-        nCookies++;
+        allCookies.append(cookie);
         emit newChanges();
+        qDebug() << "slotCookieAdded";
         qDebug() << "name: " << cookie.name();
-        qDebug() << "value: " << cookie.value();
-        qDebug() << "path: " << cookie.path();
-        qDebug() << "domain: " << cookie.domain();
     }
 }
 
 QByteArray BrowserWindow::saveData()
 {
     QByteArray res;
+    int nCookies = allCookies.size();
     res.append((const char *)&nCookies, sizeof(int));
+    QByteArray baAllCookies;
+    //fiil baAllCookies
+    {
+        for(int i=0; i<allCookies.size(); i++)
+        {
+            QByteArray baCookie = allCookies[i].toRawForm();
+            auto size = baCookie.size();
+            baAllCookies.append((const char *)&size, sizeof(int));
+            baAllCookies.append(baCookie);
+        }
+    }
     res.append(baAllCookies);
 
     return res;
@@ -174,7 +190,7 @@ QByteArray BrowserWindow::saveData()
 
 void BrowserWindow::loadData(QByteArray allLoadData, int &pos)
 {
-    baAllCookies.clear();
+    allCookies.clear();
     int _nCookies {0};
     //nCookies
     {

@@ -56,10 +56,11 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 
-WebPopupWindow::WebPopupWindow(QWebEngineProfile *profile)
+WebPopupWindow::WebPopupWindow(QWebEngineProfile *profile,
+                               BrowserWindow *mainWindow)
     : m_urlLineEdit(new QLineEdit(this))
     , m_favAction(new QAction(this))
-    , m_view(new WebView(this))
+    , m_view(new WebView(mainWindow, this))
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);

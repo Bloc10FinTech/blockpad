@@ -145,6 +145,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotOneTimePadGeneratorClicked);
         connect(ui->pushButtonRemoveRow, &QPushButton::clicked,
                 this, &BlockPad::slotRemoveRowClicked);
+        connect(ui->pushButtonSearch, &QPushButton::clicked,
+                this, &BlockPad::slotSearchClicked);
         connect(ui->tableWidgetAccounts, &TableWidgetAccounts::sigCompetingRow,
                 this, &BlockPad::slotRowSuccessfullyCompleted);
         connect(ui->tableWidgetCoinRecords, &TableWidgetCoinRecords::sigCompetingRow,
@@ -177,6 +179,22 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotCheckResult);
     }
 
+}
+
+void BlockPad::slotSearchClicked()
+{
+    if(search_Wgt.isNull())
+    {
+        search_Wgt = new SearchWgt(this);
+        search_Wgt->show();
+        //signals-slots connects
+        {
+            connect(search_Wgt.data(), &SearchWgt::sigFindAllCurrentFile,
+                    ui->codeEdit, &CodeEditor::slotFindAllCurrentFile);
+        }
+    }
+    else
+        search_Wgt->activateWindow();
 }
 
 void BlockPad::slotReadMeClicked()
@@ -888,7 +906,9 @@ void BlockPad::slotSettingsClicked()
 void BlockPad::Init()
 {
     slotLoadDecrypt();
-    slotSaveEncrypt();
+    QString fileName = qApp->property(defFileProperty).toString();
+    if(!QFile::exists(fileName))
+        slotSaveEncrypt();
 
     ui->codeEdit->setFocus();
     bool noUpdate = settings.value("noUpdating").toBool();
@@ -919,6 +939,8 @@ void BlockPad::closeSeparateWgts()
         oneTimePadGenWgt->close();
     if(!messScramblerWgt.isNull())
         messScramblerWgt->close();
+    if(!search_Wgt.isNull())
+        search_Wgt->close();
 }
 
 void BlockPad::slotCompleteRowClicked()
@@ -1148,6 +1170,7 @@ void BlockPad::slotAddBlockPadFile()
 void BlockPad::slotPremiumVersionClicked()
 {
     slotOpenUrlWebTab(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
+    //QDesktopServices::openUrl(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
 }
 
 void BlockPad::slotCurrentWgtChanged()
@@ -1157,6 +1180,8 @@ void BlockPad::slotCurrentWgtChanged()
     {
         button->show();
     }
+    ui->ToolsWgtAddMargins->show();
+    ui->widgetTicker->show();
     bool isLicenseActive = qApp->property(defLicenseIsActive).toBool();
     if(isLicenseActive)
         ui->pushButtonProVersion->hide();
@@ -1185,6 +1210,8 @@ void BlockPad::slotCurrentWgtChanged()
         ui->pushButtonRemoveRow->hide();
         ui->pushButtonSave->hide();
         ui->pushButtonAddFile->hide();
+        ui->ToolsWgtAddMargins->hide();
+        ui->widgetTicker->hide();
     }
 }
 
@@ -1399,7 +1426,8 @@ void BlockPad::slotLoadDecrypt()
         }
         documentChanged(currentName);
         //cookies
-        web_browserWindow->loadData(allDecryptoData, pos);
+        QtConcurrent::run(web_browserWindow, &BrowserWindow::loadData,allDecryptoData,pos);
+        //web_browserWindow->loadData(allDecryptoData, pos);
     }
     //check license
     {

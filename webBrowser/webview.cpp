@@ -60,8 +60,9 @@
 #include <QMessageBox>
 #include <QTimer>
 
-WebView::WebView(QWidget *parent)
+WebView::WebView(BrowserWindow *mainWindow, QWidget *parent)
     : QWebEngineView(parent)
+    , mainWindow(mainWindow)
     , m_loadProgress(100)
 {
     connect(this, &QWebEngineView::loadStarted, [this]() {
@@ -154,9 +155,9 @@ QIcon WebView::favIcon() const
 
 QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 {
-    BrowserWindow *mainWindow = qobject_cast<BrowserWindow*>(window());
-    if (!mainWindow)
-        return nullptr;
+//    BrowserWindow *mainWindow = qobject_cast<BrowserWindow*>(window());
+//    if (!mainWindow)
+//        return nullptr;
 
     switch (type) {
     case QWebEnginePage::WebBrowserTab: {
@@ -169,7 +170,8 @@ QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
         return mainWindow->browser()->createWindow()->currentTab();
     }
     case QWebEnginePage::WebDialog: {
-        WebPopupWindow *popup = new WebPopupWindow(page()->profile());
+        WebPopupWindow *popup = new WebPopupWindow(page()->profile(),
+                                                   mainWindow);
         return popup->view();
     }
     }

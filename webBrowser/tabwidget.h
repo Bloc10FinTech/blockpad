@@ -54,8 +54,10 @@
 #include <QTabWidget>
 #include <QWebEnginePage>
 
+
 QT_BEGIN_NAMESPACE
 class QUrl;
+class BrowserWindow;
 QT_END_NAMESPACE
 
 class WebView;
@@ -65,7 +67,7 @@ class TabWidget : public QTabWidget
     Q_OBJECT
 
 public:
-    TabWidget(QWebEngineProfile *profile, QWidget *parent = nullptr);
+    TabWidget(BrowserWindow *mainWindow, QWebEngineProfile *profile, QWidget *parent = nullptr);
 
     WebView *currentWebView() const;
 
@@ -100,7 +102,7 @@ private slots:
 private:
     WebView *webView(int index) const;
     void setupView(WebView *webView);
-
+    BrowserWindow *mainWindow;
     QWebEngineProfile *m_profile;
 };
 

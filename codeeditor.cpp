@@ -60,7 +60,6 @@
 #include "codeeditor.h"
 #include "global.h"
 
-
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
     lineNumberArea = new LineNumberArea(this);
@@ -71,6 +70,16 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
              this, SLOT(matchBrackets()));  
     init();
 }
+
+void CodeEditor::slotFindAllCurrentFile(QString strCurrentFile, bool bRegExp, bool bMatchWholeWord, bool bMatchCase)
+{
+    highlighter->markSearch(strCurrentFile, bRegExp,
+                            bMatchWholeWord, bMatchCase,
+                            true);
+    highlighter->rehighlight();
+    highlightCurrentLine();
+}
+
 
 void CodeEditor::keyPressEvent(QKeyEvent *event)
 {
@@ -217,7 +226,7 @@ void CodeEditor::setCurrentDocument(QString nameDocument)
     if(allDocuments.contains(nameDocument))
     {
         if(allDocuments[nameDocument] != document())
-        {
+        {       
             setDocument(allDocuments[nameDocument]);
             init();
         }
@@ -240,10 +249,10 @@ void CodeEditor::setCurrentDocument(QString nameDocument)
 }
 
 QColor CodeEditor::mix2clr(const QColor &clr1, const QColor &clr2) {
-    qreal r = clr1.redF() + (clr2.redF() - clr1.redF()) * clr2.alphaF();
-    qreal g = clr1.greenF() + (clr2.greenF() - clr1.greenF()) * clr2.alphaF();
-    qreal b = clr1.blueF() + (clr2.blueF() - clr1.blueF()) * clr2.alphaF();
-    return QColor(r, g, b, qMax(clr1.alphaF(), clr2.alphaF()));
+    auto r = (clr1.red() + clr2.red())/2;
+    auto g = (clr1.green() + clr2.green())/2;
+    auto b = (clr1.blue() + clr2.blue())/2;
+    return QColor(r, g, b, qMax(clr1.alpha(), clr2.alpha()));
 }
 
 void CodeEditor::calcLineNumberAreaWidth()
@@ -308,7 +317,27 @@ void CodeEditor::highlightCurrentLine()
         selection.cursor.clearSelection();
         extraSelections.append(selection);
     }
+    if(auto userData = static_cast <TextBlockUserData *> (
+                textCursor().block().userData()))
+    {
+        auto findWords = userData->finds();
+        foreach(auto find, findWords)
+        {
+            QTextEdit::ExtraSelection selection;
 
+            QColor lineColor = mix2clr(find->color,
+                                       QColor(175,232,255));
+
+            selection.format.setBackground(lineColor);
+            QTextCursor cursor(textCursor().block());
+            cursor.clearSelection();
+            cursor.setPosition(find->posStart);
+            cursor.setPosition(find->posStart + find->length,
+                               QTextCursor::KeepAnchor);
+            selection.cursor = cursor;
+            extraSelections.append(selection);
+        }
+    }
     setExtraSelections(extraSelections);
 }
 
@@ -374,9 +403,9 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 
 void CodeEditor::paintEvent(QPaintEvent *event)
 {
+    QPainter painter(viewport());
     //highliting 1 line
     {
-        QPainter painter(viewport());
         QTextBlock block = document()->firstBlock();
         int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
         int bottom = top + (int) blockBoundingRect(block).height();
@@ -397,7 +426,6 @@ void CodeEditor::paintEvent(QPaintEvent *event)
             }
         }
     }
-
     QPlainTextEdit::paintEvent(event);
 }
 
