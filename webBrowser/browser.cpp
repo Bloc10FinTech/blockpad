@@ -71,6 +71,7 @@ BrowserWindow *Browser::createWindow(bool offTheRecord)
     auto profile = offTheRecord ? &m_otrProfile : QWebEngineProfile::defaultProfile();
     //auto profile = &m_otrProfile;
     profile->setPersistentCookiesPolicy(QWebEngineProfile::NoPersistentCookies);
+    profile->setHttpCacheType(QWebEngineProfile::MemoryHttpCache);
     qDebug() << "offTheRecord: " << profile->isOffTheRecord();
     auto mainWindow = new BrowserWindow(this, profile);
     //mainWindow->show();

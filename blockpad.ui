@@ -726,6 +726,9 @@ qproperty-text:&quot;&quot;
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonReadMe">
+           <property name="toolTip">
+            <string>ReadMe</string>
+           </property>
            <property name="text">
             <string/>
            </property>

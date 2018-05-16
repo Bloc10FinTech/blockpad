@@ -73,10 +73,10 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 
 void CodeEditor::slotFindAllCurrentFile(QString strCurrentFile, bool bRegExp, bool bMatchWholeWord, bool bMatchCase)
 {
-    highlighter->markSearch(strCurrentFile, bRegExp,
+    allHighlighters[currentName]->markSearch(strCurrentFile, bRegExp,
                             bMatchWholeWord, bMatchCase,
                             true);
-    highlighter->rehighlight();
+    allHighlighters[currentName]->rehighlight();
     highlightCurrentLine();
 }
 
@@ -101,7 +101,6 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
 
 void CodeEditor::init()
 {
-    highlighter = new Highlighter(document());
     calcLineNumberAreaWidth();
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
@@ -110,7 +109,7 @@ void CodeEditor::init()
 
 void CodeEditor::slotHighlightingCode(bool on)
 {
-    highlighter->rehighlight();
+    allHighlighters[currentName]->rehighlight();
 }
 
 QByteArray CodeEditor::dataToEncrypt()
@@ -156,6 +155,16 @@ QByteArray CodeEditor::dataToEncrypt()
     return res;
 }
 
+void CodeEditor::renameDocument(QString newName, QString oldName)
+{
+    allDocuments[newName] = allDocuments[oldName];
+    allHighlighters[newName] = allHighlighters[oldName];
+    allDocuments.remove(oldName);
+    allHighlighters.remove(oldName);
+    if(currentName == oldName)
+        currentName = newName;
+}
+
 QMap<QString, QTextDocument *> CodeEditor::slotLoadData(QByteArray allLoadData, int &pos)
 {
     loadFile = true;
@@ -198,8 +207,12 @@ QMap<QString, QTextDocument *> CodeEditor::slotLoadData(QByteArray allLoadData, 
             block = block.next();
         }
         allDocuments[nameDocument] = doc;
+        allHighlighters[nameDocument] = new Highlighter(doc);
         if(bVisible)
+        {
             setDocument(doc);
+            currentName = nameDocument;
+        }
     }
     init();
     repaint();
@@ -218,6 +231,9 @@ void CodeEditor::removeDocument(QString nameDocument)
     {
         auto doc = allDocuments[nameDocument];
         allDocuments.remove(nameDocument);
+        delete doc;
+        auto _highlight = allHighlighters[nameDocument];
+        allHighlighters.remove(nameDocument);
     }
 }
 
@@ -228,6 +244,7 @@ void CodeEditor::setCurrentDocument(QString nameDocument)
         if(allDocuments[nameDocument] != document())
         {       
             setDocument(allDocuments[nameDocument]);
+            currentName = nameDocument;
             init();
         }
     }
@@ -236,6 +253,8 @@ void CodeEditor::setCurrentDocument(QString nameDocument)
         allDocuments[nameDocument] = new QTextDocument(&documentsParent);
         allDocuments[nameDocument]->setDocumentLayout(new QPlainTextDocumentLayout(allDocuments[nameDocument]));
         setDocument(allDocuments[nameDocument]);
+        allHighlighters[nameDocument] = new Highlighter(allDocuments[nameDocument]);
+        currentName = nameDocument;
         init();
         QTextBlock block = allDocuments[nameDocument]->firstBlock();
         while (block.isValid())
@@ -365,8 +384,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
                 if (bottom >= event->rect().top()) {
                     QString dateTime = QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy");
                     QString number = QString::number(blockNumber + 1);
-                    TextBlockUserData * data = new TextBlockUserData(dateTime, block.revision());
-                    data->insert(((TextBlockUserData*)block.userData())->brackets());
+                    TextBlockUserData * data = new TextBlockUserData(dateTime, block.revision());          
                     if(!block.userData())
                     {
                         block.setUserData(data);
@@ -375,6 +393,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
                     }
                     else
                     {
+                        data->insert(((TextBlockUserData*)block.userData())->brackets());
                         if(((TextBlockUserData*)block.userData())->revision()!= block.revision())
                         {
                             block.setUserData(data);

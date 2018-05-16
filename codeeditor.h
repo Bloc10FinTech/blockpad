@@ -83,6 +83,7 @@ public:
     QMap<QString, QTextDocument *> slotLoadData(QByteArray allLoadData, int &pos);
     QMap<QString, QTextDocument *> getAllDocuments();
     void removeDocument(QString nameDocument);
+    void renameDocument(QString newName, QString oldName);
     void setCurrentDocument(QString nameDocument);
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -92,7 +93,9 @@ private:
     QWidget *lineNumberArea;
     QPointer<Highlighter> highlighter;
     QObject documentsParent;
+    QString currentName;
     QMap<QString, QTextDocument *> allDocuments;
+    QMap<QString, Highlighter *> allHighlighters;
     int _lineNumberAreaWidth;
     int spaceLineNumber;
     QColor mix2clr(const QColor &clr1, const QColor &clr2);

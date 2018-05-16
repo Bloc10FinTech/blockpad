@@ -70,7 +70,9 @@ QGroupBox::title {
     subcontrol-origin: margin;
     subcontrol-position: top center;
     padding: 0 3px;
-}</string>
+}
+labelStatus { color : blue; }
+labelStatus[errored=true]{color : red;}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_6">
    <item>
@@ -173,13 +175,6 @@ QGroupBox::title {
            <layout class="QHBoxLayout" name="horizontalLayout_11">
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_12">
-              <item>
-               <widget class="QCheckBox" name="checkBoxBackward">
-                <property name="text">
-                 <string>Backward direction</string>
-                </property>
-               </widget>
-              </item>
               <item>
                <widget class="QCheckBox" name="checkBoxWholeWord">
                 <property name="text">
@@ -361,6 +356,9 @@ QGroupBox::title {
       </item>
       <item>
        <widget class="QLabel" name="labelStatus">
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
         <property name="text">
          <string/>
         </property>

@@ -154,12 +154,14 @@ void Highlighter::markSearch(const QString &strMark, bool bRegExp,
 {
     if(bFind)
     {
+        findTextRule.findText = "";
+        findRegExpRule.pattern = QRegularExpression();
         if(bRegExp)
         {
             QTextCharFormat format;
             format.setForeground(Qt::red);
             format.setBackground(Qt::yellow);
-            findRegExpRule.pattern = QRegularExpression(QRegularExpression::escape(strMark));
+            findRegExpRule.pattern = QRegularExpression(strMark);
             if(!bMatchCase)
                 findRegExpRule.pattern.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
             findRegExpRule.format = format;

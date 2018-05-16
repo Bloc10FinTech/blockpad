@@ -108,6 +108,7 @@ BlockPad::BlockPad(QWidget *parent) :
     //add web browser
     {
         web_browserWindow = browser.createWindow(true);
+        //web_browserWindow = browser.createWindow();
         //web_browserWindow->setParent(this);
         QHBoxLayout *layout = new QHBoxLayout;
         layout->addWidget(web_browserWindow);
@@ -167,7 +168,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotErrorUpdateParsing);
         connect(ui->listWidgetFiles, &QListWidget::itemClicked,
                 this, &BlockPad::slotFileClicked);
-        connect(ui->listWidgetFiles, &QListWidget::currentTextChanged,
+        auto delegate = ui->listWidgetFiles->itemDelegate();
+        connect(delegate, &QAbstractItemDelegate::commitData,
                 this, &BlockPad::slotFilesItemFinishEditing);
         connect(ui->listWidgetFiles, SIGNAL(customContextMenuRequested(QPoint)),
                 this, SLOT(slotFilesContextMenu(QPoint)));
@@ -178,7 +180,6 @@ BlockPad::BlockPad(QWidget *parent) :
         connect(&netwLicenseServer, &NetworkLicenseServer::sigCheckFinished,
                 this, &BlockPad::slotCheckResult);
     }
-
 }
 
 void BlockPad::slotSearchClicked()
@@ -204,7 +205,7 @@ void BlockPad::slotReadMeClicked()
     readMeFile = QApplication::applicationDirPath() + "/../Resources/BlockPadReadMe.rtf";
 #endif
 #if defined(WIN32) || defined(WIN64)
-    readMeFile = QApplication::applicationDirPath() + "BlockPadReadMe.rtf";
+    readMeFile = "BlockPadReadMe.rtf";
 #endif
     QDesktopServices::openUrl(QUrl::fromLocalFile(readMeFile));
 }
@@ -406,6 +407,7 @@ void BlockPad::slotDeleteBlockPadFile()
                           "Are you sure that you want to delete the file " + text + " ?"))
     {
         auto item = ui->listWidgetFiles->takeItem(row);
+        previousNameFiles.removeAt(row);
         delete item;
         auto docs = ui->codeEdit->getAllDocuments();
         if(docs[text] == ui->codeEdit->document())
@@ -429,10 +431,15 @@ void BlockPad::slotRenameBlockPadFile()
     ui->listWidgetFiles->editItem(item);
 }
 
-void BlockPad::slotFilesItemFinishEditing()
+void BlockPad::slotFilesItemFinishEditing(QWidget * editor)
 {
     QListWidgetItem *item = ui->listWidgetFiles->currentItem();
     item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+    auto oldText = previousNameFiles[ui->listWidgetFiles->currentRow()];
+    auto newText = ui->listWidgetFiles->currentItem()->text();
+    previousNameFiles[ui->listWidgetFiles->currentRow()] = newText;
+    ui->codeEdit->renameDocument(newText,
+                                 oldText);
 }
 
 void BlockPad::slotFileEncryptionClicked()
@@ -1169,15 +1176,17 @@ void BlockPad::slotAddBlockPadFile()
             }
         }
         ui->listWidgetFiles->addItem(nameFile);
+        previousNameFiles.append(nameFile);
         documentChanged(nameFile);
         ui->pushButtonSave->setEnabled(true);
     }
+    ui->codeEdit->setFocus();
 }
 
 void BlockPad::slotPremiumVersionClicked()
 {
-    slotOpenUrlWebTab(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
-    //QDesktopServices::openUrl(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
+    //slotOpenUrlWebTab(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
+    QDesktopServices::openUrl(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
 }
 
 void BlockPad::slotCurrentWgtChanged()
@@ -1220,6 +1229,8 @@ void BlockPad::slotCurrentWgtChanged()
         ui->ToolsWgtAddMargins->hide();
         ui->widgetTicker->hide();
     }
+
+    ui->pushButtonSearch->hide();
 }
 
 void BlockPad::slotFontSizeChanged(int pointSize)
@@ -1422,6 +1433,7 @@ void BlockPad::slotLoadDecrypt()
         ui->tableWidgetAccounts->slotLoadData(allDecryptoData, pos);
         auto allDocuments = ui->codeEdit->slotLoadData(allDecryptoData, pos);
         ui->listWidgetFiles->addItems(allDocuments.keys());
+        previousNameFiles =allDocuments.keys();
         QString currentName = allDocuments.firstKey();
         foreach(QString name, allDocuments.keys())
         {

@@ -77,6 +77,7 @@ private:
     QFutureWatcher<void> fW_UpdateBackUp;
     void checkLicense();
     void checkAddDocs();
+    QStringList previousNameFiles;
     //print data
     void renderHeader(QPainter &painter, QString header,
                       const QRectF& textRect, qreal footerHeight, int pageNumber);
@@ -111,7 +112,7 @@ private slots:
     void slotRenameBlockPadFile();
     void slotFileClicked(QListWidgetItem *item);
     void slotFilesContextMenu(QPoint);
-    void slotFilesItemFinishEditing();
+    void slotFilesItemFinishEditing(QWidget *editor);
     void slotOpenUrlWebTab(QUrl url);
     void slotSuccessActivated();
     void slotBackUpClicked();

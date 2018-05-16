@@ -150,6 +150,7 @@ void BrowserWindow::slotCookieRemoved(const QNetworkCookie &cookie)
     if(!bNoCache)
     {
         allCookies.removeAll(cookie);
+        //allCookies.removeOne(cookie);
         emit newChanges();
         qDebug() << "slotCookieRemoved:";
         qDebug() << "name: " << cookie.name();

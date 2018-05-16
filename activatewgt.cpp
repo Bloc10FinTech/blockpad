@@ -142,9 +142,11 @@ void ActivateWgt::slotActivateFinished(bool bSuccess,
         emit sigSuccessActivated();
     }
     else
+    {
         QMessageBox::critical(this, windowTitle(),
                                  "License could not be activated!");
-    ui->pushButtonActivate->setEnabled(true);
+        ui->pushButtonActivate->setEnabled(true);
+    }
 }
 
 void ActivateWgt::slotDeviceNameFinished()
