@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>880</width>
-    <height>400</height>
+    <height>549</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -32,20 +32,12 @@ background-color: white
 Accounts
 {
 background-color: white 
-}</string>
+}
+</string>
   </property>
   <layout class="QVBoxLayout" name="mainVerticalLayout">
    <property name="spacing">
     <number>7</number>
-   </property>
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
    </property>
    <item>
     <widget class="QTabWidget" name="tabWidget">
@@ -53,73 +45,86 @@ background-color: white
       <string notr="true"/>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="Development">
       <attribute name="title">
        <string>BlockPad</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <property name="spacing">
-        <number>0</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QSplitter" name="splitterBlockPad">
+        <widget class="QSplitter" name="splitterVerticalBlockPad">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Vertical</enum>
          </property>
-         <property name="opaqueResize">
-          <bool>true</bool>
-         </property>
-         <widget class="CodeEditor" name="codeEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+         <widget class="QSplitter" name="splitterBlockPad">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
+          <property name="opaqueResize">
+           <bool>true</bool>
           </property>
-          <property name="styleSheet">
-           <string notr="true">CodeEditor{
+          <widget class="CodeEditor" name="codeEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">CodeEditor{
     border: 2px solid black;
     border-radius: 10px;
     padding: 2px;
 }</string>
-          </property>
-          <property name="lineWrapMode">
-           <enum>QPlainTextEdit::NoWrap</enum>
-          </property>
+           </property>
+           <property name="lineWrapMode">
+            <enum>QPlainTextEdit::NoWrap</enum>
+           </property>
+          </widget>
+          <widget class="QListWidget" name="listWidgetFiles">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::CustomContextMenu</enum>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QListWidget{
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 2px;
+}</string>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+          </widget>
          </widget>
-         <widget class="QListWidget" name="listWidgetFiles">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+         <widget class="FindWidget" name="wgtFindResults" native="true">
           <property name="minimumSize">
            <size>
-            <width>100</width>
-            <height>0</height>
+            <width>0</width>
+            <height>100</height>
            </size>
           </property>
-          <property name="contextMenuPolicy">
-           <enum>Qt::CustomContextMenu</enum>
-          </property>
           <property name="styleSheet">
-           <string notr="true">QListWidget{
-    border: 2px solid black;
-    border-radius: 10px;
-    padding: 2px;
-}</string>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::SingleSelection</enum>
+           <string notr="true"/>
           </property>
          </widget>
         </widget>
@@ -461,7 +466,7 @@ QHeaderView::section{
    <item>
     <widget class="QWidget" name="ToolsWgtAddMargins" native="true">
      <property name="styleSheet">
-      <string notr="true">QPushButton{background-color: white; border: none; }</string>
+      <string notr="true"/>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <property name="spacing">
@@ -950,6 +955,12 @@ qproperty-text:&quot;&quot;
    <class>Ticker</class>
    <extends>QWidget</extends>
    <header>ticker.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FindWidget</class>
+   <extends>QWidget</extends>
+   <header>find/findwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

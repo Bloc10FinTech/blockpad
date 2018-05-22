@@ -68,7 +68,10 @@ SOURCES += \
     fileencryptionwgt.cpp \
     onetimepadgenerator.cpp \
     messagescramblerwgt.cpp \
-    searchwgt.cpp
+    searchwgt.cpp \
+    find/searchresulttreeitemdelegate.cpp \
+    find/findwidget.cpp \
+    find/treewidgetfindresults.cpp
 
 HEADERS += \
     global.h \
@@ -117,7 +120,11 @@ HEADERS += \
     fileencryptionwgt.h \
     onetimepadgenerator.h \
     messagescramblerwgt.h \
-    searchwgt.h
+    searchwgt.h \
+    find/searchresulttreeitemdelegate.h \
+    find/findwidget.h \
+    find/globalsearch.h \
+    find/treewidgetfindresults.h
 
 FORMS += \
     passwordwidget.ui \
@@ -135,7 +142,8 @@ FORMS += \
     activatewgt.ui \
     onetimepadgenerator.ui \
     messagescramblerwgt.ui \
-    searchwgt.ui
+    searchwgt.ui \
+    find/findwidget.ui
 
 RESOURCES += \
     fonts.qrc \

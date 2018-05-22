@@ -60,6 +60,7 @@
 #include "codeeditor.h"
 #include "global.h"
 
+
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
     lineNumberArea = new LineNumberArea(this);
@@ -71,15 +72,72 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     init();
 }
 
-void CodeEditor::slotFindAllCurrentFile(QString strCurrentFile, bool bRegExp, bool bMatchWholeWord, bool bMatchCase)
+void CodeEditor::slotFindAllCurrentFile()
 {
-    allHighlighters[currentName]->markSearch(strCurrentFile, bRegExp,
-                            bMatchWholeWord, bMatchCase,
-                            true);
-    allHighlighters[currentName]->rehighlight();
+    QMap<QString, QVector<SearchItem>> res;
+    //fill res
+    {
+        auto finds = fillFindResults(currentName);
+        res[currentName] = finds;
+    }
+    emit sigFindResults(res);
+}
+
+void CodeEditor::slotFindAllAllFiles()
+{
+    QMap<QString, QVector<SearchItem>> res;
+    //fill res
+    foreach(auto nameFile, allDocuments.keys())
+    {
+        allHighlighters[nameFile]->markSearch(strSearch);
+        auto finds = fillFindResults(nameFile);
+        if(!finds.isEmpty())
+            res[nameFile] = finds;
+    }
+    emit sigFindResults(res);
+}
+
+void CodeEditor::slotSearchMark(QString strCurrent)
+{
+    strSearch =strCurrent;
+    int firstFinding = allHighlighters[currentName]->markSearch(strCurrent);
+    if(firstFinding >= 0)
+    {
+        auto tCursor = textCursor();
+        tCursor.setPosition(firstFinding);
+        setTextCursor(tCursor);
+    }
     highlightCurrentLine();
 }
 
+QVector<SearchItem> CodeEditor::fillFindResults(QString nameFile)
+{
+    QVector<SearchItem> res;
+    QTextBlock block = allDocuments[nameFile]->firstBlock();
+    while(block.isValid())
+    {
+        auto userData = static_cast <TextBlockUserData *> (
+                        block.userData());
+        if(userData != nullptr)
+        {
+            auto finds = userData->finds();
+            if(!finds.isEmpty())
+            {
+                for(int i=0; i<finds.size(); i++)
+                {
+                    SearchItem item;
+                    item.numLine = block.blockNumber()+1;
+                    item.strLine = block.text();
+                    item.length = finds[i]->length;
+                    item.start = finds[i]->posStart;
+                    res.append(item);
+                }
+            }
+        }
+        block = block.next();
+    }
+    return res;
+}
 
 void CodeEditor::keyPressEvent(QKeyEvent *event)
 {
@@ -90,6 +148,8 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
         moveCursor (QTextCursor::Start);
         insertPlainText ("\n");
         moveCursor (QTextCursor::Start);
+        allHighlighters[currentName]->rehighlightBlock(
+                    document()->findBlockByLineNumber(1));
         event->ignore();
     }
     else
@@ -232,8 +292,109 @@ void CodeEditor::removeDocument(QString nameDocument)
         auto doc = allDocuments[nameDocument];
         allDocuments.remove(nameDocument);
         delete doc;
-        auto _highlight = allHighlighters[nameDocument];
         allHighlighters.remove(nameDocument);
+    }
+}
+
+void CodeEditor::slotFindNext()
+{
+    QTextBlock block = textCursor().block();
+    bool findNext = false;
+    bool wrapAroundStart = false;
+    while(1)
+    {
+        auto userData = static_cast <TextBlockUserData *> (
+                        block.userData());
+        if(userData != nullptr)
+        {
+            auto finds = userData->finds();
+            for(int i=0; i<finds.size(); i++)
+            {
+                if(block!= textCursor().block()
+                      ||
+                   (finds[i]->posStart + block.position()
+                        > textCursor().position()))
+                {
+                    QTextCursor tcursor = textCursor();
+                    tcursor.setPosition(finds[i]->posStart
+                                        + block.position());
+                    setTextCursor(tcursor);
+                    findNext = true;
+                    break;
+                }
+            }
+        }
+        if(findNext)
+            break;
+        block = block.next();
+        if(!block.isValid())
+        {
+            if(settings.value(defWrapAround).toBool()
+                    && !wrapAroundStart)
+            {
+                block = document()->firstBlock();
+                wrapAroundStart = true;
+            }
+            else
+                break;
+        }
+    }
+}
+
+
+void CodeEditor::slotCurrentFindResultChanged(QString fileName,
+                                              int blockNumber,
+                                              int positionResult)
+{
+    setCurrentDocument(fileName);
+    QTextCursor tcursor = textCursor();
+    tcursor.setPosition(allDocuments[fileName]->findBlockByNumber(blockNumber).position()
+                        + positionResult);
+    setTextCursor(tcursor);
+}
+
+void CodeEditor::slotFindPrev()
+{
+    QTextBlock block = textCursor().block();
+    bool findPrev = false;
+    bool wrapAroundStart = false;
+    while(1)
+    {
+        auto userData = static_cast <TextBlockUserData *> (
+                        block.userData());
+        if(userData != nullptr)
+        {
+            auto finds = userData->finds();
+            for(int i=finds.size()-1; i>=0; i--)
+            {
+                if(block!= textCursor().block()
+                      ||
+                   (finds[i]->posStart + block.position()
+                        < textCursor().position()))
+                {
+                    QTextCursor tcursor = textCursor();
+                    tcursor.setPosition(finds[i]->posStart
+                                        + block.position());
+                    setTextCursor(tcursor);
+                    findPrev = true;
+                    break;
+                }
+            }
+        }
+        if(findPrev)
+            break;
+        block = block.previous();
+        if(!block.isValid())
+        {
+            if(settings.value(defWrapAround).toBool()
+                    && !wrapAroundStart)
+            {
+                block = document()->lastBlock();
+                wrapAroundStart = true;
+            }
+            else
+                break;
+        }
     }
 }
 
@@ -245,7 +406,14 @@ void CodeEditor::setCurrentDocument(QString nameDocument)
         {       
             setDocument(allDocuments[nameDocument]);
             currentName = nameDocument;
-            init();
+            int firstFinding = allHighlighters[currentName]->markSearch(strSearch);
+            if(firstFinding >= 0)
+            {
+                auto tCursor = textCursor();
+                tCursor.setPosition(firstFinding);
+                setTextCursor(tCursor);
+            }
+            init();        
         }
     }
     else
@@ -321,6 +489,80 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
+void CodeEditor::slotReplace(QString replaceStr)
+{
+    //replace
+    {
+        auto block = textCursor().block();
+        auto userData = static_cast <TextBlockUserData *> (
+                        block.userData());
+        if(userData != nullptr)
+        {
+            auto finds = userData->finds();
+            for(int i=0; i<finds.size(); i++)
+            {
+                auto find = finds[i];
+                if(find->posStart + block.position()
+                   == textCursor().position())
+                {
+                    auto tCursor = textCursor();
+                    tCursor.setPosition(textCursor().position()
+                                        +find->length,
+                                        QTextCursor::KeepAnchor);
+                    tCursor.insertText(replaceStr);
+                    return;
+                }
+            }
+        }
+    }
+    slotFindNext();
+}
+
+void CodeEditor::slotReplaceAllCurrent(QString replaceStr)
+{
+    replaceInFile(currentName, replaceStr);
+}
+
+void CodeEditor::slotReplaceAllAll(QString replaceStr)
+{
+    foreach(QString fileName, allDocuments.keys())
+    {
+        allHighlighters[fileName]->markSearch(strSearch);
+        allHighlighters[fileName]->setManualRehighlight(true);
+        replaceInFile(fileName,
+                      replaceStr);
+        allHighlighters[fileName]->setManualRehighlight(false);
+    }
+}
+
+void CodeEditor::replaceInFile(QString fileName,
+                               QString replaceStr)
+{
+    auto block = allDocuments[fileName]->firstBlock();
+    while(block.isValid())
+    {
+        auto userData = static_cast <TextBlockUserData *> (
+                        block.userData());
+        if(userData != nullptr)
+        {
+            auto finds = userData->finds();
+            for(int i=0; i<finds.size(); i++)
+            {
+                auto find = finds[i];
+                auto tCursor = QTextCursor(allDocuments[fileName]);
+                tCursor.setPosition(find->posStart
+                                     + block.position());
+                tCursor.setPosition(find->posStart
+                                    +find->length
+                                     + block.position(),
+                                    QTextCursor::KeepAnchor);
+                tCursor.insertText(replaceStr);
+            }
+        }
+        block = block.next();
+    }
+}
+
 void CodeEditor::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
@@ -346,12 +588,20 @@ void CodeEditor::highlightCurrentLine()
 
             QColor lineColor = mix2clr(find->color,
                                        QColor(175,232,255));
-
+            //QColor lineColor = find->color;
+            if(find->posStart+ textCursor().block().position()
+                    == textCursor().position())
+                lineColor = mix2clr(Qt::green,
+                                    QColor(175,232,255));
+            //    lineColor = QColor(204,255,164);
             selection.format.setBackground(lineColor);
             QTextCursor cursor(textCursor().block());
             cursor.clearSelection();
-            cursor.setPosition(find->posStart);
-            cursor.setPosition(find->posStart + find->length,
+            cursor.setPosition(find->posStart
+                               + textCursor().block().position());
+            cursor.setPosition(find->posStart
+                               + textCursor().block().position()
+                               + find->length,
                                QTextCursor::KeepAnchor);
             selection.cursor = cursor;
             extraSelections.append(selection);
@@ -393,9 +643,10 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
                     }
                     else
                     {
-                        data->insert(((TextBlockUserData*)block.userData())->brackets());
                         if(((TextBlockUserData*)block.userData())->revision()!= block.revision())
                         {
+                            data->insert(((TextBlockUserData*)block.userData())->brackets());
+                            data->addFindInfo(((TextBlockUserData*)block.userData())->finds());
                             block.setUserData(data);
                             if(!loadFile)
                                 emit newChanges();

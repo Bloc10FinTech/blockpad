@@ -5,7 +5,7 @@
 class QWidget;
 
 #define defVersionApplication "0.8.2.1"
-#define defVersionEncryptProtocol 1
+#define defVersionEncryptProtocol 2
 
 #define appFontWeight QFont::Normal
 #define defColorNoEditable "#f8f8f8"
@@ -18,6 +18,11 @@ class QWidget;
 //settings
 #define defCurrentFile "CurrentFile"
 #define defReadMeVersion "ReadMeVersion"
+#define defSearch "Search"
+#define defRegularExpressions defSearch + QString("/RegularExpressions")
+#define defCase defSearch + QString("/Case")
+#define defWholeWord defSearch + QString("/WholeWord")
+#define defWrapAround defSearch + QString("/WrapAround")
 
 //properties qapplication
 #define defEmailProperty "email"

@@ -2,6 +2,7 @@
 #define SEARCHWGT_H
 
 #include <QWidget>
+#include <QSettings>
 
 namespace Ui {
 class SearchWgt;
@@ -18,6 +19,7 @@ protected:
     bool event(QEvent *e);
 private:
     Ui::SearchWgt *ui;
+    QSettings settings;
 private slots:
     //transparency
     void slotSliderTransparencyChanged(int value);
@@ -25,15 +27,44 @@ private slots:
     void slotOnLosingFocusClicked();
     void slotAllwaysClicked();
 
+    //options
+    void slotRegularClicked(bool checked);
+    void slotCaseClicked(bool checked);
+    void slotWholeWordClicked(bool checked);
+    void slotWrapAroundClicked(bool checked);
+
+    //choose find-replace
+    void slotReplaceRadButClicked();
+    void slotFindRadButClicked();
+
     //Find
+    void slotFindNext();
+    void slotFindPrev();
     void slotFindAllCurrent();
+    void slotFindAllAll();
+
+    //clear
+    void slotClearMarks();
+
+    //replace
+    void slotReplace();
+    void slotReplaceAllCurrent();
+    void slotReplaceAllAll();
 signals:
-    void sigFindAllCurrentFile(QString strSearch, bool bRegExp,
-                               bool bMatchWholeWord, bool bMatchCase);
-    void sigFindAllAllFiles(QString strSearch, bool bRegExp,
-                            bool bMatchWholeWord, bool bMatchCase);
-    void sigFindNext(QString strSearch);
-    void sigFindPrev(QString strSearch);
+
+    //mark
+    void sigMark(QString strSearch);
+
+    //find
+    void sigFindAllCurrentFile();
+    void sigFindAllAllFiles();
+    void sigFindNext();
+    void sigFindPrev();
+
+    //replace
+    void sigReplace(QString strReplace);
+    void sigReplaceAllCurrent(QString strReplace);
+    void sigReplaceAllAll(QString strReplace);
 };
 
 #endif // SEARCHWGT_H

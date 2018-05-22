@@ -80,21 +80,6 @@ public:
     void loadData(QByteArray allLoadData, int &pos);
 protected:
     void closeEvent(QCloseEvent *event) override;
-public slots:
-    void slotNewUrl(QUrl newUrl);
-    void slotSaveCache(bool on)
-    {bNoCache = !on;}
-private slots:
-    void handleNewWindowTriggered();
-    void handleNewIncognitoWindowTriggered();
-    void handleFileOpenTriggered();
-    void handleFindActionTriggered();
-    void handleShowWindowTriggered();
-    void handleWebViewLoadProgress(int);
-    void handleWebViewTitleChanged(const QString &title);
-    void handleWebActionEnabledChanged(QWebEnginePage::WebAction action, bool enabled);
-    void slotCookieAdded(const QNetworkCookie &cookie);
-    void slotCookieRemoved(const QNetworkCookie &cookie);
 private:
     QMenu *createFileMenu(TabWidget *tabWidget);
     QMenu *createEditMenu();
@@ -118,6 +103,25 @@ private:
     QLineEdit *m_urlLineEdit;
     QAction *m_favAction;
     QString m_lastSearch;
+
+    //fix cache bugs
+    int idDeleteSessionCookies {0};
+    int idLoadMyCache {0};
+public slots:
+    void slotNewUrl(QUrl newUrl);
+    void slotSaveCache(bool on)
+    {bNoCache = !on;}
+private slots:
+    void handleNewWindowTriggered();
+    void handleNewIncognitoWindowTriggered();
+    void handleFileOpenTriggered();
+    void handleFindActionTriggered();
+    void handleShowWindowTriggered();
+    void handleWebViewLoadProgress(int);
+    void handleWebViewTitleChanged(const QString &title);
+    void handleWebActionEnabledChanged(QWebEnginePage::WebAction action, bool enabled);
+    void slotCookieAdded(const QNetworkCookie &cookie);
+    void slotCookieRemoved(const QNetworkCookie &cookie);
 signals:
     void newChanges();
 };

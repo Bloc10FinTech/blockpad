@@ -1,7 +1,8 @@
 #include "searchwgt.h"
 #include "ui_searchwgt.h"
 #include <QEvent>
-
+#include <QMessageBox>
+#include "global.h"
 
 SearchWgt::SearchWgt(QWidget *parent) :
     QWidget(parent),
@@ -10,6 +11,16 @@ SearchWgt::SearchWgt(QWidget *parent) :
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlag(Qt::Window);
+    //load settings
+    {
+        ui->checkBoxCase->setChecked(settings.value(defCase).toBool());
+        ui->checkBoxRegularExpressions->setChecked(settings.value(defRegularExpressions).toBool());
+        ui->checkBoxWholeWord->setChecked(settings.value(defWholeWord).toBool());
+        ui->checkBoxWrapAround->setChecked(settings.value(defWrapAround).toBool());
+    }
+    ui->comboBoxFindWhat->setFocus();
+    slotRegularClicked(ui->checkBoxRegularExpressions->isChecked());
+    slotFindRadButClicked();
     //signals-slots connects
     {
         //transparency
@@ -22,11 +33,176 @@ SearchWgt::SearchWgt(QWidget *parent) :
         connect(ui->radioButtonAllways, &QRadioButton::clicked,
                 this, &SearchWgt::slotAllwaysClicked);
 
-       //find
+        //options
+        connect(ui->checkBoxRegularExpressions, &QCheckBox::clicked,
+                this, &SearchWgt::slotRegularClicked);
+        connect(ui->checkBoxCase, &QCheckBox::clicked,
+                this, &SearchWgt::slotCaseClicked);
+        connect(ui->checkBoxWholeWord, &QCheckBox::clicked,
+                this, &SearchWgt::slotWholeWordClicked);
+        connect(ui->checkBoxWrapAround, &QCheckBox::clicked,
+                this, &SearchWgt::slotWrapAroundClicked);
+
+        //mark
+        connect(ui->comboBoxFindWhat, &QComboBox::editTextChanged,
+                this, &SearchWgt::sigMark);
+
+        //find
         connect(ui->pushButtonFindAllCurrent, &QPushButton::clicked,
                 this, &SearchWgt::slotFindAllCurrent);
+        connect(ui->pushButtonFindAllAll, &QPushButton::clicked,
+                this, &SearchWgt::slotFindAllAll);
+        connect(ui->pushButtonFindNext, &QPushButton::clicked,
+                this, &SearchWgt::slotFindNext);
+        connect(ui->pushButtonFindPrev, &QPushButton::clicked,
+                this, &SearchWgt::slotFindPrev);
+
+        //replace
+        connect(ui->pushButtonReplace, &QPushButton::clicked,
+                this, &SearchWgt::slotReplace);
+        connect(ui->pushButtonReplaceAllCurrent, &QPushButton::clicked,
+                this, &SearchWgt::slotReplaceAllCurrent);
+        connect(ui->pushButtonReplaceAllAll, &QPushButton::clicked,
+                this, &SearchWgt::slotReplaceAllAll);
+
+        //clear
+        connect(ui->pushButtonClear, &QPushButton::clicked,
+                this, &SearchWgt::slotClearMarks);
+
+        //choose find-replace
+        connect(ui->radioButtonReplace, &QRadioButton::clicked,
+                this, &SearchWgt::slotReplaceRadButClicked);
+        connect(ui->radioButtonFind, &QRadioButton::clicked,
+                this, &SearchWgt::slotFindRadButClicked);
     }
-    ui->comboBoxFindWhat->setFocus();
+}
+
+void SearchWgt::slotReplace()
+{
+    if(ui->comboBoxReplaceWith->findText(ui->comboBoxFindWhat->currentText())
+            != -1)
+        ui->comboBoxReplaceWith
+           ->addItem(ui->comboBoxReplaceWith->currentText());
+    emit sigReplace(ui->comboBoxReplaceWith->currentText());
+}
+
+void SearchWgt::slotReplaceAllCurrent()
+{
+    if(ui->comboBoxReplaceWith->findText(ui->comboBoxFindWhat->currentText())
+            != -1)
+        ui->comboBoxReplaceWith
+           ->addItem(ui->comboBoxReplaceWith->currentText());
+    emit sigReplaceAllCurrent(ui->comboBoxReplaceWith->currentText());
+}
+
+void SearchWgt::slotReplaceAllAll()
+{
+    if(ui->comboBoxReplaceWith->findText(ui->comboBoxFindWhat->currentText())
+            != -1)
+        ui->comboBoxReplaceWith
+           ->addItem(ui->comboBoxReplaceWith->currentText());
+    emit sigReplaceAllAll(ui->comboBoxReplaceWith->currentText());
+}
+
+void SearchWgt::slotFindRadButClicked()
+{
+    //hide all buttons
+    {
+        auto pbuttons = findChildren<QPushButton*>();
+        foreach(auto pb, pbuttons)
+        {
+            pb->hide();
+        }
+    }
+    ui->widgetReplaceWith->hide();
+    //show find
+    {
+        ui->pushButtonFindNext->show();
+        ui->pushButtonFindPrev->show();
+        ui->pushButtonClear->show();
+        ui->pushButtonFindAllAll->show();
+        ui->pushButtonFindAllCurrent->show();
+    }
+}
+
+void SearchWgt::slotReplaceRadButClicked()
+{
+    //hide all buttons
+    {
+        auto pbuttons = findChildren<QPushButton*>();
+        foreach(auto pb, pbuttons)
+        {
+            pb->hide();
+        }
+    }
+    ui->widgetReplaceWith->show();
+    //show replace
+    {
+        ui->pushButtonFindNext->show();
+        ui->pushButtonFindPrev->show();
+        ui->pushButtonReplace->show();
+        ui->pushButtonReplaceAllAll->show();
+        ui->pushButtonReplaceAllCurrent->show();
+    }
+}
+
+void SearchWgt::slotClearMarks()
+{
+    ui->comboBoxFindWhat->setEditText("");
+}
+
+void SearchWgt::slotFindNext()
+{
+    if(ui->comboBoxFindWhat->currentText().isEmpty())
+    {
+        QMessageBox::critical(nullptr, "Search",
+                              "Please input text in \"Find what\" field");
+    }
+    else
+    {
+        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())
+                != -1)
+            ui->comboBoxFindWhat->addItem(ui->comboBoxFindWhat->currentText());
+        emit sigFindNext();
+    }
+}
+
+void SearchWgt::slotFindPrev()
+{
+    if(ui->comboBoxFindWhat->currentText().isEmpty())
+    {
+        QMessageBox::critical(nullptr, "Search",
+                              "Please input text in \"Find what\" field");
+    }
+    else
+    {
+        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())
+                != -1)
+            ui->comboBoxFindWhat->addItem(ui->comboBoxFindWhat->currentText());
+        emit sigFindPrev();
+    }
+}
+
+void SearchWgt::slotFindAllAll()
+{
+    if(!ui->comboBoxFindWhat->currentText().isEmpty())
+    {
+        emit sigFindAllAllFiles();
+        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())
+                != -1)
+            ui->comboBoxFindWhat->addItem(ui->comboBoxFindWhat->currentText());
+    }
+    else
+    {
+        QMessageBox::critical(nullptr, "Search",
+                              "Please input text in \"Find what\" field");
+    }
+}
+
+void SearchWgt::slotWrapAroundClicked(bool checked)
+{
+    settings.setValue(defWrapAround, checked);
+    settings.sync();
 }
 
 bool SearchWgt::event(QEvent *e)
@@ -59,15 +235,45 @@ bool SearchWgt::event(QEvent *e)
     return QWidget::event(e);
 }
 
+void SearchWgt::slotRegularClicked(bool checked)
+{
+    if(checked)
+        ui->checkBoxWholeWord->setEnabled(false);
+    else
+        ui->checkBoxWholeWord->setEnabled(true);
+
+    settings.setValue(defRegularExpressions, checked);
+    settings.sync();
+    emit sigMark(ui->comboBoxFindWhat->currentText());
+}
+
+void SearchWgt::slotCaseClicked(bool checked)
+{
+    settings.setValue(defCase, checked);
+    settings.sync();
+    emit sigMark(ui->comboBoxFindWhat->currentText());
+}
+
+void SearchWgt::slotWholeWordClicked(bool checked)
+{
+    settings.setValue(defWholeWord, checked);
+    settings.sync();
+    emit sigMark(ui->comboBoxFindWhat->currentText());
+}
+
 void SearchWgt::slotFindAllCurrent()
 {
     if(!ui->comboBoxFindWhat->currentText().isEmpty())
     {
-        emit sigFindAllCurrentFile(ui->comboBoxFindWhat->currentText(),
-                                   ui->checkBoxRegularExpressions->isChecked(),
-                                   ui->checkBoxWholeWord->isChecked(),
-                                   ui->checkBoxCase->isChecked());
-        ui->comboBoxFindWhat->addItem(ui->comboBoxFindWhat->currentText());
+        emit sigFindAllCurrentFile();
+        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())
+                != -1)
+            ui->comboBoxFindWhat->addItem(ui->comboBoxFindWhat->currentText());
+    }
+    else
+    {
+        QMessageBox::critical(nullptr, "Search",
+                              "Please input text in \"Find what\" field");
     }
 }
 void SearchWgt::slotOnLosingFocusClicked()

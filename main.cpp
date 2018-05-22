@@ -8,13 +8,16 @@
 #include <QLibraryInfo>
 #include <QStandardPaths>
 #include <QDebug>
+#include "find/globalsearch.h"
 
 QString fileInit;
+
 
 int main(int argc, char *argv[])
 {
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime().addSecs(24)));
     QApplication a(argc, argv);
+    qRegisterMetaType<findResults>("findResults");
     QCoreApplication::setOrganizationName("Bloc10");
     QCoreApplication::setOrganizationDomain("www.bloc10.com");
     QCoreApplication::setApplicationName("BlockPad");

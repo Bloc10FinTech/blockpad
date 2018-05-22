@@ -57,7 +57,9 @@
 #include <QTextBlockUserData>
 #include <QByteArray>
 #include <QPointer>
+#include <QSettings>
 #include "highlighter.h"
+#include "find/globalsearch.h"
 
 QT_BEGIN_NAMESPACE
 class QPaintEvent;
@@ -75,7 +77,7 @@ class CodeEditor : public QPlainTextEdit
 
 public:
     CodeEditor(QWidget *parent = 0);
-
+    QSettings settings;
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
     void calcLineNumberAreaWidth();
@@ -106,10 +108,27 @@ private:
     bool matchRightBrackets(QTextBlock currentBlock,
                             int index, int numberRightBracket);
     void createBracketsSelection(int position);
+    QString strSearch;
+    QVector<SearchItem> fillFindResults(QString nameFile);
+
+    void replaceInFile(QString fileName, QString replaceStr);
 public slots:
     void slotHighlightingCode(bool on);
-    void slotFindAllCurrentFile(QString strCurrentFile, bool bRegExp,
-                                bool bMatchWholeWord, bool bMatchCase);
+    //find
+    void slotFindAllCurrentFile();
+    void slotFindAllAllFiles();
+    void slotFindNext();
+    void slotFindPrev();
+    //mark
+    void slotSearchMark(QString strCurrent);
+    //replace
+    void slotReplace(QString replaceStr);
+    void slotReplaceAllCurrent(QString replaceStr);
+    void slotReplaceAllAll(QString replaceStr);
+    //choose
+    void slotCurrentFindResultChanged(QString fileName,
+                                      int blockNumber,
+                                      int positionResult);
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
@@ -117,6 +136,7 @@ private slots:
     void matchBrackets();
 signals:
     void newChanges();
+    void sigFindResults(findResults);
 };
 
 class LineNumberArea : public QWidget

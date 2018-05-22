@@ -52,6 +52,7 @@
 #include <QLocale>
 #include <QDateTime>
 #include <QTextDocument>
+#include "global.h"
 
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
@@ -117,11 +118,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = mappingFormat;
     highlightingRules.append(rule);
 
-//    operatorsFormat.setForeground(Qt::darkGray);
-//    rule.pattern = QRegularExpression("(=|!|>|<|\\||&)");
-//    rule.format = operatorsFormat;
-//    highlightingRules.append(rule);
-
     msg_blocksFormat.setForeground(QBrush(QColor(147,39,28)));
     rule.pattern = QRegularExpression("\\b(msg|block|tx)\\b");
     rule.format = msg_blocksFormat;
@@ -146,45 +142,123 @@ Highlighter::Highlighter(QTextDocument *parent)
     commentEndExpression = QRegularExpression("\\*/");
 
     multiLineCommentFormat.setForeground(Qt::red);
+
+    findFormat.setForeground(Qt::red);
+    findFormat.setBackground(Qt::yellow);
 }
 
-void Highlighter::markSearch(const QString &strMark, bool bRegExp,
-                             bool bMatchWholeWord, bool bMatchCase,
-                             bool bFind)
+//return position first finding (<0 not finding)
+int Highlighter::markSearch(const QString &strMark)
 {
-    if(bFind)
+    int firstFinding = -1;
+    bool bRegExp = settings.value(defRegularExpressions).toBool();
+    bool bMatchWholeWord = settings.value(defWholeWord).toBool();
+    bool bMatchCase = settings.value(defCase).toBool();
+    //fill findTextRule and findRegExpRule
     {
         findTextRule.findText = "";
-        findRegExpRule.pattern = QRegularExpression();
+        findRegExpRule = QRegularExpression();
         if(bRegExp)
         {
-            QTextCharFormat format;
-            format.setForeground(Qt::red);
-            format.setBackground(Qt::yellow);
-            findRegExpRule.pattern = QRegularExpression(strMark);
+            findRegExpRule = QRegularExpression(strMark);
             if(!bMatchCase)
-                findRegExpRule.pattern.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
-            findRegExpRule.format = format;
+                findRegExpRule.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
         }
         else
         {
-            QTextCharFormat format;
-            format.setForeground(Qt::red);
-            format.setBackground(Qt::yellow);
-            findTextRule.format = format;
             findTextRule.findText = strMark;
             findTextRule.bMatchCase = bMatchCase;
             findTextRule.bMatchWholeWord = bMatchWholeWord;
         }
     }
-//    markRules.clear();
-//    QTextCharFormat format;
-//    format.setForeground(Qt::red);
-//    format.setBackground(Qt::yellow);
-//    HighlightingRegExpRule markRule;
-//    markRule.pattern = QRegularExpression(QRegularExpression::escape(strMark));
-//    markRule.format = format;
-//    markRules.append(markRule);
+    //mark
+    {
+        QTextBlock block = document()->firstBlock();
+        while(block.isValid())
+        {
+            TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData());
+            if(data == nullptr)
+            {
+                QString dateTime = QLocale("en_EN").toString(
+                                    QDateTime::currentDateTime(),
+                                    "hh:mm ap M/d/yyyy");
+                data = new TextBlockUserData(dateTime, block.revision());
+            }
+            bool oldFind = false;
+            //fill oldFind
+            {
+                if(!data->finds().isEmpty())
+                    oldFind = true;
+            }
+            matchSearch(block, data);
+            if(!data->finds().isEmpty()
+                    ||
+                    oldFind)
+            {
+                if(firstFinding == -1
+                        &&
+                   !data->finds().isEmpty())
+                {
+                    firstFinding = data->finds().first()->posStart
+                            + block.position();
+                }
+                manualRehighlight = true;
+                rehighlightBlock(block);
+            }
+            block = block.next();
+        }
+    }
+    return firstFinding;
+}
+
+void Highlighter::setManualRehighlight(bool bOn)
+{
+    manualRehighlight = bOn;
+}
+
+void Highlighter::matchSearch(const QTextBlock& block,
+                              TextBlockUserData * data)
+{
+    QVector <USearchInfo *> finds;
+    if(!findRegExpRule.pattern().isEmpty())
+    {
+        QRegularExpressionMatchIterator matchIterator
+                = findRegExpRule.globalMatch(block.text());
+        while (matchIterator.hasNext())
+        {
+            QRegularExpressionMatch match = matchIterator.next();
+            USearchInfo *info = new USearchInfo();
+            info->posStart = match.capturedStart();
+            info->length = match.capturedLength();
+            info->color = findFormat.background().color();
+            finds.append(info);
+        }
+    }
+    if(!findTextRule.findText.isEmpty())
+    {
+        QTextDocument::FindFlags findFlags;
+        findFlags.setFlag(QTextDocument::FindCaseSensitively,
+                          findTextRule.bMatchCase);
+        findFlags.setFlag(QTextDocument::FindWholeWords,
+                          findTextRule.bMatchWholeWord);
+        QTextCursor cursor = QTextCursor(block);
+        while (1)
+        {
+            cursor = document()->find(findTextRule.findText,
+                                      cursor,
+                                      findFlags);
+            if(cursor.isNull() ||
+                cursor.block().blockNumber() > block.blockNumber())
+                break;
+
+            USearchInfo *info = new USearchInfo();
+            info->posStart = cursor.anchor() - block.position();
+            info->length = cursor.position() - cursor.anchor();
+            info->color = findFormat.background().color();
+            finds.append(info);
+        }
+    }
+    data->addFindInfo(finds);
 }
 
 void Highlighter::highlightBlock(const QString &text)
@@ -192,7 +266,9 @@ void Highlighter::highlightBlock(const QString &text)
     TextBlockUserData *data = static_cast<TextBlockUserData *>(currentBlockUserData());
     QString dateTime = QLocale("en_EN").toString(QDateTime::currentDateTime(), "hh:mm ap M/d/yyyy");
     if(data == nullptr)
+    {
         data = new TextBlockUserData(dateTime, currentBlock().revision());
+    }
     else
         data->insert(QVector <UBracketInfo *>());
     bool highlighting_On = true;
@@ -202,76 +278,31 @@ void Highlighter::highlightBlock(const QString &text)
     }
     if(highlighting_On)
     {
-        foreach (const HighlightingRegExpRule &rule, highlightingRules) {
+        foreach (const HighlightingRegExpRule &rule, highlightingRules)
+        {
             QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
             while (matchIterator.hasNext()) {
                 QRegularExpressionMatch match = matchIterator.next();
                 setFormat(match.capturedStart(), match.capturedLength(), rule.format);
             }
         }
-        //match find/mark
+        //highlight search
         {
-            QVector <USearchInfo *> finds;
-            auto allRegRules = markRegExpRules;
-            allRegRules.append(findRegExpRule);
-            foreach (const HighlightingRegExpRule &markRule, allRegRules)
+            if(!manualRehighlight)
+                matchSearch(currentBlock(), data);
+            manualRehighlight = false;
+            QVector <USearchInfo *> finds = data->finds();
+            foreach(auto find, finds)
             {
-                if(!markRule.pattern.pattern().isEmpty())
-                {
-                    QRegularExpressionMatchIterator matchIterator = markRule.pattern.globalMatch(text);
-                    while (matchIterator.hasNext())
-                    {
-                        QRegularExpressionMatch match = matchIterator.next();
-                        setFormat(match.capturedStart(), match.capturedLength(), markRule.format);
-                        USearchInfo *info = new USearchInfo();
-                        info->posStart = currentBlock().position()
-                                + match.capturedStart();
-                        info->length = match.capturedLength();
-                        info->color = markRule.format.background().color();
-                        finds.append(info);
-                    }
-                }
+                setFormat(find->posStart,
+                          find->length,
+                          findFormat);
             }
-            auto allTextRules = markTextRules;
-            allTextRules.append(findTextRule);
-            foreach (const HighlightingTextRule &markRule, allTextRules)
-            {
-                if(!markRule.findText.isEmpty())
-                {
-                    QTextDocument::FindFlags findFlags;
-                    findFlags.setFlag(QTextDocument::FindCaseSensitively,
-                                      markRule.bMatchCase);
-                    findFlags.setFlag(QTextDocument::FindWholeWords,
-                                      markRule.bMatchWholeWord);
-                    QTextCursor cursor = QTextCursor(currentBlock());
-                    while (1)
-                    {
-                        cursor = document()->find(markRule.findText,
-                                                  cursor,
-                                                  findFlags);
-                        if(cursor.isNull() ||
-                            cursor.block().blockNumber() > currentBlock().blockNumber())
-                            break;
-
-                        setFormat(cursor.anchor() - currentBlock().position(),
-                                  cursor.position() - cursor.anchor(),
-                                  markRule.format);
-                        USearchInfo *info = new USearchInfo();
-                        info->posStart = cursor.anchor();
-                        info->length = cursor.position() - cursor.anchor();
-                        info->color = markRule.format.background().color();
-                        finds.append(info);
-                    }
-                }
-            }
-            data->addFindInfo(finds);
         }
         insertBrackets(RoundBrackets, data, text);
         insertBrackets(CurlyBraces, data, text);
         insertBrackets(SquareBrackets, data, text);
-
         setCurrentBlockUserData(data);
-
         setCurrentBlockState(0);
 
         int startIndex = 0;

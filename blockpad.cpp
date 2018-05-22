@@ -35,6 +35,7 @@
 #include <QWebEngineProfile>
 #include "stega/steganography.h"
 
+
 #define defReplyType "ReplyType"
 #define defDefaultNameFile "new "
 #define defBackupStepTime 3*60*60
@@ -179,7 +180,27 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotCheckLicenseNetworkError);
         connect(&netwLicenseServer, &NetworkLicenseServer::sigCheckFinished,
                 this, &BlockPad::slotCheckResult);
+
+        //find widget
+        connect(ui->wgtFindResults, &FindWidget::sigNeedHiding,
+                this, &BlockPad::slotCloseFindResults);
+        connect(ui->codeEdit, &CodeEditor::sigFindResults,
+                ui->wgtFindResults, &FindWidget::slotReadyFindResults);
+        connect(ui->wgtFindResults, &FindWidget::sigFindResultChoosed,
+                ui->codeEdit, &CodeEditor::slotCurrentFindResultChanged);
     }
+
+    ui->wgtFindResults->hide();
+}
+
+void BlockPad::slotCloseFindResults()
+{
+    ui->wgtFindResults->hide();
+}
+
+void BlockPad::slotFindAll()
+{
+    ui->wgtFindResults->show();
 }
 
 void BlockPad::slotSearchClicked()
@@ -190,13 +211,37 @@ void BlockPad::slotSearchClicked()
         search_Wgt->show();
         //signals-slots connects
         {
+            //mark
+            connect(search_Wgt.data(), &SearchWgt::sigMark,
+                    ui->codeEdit, &CodeEditor::slotSearchMark);
+
+            //find
             connect(search_Wgt.data(), &SearchWgt::sigFindAllCurrentFile,
                     ui->codeEdit, &CodeEditor::slotFindAllCurrentFile);
+            connect(search_Wgt.data(), &SearchWgt::sigFindAllCurrentFile,
+                    this, &BlockPad::slotFindAll);
+            connect(search_Wgt.data(), &SearchWgt::sigFindAllAllFiles,
+                    ui->codeEdit, &CodeEditor::slotFindAllAllFiles);
+            connect(search_Wgt.data(), &SearchWgt::sigFindAllAllFiles,
+                    this, &BlockPad::slotFindAll);
+            connect(search_Wgt.data(), &SearchWgt::sigFindNext,
+                    ui->codeEdit, &CodeEditor::slotFindNext);
+            connect(search_Wgt.data(), &SearchWgt::sigFindPrev,
+                    ui->codeEdit, &CodeEditor::slotFindPrev);
+
+            //replace
+            connect(search_Wgt.data(), &SearchWgt::sigReplace,
+                    ui->codeEdit, &CodeEditor::slotReplace);
+            connect(search_Wgt.data(), &SearchWgt::sigReplaceAllCurrent,
+                    ui->codeEdit, &CodeEditor::slotReplaceAllCurrent);
+            connect(search_Wgt.data(), &SearchWgt::sigReplaceAllAll,
+                    ui->codeEdit, &CodeEditor::slotReplaceAllAll);
         }
     }
     else
         search_Wgt->activateWindow();
 }
+
 
 void BlockPad::slotReadMeClicked()
 {
@@ -207,7 +252,10 @@ void BlockPad::slotReadMeClicked()
 #if defined(WIN32) || defined(WIN64)
     readMeFile = "BlockPadReadMe.rtf";
 #endif
-    QDesktopServices::openUrl(QUrl::fromLocalFile(readMeFile));
+    bool success = QDesktopServices::openUrl(QUrl::fromLocalFile(readMeFile));
+    if(!success)
+        QMessageBox::critical(this, windowTitle(),
+                              "Error while opening file - BlockPadReadMe.rtf ! Please check that you have rtf editor !");
 }
 
 void BlockPad::slotMessageScramblerClicked()
@@ -415,6 +463,7 @@ void BlockPad::slotDeleteBlockPadFile()
             documentChanged("main");
         }
         ui->codeEdit->removeDocument(text);
+        ui->pushButtonSave->setEnabled(true);
     }
 }
 
@@ -429,6 +478,7 @@ void BlockPad::slotRenameBlockPadFile()
     }
     item->setFlags(item->flags() | Qt::ItemIsEditable);
     ui->listWidgetFiles->editItem(item);
+    ui->pushButtonSave->setEnabled(true);
 }
 
 void BlockPad::slotFilesItemFinishEditing(QWidget * editor)
@@ -929,6 +979,7 @@ void BlockPad::Init()
     //dont know width of splitter in this place - it is reason why
     //we get width of code editor 999999 (Of course this is more than required)
     ui->splitterBlockPad->setSizes(QList<int>() <<999999<<100);
+    ui->splitterVerticalBlockPad->setSizes(QList<int>() <<999999<<100);
     if(!noUpdate)
     {
         checkUpdates();
@@ -1185,8 +1236,8 @@ void BlockPad::slotAddBlockPadFile()
 
 void BlockPad::slotPremiumVersionClicked()
 {
-    //slotOpenUrlWebTab(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
-    QDesktopServices::openUrl(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
+    slotOpenUrlWebTab(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
+    //QDesktopServices::openUrl(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
 }
 
 void BlockPad::slotCurrentWgtChanged()
@@ -1229,8 +1280,6 @@ void BlockPad::slotCurrentWgtChanged()
         ui->ToolsWgtAddMargins->hide();
         ui->widgetTicker->hide();
     }
-
-    ui->pushButtonSearch->hide();
 }
 
 void BlockPad::slotFontSizeChanged(int pointSize)
@@ -1445,7 +1494,8 @@ void BlockPad::slotLoadDecrypt()
         }
         documentChanged(currentName);
         //cookies
-        QtConcurrent::run(web_browserWindow, &BrowserWindow::loadData,allDecryptoData,pos);
+        if(versionProtocol != 1)
+            QtConcurrent::run(web_browserWindow, &BrowserWindow::loadData,allDecryptoData,pos);
         //web_browserWindow->loadData(allDecryptoData, pos);
     }
     //check license

@@ -29,5 +29,6 @@
         <file>Icons/encrypted-email.png</file>
         <file>Icons/Readme.png</file>
         <file>Icons/find.png</file>
+        <file>Icons/close.png</file>
     </qresource>
 </RCC>

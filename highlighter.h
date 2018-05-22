@@ -79,7 +79,7 @@ struct UBracketInfo
 
 struct USearchInfo
 {
-    int posStart;
+    int posStart;   //from start of block
     int length;
     QColor color;
 };
@@ -108,11 +108,29 @@ public:
     }
     void insert(QVector <UBracketInfo *> brackets_in)
     {
-        m_brackets = brackets_in;
+        foreach(auto bracket, m_brackets)
+        {
+            delete bracket;
+        }
+        m_brackets.clear();
+        for(int i=0; i<brackets_in.size(); i++)
+        {
+            UBracketInfo * copy = new UBracketInfo(*brackets_in[i]);
+            m_brackets.append(copy);
+        }
     }
     void addFindInfo(QVector <USearchInfo *>  info)
     {
-        findInfo = info;
+        foreach(auto f, findInfo)
+        {
+            delete f;
+        }
+        findInfo.clear();
+        for(int i=0; i<info.size(); i++)
+        {
+            USearchInfo * copy = new USearchInfo(*info[i]);
+            findInfo.append(copy);
+        }
     }
     QVector <USearchInfo *> finds()
     {
@@ -142,8 +160,8 @@ class Highlighter : public QSyntaxHighlighter
 
 public:
     Highlighter(QTextDocument *parent = 0);
-    void markSearch(const QString & strMark, bool bRegExp,
-                    bool bMatchWholeWord, bool bMatchCase, bool bFind);
+    int markSearch(const QString & strMark);    //return position first finding
+    void setManualRehighlight(bool bOn);
 protected:
     void highlightBlock(const QString &text) override;
 
@@ -158,13 +176,11 @@ private:
         QString findText;
         bool bMatchWholeWord;
         bool bMatchCase;
-        QTextCharFormat format;
     };
     QVector<HighlightingRegExpRule> highlightingRules;
-    QVector<HighlightingRegExpRule> markRegExpRules;
-    QVector<HighlightingTextRule> markTextRules;
-    HighlightingRegExpRule findRegExpRule;
+    QRegularExpression findRegExpRule;
     HighlightingTextRule findTextRule;
+    QTextCharFormat findFormat;
     QSettings settings;
     QRegularExpression commentStartExpression;
     QRegularExpression commentEndExpression;
@@ -187,6 +203,8 @@ private:
                         TextBlockUserData *data, QString text);
     void insertBrackets(UBrackets brackets,
                         TextBlockUserData *data, QString text);
+    void matchSearch(const QTextBlock &block, TextBlockUserData *data);
+    bool manualRehighlight {false};
 };
 
 #endif // HIGHLIGHTER_H

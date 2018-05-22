@@ -136,6 +136,9 @@ private slots:
     void slotCheckLicenseNetworkError(QNetworkReply::NetworkError);
     void slotCheckResult(bool bSuccess,QString strError);
     void slotPremiumVersionClicked();
+    //search
+    void slotCloseFindResults();
+    void slotFindAll();
 signals:
     void sigScreenLock_Time(int time);
     void sigUpdateAvailable(QString link, QString version, QString description, bool bManually);
