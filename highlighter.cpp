@@ -211,9 +211,9 @@ int Highlighter::markSearch(const QString &strMark)
     return firstFinding;
 }
 
-void Highlighter::setManualRehighlight(bool bOn)
+void Highlighter::setHighlightSearch(bool bOn)
 {
-    manualRehighlight = bOn;
+    highlightSearch = bOn;
 }
 
 void Highlighter::matchSearch(const QTextBlock& block,
@@ -287,6 +287,7 @@ void Highlighter::highlightBlock(const QString &text)
             }
         }
         //highlight search
+        if(highlightSearch)
         {
             if(!manualRehighlight)
                 matchSearch(currentBlock(), data);

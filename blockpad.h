@@ -119,7 +119,8 @@ private slots:
     void slotMessageScramblerClicked();
     void slotOneTimePadGeneratorClicked();
     void slotReadMeClicked();
-    void slotSearchClicked();
+    void slotSearchClicked();    
+
     //updates
     void slotUpdateAvailable(QString link, QString version,
                              QString description,  bool bManually = false);
@@ -132,13 +133,20 @@ private slots:
     void slotDescriptionFinished(QNetworkReply *reply);
     void slotCheckUpdateAddDocsFinished(QNetworkReply *reply);
     void slotDownloadUpdateAddDocsFinished(QNetworkReply *reply);
+
     //check license
     void slotCheckLicenseNetworkError(QNetworkReply::NetworkError);
     void slotCheckResult(bool bSuccess,QString strError);
     void slotPremiumVersionClicked();
+
     //search
     void slotCloseFindResults();
     void slotFindAll();
+    void slotFindResultChoosed(QString nameFile);
+
+    //shortcuts
+    void slotAddNewShortcut();
+    void slotDeleteShortcut();
 signals:
     void sigScreenLock_Time(int time);
     void sigUpdateAvailable(QString link, QString version, QString description, bool bManually);

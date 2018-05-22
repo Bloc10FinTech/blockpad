@@ -161,7 +161,7 @@ class Highlighter : public QSyntaxHighlighter
 public:
     Highlighter(QTextDocument *parent = 0);
     int markSearch(const QString & strMark);    //return position first finding
-    void setManualRehighlight(bool bOn);
+    void setHighlightSearch(bool bOn);
 protected:
     void highlightBlock(const QString &text) override;
 
@@ -205,6 +205,7 @@ private:
                         TextBlockUserData *data, QString text);
     void matchSearch(const QTextBlock &block, TextBlockUserData *data);
     bool manualRehighlight {false};
+    bool highlightSearch {true};
 };
 
 #endif // HIGHLIGHTER_H

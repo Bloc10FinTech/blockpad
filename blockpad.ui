@@ -847,6 +847,34 @@ qproperty-text:&quot;&quot;
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="pushButtonUndo">
+           <property name="toolTip">
+            <string>Undo</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/Icons/undo.png</normaloff>:/Icons/undo.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonRedo">
+           <property name="toolTip">
+            <string>Redo</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/Icons/redo.png</normaloff>:/Icons/redo.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="pushButtonCompleteRow">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

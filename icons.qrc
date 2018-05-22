@@ -30,5 +30,7 @@
         <file>Icons/Readme.png</file>
         <file>Icons/find.png</file>
         <file>Icons/close.png</file>
+        <file>Icons/redo.png</file>
+        <file>Icons/undo.png</file>
     </qresource>
 </RCC>

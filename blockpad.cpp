@@ -34,7 +34,7 @@
 #include "webBrowser/browserwindow.h"
 #include <QWebEngineProfile>
 #include "stega/steganography.h"
-
+#include <QShortcut>
 
 #define defReplyType "ReplyType"
 #define defDefaultNameFile "new "
@@ -180,6 +180,10 @@ BlockPad::BlockPad(QWidget *parent) :
                 this, &BlockPad::slotCheckLicenseNetworkError);
         connect(&netwLicenseServer, &NetworkLicenseServer::sigCheckFinished,
                 this, &BlockPad::slotCheckResult);
+        connect(ui->pushButtonUndo, &QPushButton::clicked,
+                ui->codeEdit, &CodeEditor::undo);
+        connect(ui->pushButtonRedo, &QPushButton::clicked,
+                ui->codeEdit, &CodeEditor::redo);
 
         //find widget
         connect(ui->wgtFindResults, &FindWidget::sigNeedHiding,
@@ -188,9 +192,227 @@ BlockPad::BlockPad(QWidget *parent) :
                 ui->wgtFindResults, &FindWidget::slotReadyFindResults);
         connect(ui->wgtFindResults, &FindWidget::sigFindResultChoosed,
                 ui->codeEdit, &CodeEditor::slotCurrentFindResultChanged);
+        connect(ui->wgtFindResults, &FindWidget::sigFindResultChoosed,
+                this, &BlockPad::slotFindResultChoosed);
+
+        //shortcuts
+        {
+            //save
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+S")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotSaveEncrypt);
+                #if defined(WIN32) || defined(WIN64)
+                    ui->pushButtonSave->setToolTip(
+                                ui->pushButtonSave->toolTip() + " (Ctrl+S)");
+                #endif
+                #ifdef __APPLE__
+                    ui->pushButtonSave->setToolTip(
+                                ui->pushButtonSave->toolTip() + " (Cmd+S)");
+                #endif
+            }
+            //search
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+F")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotSearchClicked);
+                #if defined(WIN32) || defined(WIN64)
+                    ui->pushButtonSearch->setToolTip(
+                                ui->pushButtonSearch->toolTip() + " (Ctrl+F)");
+                #endif
+                #ifdef __APPLE__
+                    ui->pushButtonSearch->setToolTip(
+                                ui->pushButtonSearch->toolTip() + " (Cmd+F)");
+                #endif
+            }
+            //print
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+P")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotPrintClicked);
+                #if defined(WIN32) || defined(WIN64)
+                    ui->pushButtonPrint->setToolTip(
+                                ui->pushButtonPrint->toolTip() + " (Ctrl+P)");
+                #endif
+                #ifdef __APPLE__
+                    ui->pushButtonPrint->setToolTip(
+                                ui->pushButtonPrint->toolTip() + " (Cmd+P)");
+                #endif
+            }
+            //help
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("F1")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotReadMeClicked);
+                ui->pushButtonReadMe->setToolTip(
+                            ui->pushButtonReadMe->toolTip() + " (F1)");
+            }
+            //add blockpad/row
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+N")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotAddNewShortcut);
+
+                #if defined(WIN32) || defined(WIN64)
+                    ui->pushButtonAddFile->setToolTip(
+                                ui->pushButtonAddFile->toolTip() + " (Ctrl+N)");
+                    ui->pushButtonCompleteRow->setToolTip(
+                                ui->pushButtonCompleteRow->toolTip() + " (Ctrl+N)");
+                #endif
+                #ifdef __APPLE__
+                    ui->pushButtonAddFile->setToolTip(
+                                ui->pushButtonAddFile->toolTip() + " (Cmd+N)");
+                    ui->pushButtonCompleteRow->setToolTip(
+                                ui->pushButtonCompleteRow->toolTip() + " (Cmd+N)");
+                #endif
+            }
+            //delete row
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Del")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotDeleteShortcut);
+                ui->pushButtonRemoveRow->setToolTip(
+                            ui->pushButtonRemoveRow->toolTip() + " (Del)");
+
+            }
+
+            //settings
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+S")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotSettingsClicked);
+                ui->pushButtonSettings->setToolTip(
+                            ui->pushButtonSettings->toolTip() + " (Alt+S)");
+            }
+            //generate password
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+G")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotPasswGenClicked);
+                ui->pushButtonGeneratePassword->setToolTip(
+                            ui->pushButtonGeneratePassword->toolTip() + " (Alt+G)");
+            }
+            //single file encryption system
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+E")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotFileEncryptionClicked);
+                ui->pushButtonSingleFileEncryptionSystem->setToolTip(
+                            ui->pushButtonSingleFileEncryptionSystem->toolTip() + " (Alt+E)");
+            }
+            //update
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+U")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotUpdateClicking);
+                ui->pushButtonUpdate->setToolTip(
+                            ui->pushButtonUpdate->toolTip() + " (Alt+U)");
+            }
+            //backup
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+B")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotBackUpClicked);
+                ui->pushButtonBackUp->setToolTip(
+                            ui->pushButtonBackUp->toolTip() + " (Alt+B)");
+            }
+            //pro
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+P")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotPremiumVersionClicked);
+                ui->pushButtonProVersion->setToolTip(
+                            ui->pushButtonProVersion->toolTip() + " (Alt+P)");
+            }
+            //one time pad generator
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+O")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotOneTimePadGeneratorClicked);
+                ui->pushButtonOneTimePadGenerator->setToolTip(
+                            ui->pushButtonOneTimePadGenerator->toolTip() + " (Alt+O)");
+            }
+            //one time pad generator
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+M")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotMessageScramblerClicked);
+                ui->pushButtonMessageScrambler->setToolTip(
+                            ui->pushButtonMessageScrambler->toolTip() + " (Alt+M)");
+            }
+            //license activation
+            {
+                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+L")),
+                                                     this);
+                connect(shortcut, &QShortcut::activated,
+                        this, &BlockPad::slotActivateClicked);
+                ui->pushButtonLicenseActivate->setToolTip(
+                            ui->pushButtonLicenseActivate->toolTip() + " (Alt+L)");
+            }
+            //undo - redo
+            {
+                #if defined(WIN32) || defined(WIN64)
+                    ui->pushButtonUndo->setToolTip(
+                                ui->pushButtonUndo->toolTip() + " (Ctrl+Z)");
+                    ui->pushButtonRedo->setToolTip(
+                                ui->pushButtonRedo->toolTip() + " (Ctrl+Y)");
+                #endif
+                #ifdef __APPLE__
+                    ui->pushButtonUndo->setToolTip(
+                                ui->pushButtonUndo->toolTip() + " (Cmd+Z)");
+                    ui->pushButtonRedo->setToolTip(
+                                ui->pushButtonRedo->toolTip() + " (Cmd+Y)");
+                #endif
+            }
+        }
     }
 
     ui->wgtFindResults->hide();
+}
+
+void BlockPad::slotDeleteShortcut()
+{
+    if(ui->tabWidget->currentWidget() == ui->CoinRecords
+            ||
+       ui->tabWidget->currentWidget() == ui->Accounts)
+    {
+        slotRemoveRowClicked();
+    }
+}
+
+void BlockPad::slotAddNewShortcut()
+{
+    if(ui->tabWidget->currentWidget() == ui->codeEdit)
+    {
+        slotAddBlockPadFile();
+    }
+    if(ui->tabWidget->currentWidget() == ui->CoinRecords
+            ||
+       ui->tabWidget->currentWidget() == ui->Accounts)
+    {
+        slotCompleteRowClicked();
+    }
+}
+
+void BlockPad::slotFindResultChoosed(QString nameFile)
+{
+    auto item = ui->listWidgetFiles->findItems(nameFile, Qt::MatchExactly).first();
+    ui->listWidgetFiles->setCurrentItem(item);
+    slotFileClicked(item);
 }
 
 void BlockPad::slotCloseFindResults()
@@ -1247,6 +1469,9 @@ void BlockPad::slotCurrentWgtChanged()
     {
         button->show();
     }
+    ui->pushButtonRedo->hide();
+    ui->pushButtonUndo->hide();
+
     ui->ToolsWgtAddMargins->show();
     ui->widgetTicker->show();
     bool isLicenseActive = qApp->property(defLicenseIsActive).toBool();
@@ -1254,10 +1479,13 @@ void BlockPad::slotCurrentWgtChanged()
         ui->pushButtonProVersion->hide();
     else
         ui->pushButtonBackUp->hide();
+
     if(ui->tabWidget->currentWidget() == ui->Development)
     {
         ui->pushButtonCompleteRow->hide();
         ui->pushButtonRemoveRow->hide();
+        ui->pushButtonRedo->show();
+        ui->pushButtonUndo->show();
     }
     if(ui->tabWidget->currentWidget() == ui->Accounts)
     {

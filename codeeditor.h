@@ -111,7 +111,9 @@ private:
     QString strSearch;
     QVector<SearchItem> fillFindResults(QString nameFile);
 
-    void replaceInFile(QString fileName, QString replaceStr);
+    void replaceInFile(QString fileName,
+                       QString replaceStr,
+                       bool bFirstFile);
 public slots:
     void slotHighlightingCode(bool on);
     //find

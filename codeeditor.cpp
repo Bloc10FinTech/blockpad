@@ -506,10 +506,12 @@ void CodeEditor::slotReplace(QString replaceStr)
                    == textCursor().position())
                 {
                     auto tCursor = textCursor();
+                    tCursor.beginEditBlock();
                     tCursor.setPosition(textCursor().position()
                                         +find->length,
                                         QTextCursor::KeepAnchor);
                     tCursor.insertText(replaceStr);
+                    tCursor.endEditBlock();
                     return;
                 }
             }
@@ -520,36 +522,48 @@ void CodeEditor::slotReplace(QString replaceStr)
 
 void CodeEditor::slotReplaceAllCurrent(QString replaceStr)
 {
-    replaceInFile(currentName, replaceStr);
+    replaceInFile(currentName, replaceStr, true);
 }
 
 void CodeEditor::slotReplaceAllAll(QString replaceStr)
 {
+    bool bFirst = true;
     foreach(QString fileName, allDocuments.keys())
     {
         allHighlighters[fileName]->markSearch(strSearch);
-        allHighlighters[fileName]->setManualRehighlight(true);
         replaceInFile(fileName,
-                      replaceStr);
-        allHighlighters[fileName]->setManualRehighlight(false);
+                      replaceStr,
+                      bFirst);
+        bFirst = false;
     }
 }
 
 void CodeEditor::replaceInFile(QString fileName,
-                               QString replaceStr)
+                               QString replaceStr,
+                               bool bFirstFile)
 {
     auto block = allDocuments[fileName]->firstBlock();
+    bool bFirstOperation = bFirstFile;
+    auto tCursor = QTextCursor(allDocuments[fileName]);
     while(block.isValid())
-    {
+    {        
         auto userData = static_cast <TextBlockUserData *> (
                         block.userData());
         if(userData != nullptr)
         {
             auto finds = userData->finds();
+            if(!finds.isEmpty())
+                allHighlighters[fileName]->setHighlightSearch(false);
             for(int i=0; i<finds.size(); i++)
             {
                 auto find = finds[i];
-                auto tCursor = QTextCursor(allDocuments[fileName]);
+                if(bFirstOperation)
+                {
+                    tCursor.beginEditBlock();
+                    bFirstOperation = false;
+                }
+                else
+                    tCursor.joinPreviousEditBlock();
                 tCursor.setPosition(find->posStart
                                      + block.position());
                 tCursor.setPosition(find->posStart
@@ -557,6 +571,17 @@ void CodeEditor::replaceInFile(QString fileName,
                                      + block.position(),
                                     QTextCursor::KeepAnchor);
                 tCursor.insertText(replaceStr);
+                tCursor.endEditBlock();
+                for(int iM=0; iM<finds.size(); iM++)
+                {
+                    finds[iM]->posStart +=
+                            replaceStr.size() - strSearch.size();
+                }
+            }
+            if(!finds.isEmpty())
+            {
+                allHighlighters[fileName]->setHighlightSearch(true);
+                allHighlighters[fileName]->rehighlightBlock(block);
             }
         }
         block = block.next();
