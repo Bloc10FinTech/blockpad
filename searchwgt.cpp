@@ -10,7 +10,14 @@ SearchWgt::SearchWgt(QWidget *parent) :
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose);
-    setWindowFlag(Qt::Window);
+#if defined(WIN32) || defined(WIN64)
+    setWindowFlags(Qt::Window|Qt::WindowStaysOnTopHint);
+    setWindowFlag(Qt::WindowMinimizeButtonHint, false);
+    setWindowFlag(Qt::WindowMaximizeButtonHint, false);
+#endif
+#ifdef __APPLE__
+    setWindowFlags(Qt::Tool | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
+#endif
     //load settings
     {
         ui->checkBoxCase->setChecked(settings.value(defCase).toBool());
