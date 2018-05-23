@@ -3,6 +3,8 @@
 #include <QEvent>
 #include <QMessageBox>
 #include "global.h"
+#include <QDebug>
+#include <QMetaEnum>
 
 SearchWgt::SearchWgt(QWidget *parent) :
     QWidget(parent),
@@ -17,7 +19,8 @@ SearchWgt::SearchWgt(QWidget *parent) :
     setWindowFlag(Qt::WindowMaximizeButtonHint, false);
 #endif
 #ifdef __APPLE__
-    setWindowFlags(Qt::Tool | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
+    setWindowFlags(Qt::Window|Qt::WindowStaysOnTopHint
+                   | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
 #endif
     //load settings
     {
@@ -212,6 +215,7 @@ bool SearchWgt::event(QEvent *e)
     // window was activated
     if (e->type() == QEvent::WindowActivate)
     {
+        qDebug() << "WindowActivate";
         if(ui->radioButtonLosingFocus->isChecked()
                 ||
            !ui->groupBoxTransparency->isChecked())
@@ -222,12 +226,13 @@ bool SearchWgt::event(QEvent *e)
         {
             if(ui->horizontalSliderTransparency->value()
                     <10)
-                setWindowOpacity(0.1);
+                setWindowOpacity(0.1);          
         }
     }
     // window was deactivated
     if (e->type() == QEvent::WindowDeactivate)
     {
+        qDebug() << "WindowDeActivate";
         if(ui->radioButtonLosingFocus->isChecked())
         {
             setWindowOpacity(0.01 *

@@ -90,6 +90,18 @@ private:
     const int borderMargins = 10; // in millimeters
 protected:
     void timerEvent(QTimerEvent *event);
+    void hideEvent(QHideEvent *event)
+    {
+        if(!search_Wgt.isNull())
+            search_Wgt->hide();
+        QWidget::hideEvent(event);
+    }
+    void showEvent(QShowEvent *event)
+    {
+        if(!search_Wgt.isNull())
+            search_Wgt->show();
+        QWidget::showEvent(event);
+    }
 public slots:
     void slotLoadDecrypt();
     void slotSaveEncrypt();
