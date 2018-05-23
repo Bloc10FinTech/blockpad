@@ -78,7 +78,8 @@ void CodeEditor::slotFindAllCurrentFile()
     //fill res
     {
         auto finds = fillFindResults(currentName);
-        res[currentName] = finds;
+        if(!finds.isEmpty())
+            res[currentName] = finds;
     }
     emit sigFindResults(res);
 }
@@ -313,7 +314,9 @@ void CodeEditor::slotFindNext()
                 if(block!= textCursor().block()
                       ||
                    (finds[i]->posStart + block.position()
-                        > textCursor().position()))
+                        > textCursor().position())
+                       ||
+                       wrapAroundStart)
                 {
                     QTextCursor tcursor = textCursor();
                     tcursor.setPosition(finds[i]->posStart
@@ -370,7 +373,9 @@ void CodeEditor::slotFindPrev()
                 if(block!= textCursor().block()
                       ||
                    (finds[i]->posStart + block.position()
-                        < textCursor().position()))
+                        < textCursor().position())
+                      ||
+                      wrapAroundStart)
                 {
                     QTextCursor tcursor = textCursor();
                     tcursor.setPosition(finds[i]->posStart

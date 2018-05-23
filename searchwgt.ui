@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>740</width>
+    <width>756</width>
     <height>400</height>
    </rect>
   </property>
@@ -407,7 +407,7 @@ labelStatus[errored=true]{color : red;}</string>
              <item>
               <widget class="QRadioButton" name="radioButtonAllways">
                <property name="text">
-                <string>Allways</string>
+                <string>Always</string>
                </property>
               </widget>
              </item>

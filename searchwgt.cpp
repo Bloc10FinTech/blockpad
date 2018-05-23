@@ -11,7 +11,8 @@ SearchWgt::SearchWgt(QWidget *parent) :
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose);
 #if defined(WIN32) || defined(WIN64)
-    setWindowFlags(Qt::Window|Qt::WindowStaysOnTopHint);
+    //setWindowFlags(Qt::Window|Qt::WindowStaysOnTopHint);
+    setWindowFlags(Qt::Window);
     setWindowFlag(Qt::WindowMinimizeButtonHint, false);
     setWindowFlag(Qt::WindowMaximizeButtonHint, false);
 #endif
@@ -86,8 +87,7 @@ SearchWgt::SearchWgt(QWidget *parent) :
 
 void SearchWgt::slotReplace()
 {
-    if(ui->comboBoxReplaceWith->findText(ui->comboBoxFindWhat->currentText())
-            != -1)
+    if(ui->comboBoxReplaceWith->findText(ui->comboBoxFindWhat->currentText())<0)
         ui->comboBoxReplaceWith
            ->addItem(ui->comboBoxReplaceWith->currentText());
     emit sigReplace(ui->comboBoxReplaceWith->currentText());
@@ -95,8 +95,7 @@ void SearchWgt::slotReplace()
 
 void SearchWgt::slotReplaceAllCurrent()
 {
-    if(ui->comboBoxReplaceWith->findText(ui->comboBoxFindWhat->currentText())
-            != -1)
+    if(ui->comboBoxReplaceWith->findText(ui->comboBoxFindWhat->currentText())<0)
         ui->comboBoxReplaceWith
            ->addItem(ui->comboBoxReplaceWith->currentText());
     emit sigReplaceAllCurrent(ui->comboBoxReplaceWith->currentText());
@@ -104,8 +103,7 @@ void SearchWgt::slotReplaceAllCurrent()
 
 void SearchWgt::slotReplaceAllAll()
 {
-    if(ui->comboBoxReplaceWith->findText(ui->comboBoxFindWhat->currentText())
-            != -1)
+    if(ui->comboBoxReplaceWith->findText(ui->comboBoxFindWhat->currentText())<0)
         ui->comboBoxReplaceWith
            ->addItem(ui->comboBoxReplaceWith->currentText());
     emit sigReplaceAllAll(ui->comboBoxReplaceWith->currentText());
@@ -167,8 +165,7 @@ void SearchWgt::slotFindNext()
     }
     else
     {
-        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())
-                != -1)
+        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())<0)
             ui->comboBoxFindWhat->addItem(ui->comboBoxFindWhat->currentText());
         emit sigFindNext();
     }
@@ -183,8 +180,7 @@ void SearchWgt::slotFindPrev()
     }
     else
     {
-        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())
-                != -1)
+        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())<0)
             ui->comboBoxFindWhat->addItem(ui->comboBoxFindWhat->currentText());
         emit sigFindPrev();
     }
@@ -195,8 +191,7 @@ void SearchWgt::slotFindAllAll()
     if(!ui->comboBoxFindWhat->currentText().isEmpty())
     {
         emit sigFindAllAllFiles();
-        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())
-                != -1)
+        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())<0)
             ui->comboBoxFindWhat->addItem(ui->comboBoxFindWhat->currentText());
     }
     else
@@ -273,8 +268,7 @@ void SearchWgt::slotFindAllCurrent()
     if(!ui->comboBoxFindWhat->currentText().isEmpty())
     {
         emit sigFindAllCurrentFile();
-        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())
-                != -1)
+        if(ui->comboBoxFindWhat->findText(ui->comboBoxFindWhat->currentText())<0)
             ui->comboBoxFindWhat->addItem(ui->comboBoxFindWhat->currentText());
     }
     else
