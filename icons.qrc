@@ -32,5 +32,6 @@
         <file>Icons/close.png</file>
         <file>Icons/redo.png</file>
         <file>Icons/undo.png</file>
+        <file>Icons/BlocPad.png</file>
     </qresource>
 </RCC>

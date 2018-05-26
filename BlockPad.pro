@@ -12,6 +12,9 @@ QT       += svg
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = BlockPad
+unix:!macx{
+TARGET = blockpad
+}
 TEMPLATE = app
 
 DEFINES += AWS_SDK_PLATFORM_WINDOWS
@@ -150,6 +153,10 @@ RESOURCES += \
     icons.qrc \
     totalcryptosprices.qrc \
     webBrowser/data/simplebrowser.qrc
+
+#########################################################
+#LIBS
+#########################################################
 win32{
 #QMAKE_LFLAGS += /MANIFESTUAC:\"level=\'requireAdministrator\' uiAccess=\'false\'\"
 INCLUDEPATH += C:\OpenSSL-Win32\include
@@ -191,6 +198,22 @@ DEPENDPATH += $$PWD/../../../../usr/local/include
 ICON = BlockPad.icns
 }
 
+unix:!macx{
+LIBS += -L$$PWD/../../OpenSSl/build/lib/ -lcrypto -lssl
+
+INCLUDEPATH += $$PWD/../../OpenSSl/build/include/openssl
+DEPENDPATH += $$PWD/../../OpenSSl/build/include/openssl
+
+LIBS += -L$$PWD/../../aws/build/lib/ -laws-cpp-sdk-s3 -laws-cpp-sdk-core -laws-cpp-sdk-transfer
+
+INCLUDEPATH += $$PWD/../../aws/build/include
+DEPENDPATH += $$PWD/../../aws/build/include
+
+}
+
+#########################################################
+#INSTALLS
+#########################################################
 win32{
 install.path = C:/Users/alex.user-ion/Documents/GitHub/BlockPadBin
 CONFIG(release, debug|release):install.files += $$OUT_PWD/release/BlockPad.exe
@@ -222,4 +245,35 @@ addDocs_install.path = Contents/Resources/
 addDocs_install.files = BlockPadReadMe.rtf
 QMAKE_BUNDLE_DATA += addDocs_install
 }
+
+unix:!macx{
+
+LIBS += —Wl,—rpath=\\\$$ORIGIN/../lib
+target.path = /usr/share/blockpad/bin
+
+target.files += /home/alex/Projects/BlockPad-Release/blockpad
+target.files += /home/alex/Projects/blockpad/qt.conf
+
+INSTALLS += target
+
+data.path = /usr/share/project/lib
+
+data.files = lib/*
+
+INSTALLS += data
+
+
+# .desktop file
+desktop.path = /usr/share/applications/
+desktop.files += dist/blockpad.desktop
+
+# logo
+pixmaps.path = /usr/share/pixmaps/
+pixmaps.files += dist/blockpad.png
+
+INSTALLS+=desktop
+INSTALLS+=pixmaps
+}
+
+
 

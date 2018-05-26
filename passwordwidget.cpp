@@ -5,7 +5,7 @@
 #include <QKeyEvent>
 #include "global.h"
 #include <QStyleFactory>
-
+#include <QStyle>
 PasswordWidget::PasswordWidget(QWidget *parent, bool noPassword) :
     QFrame(parent),
     ui(new Ui::PasswordWidget),

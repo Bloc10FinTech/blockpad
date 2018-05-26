@@ -21,7 +21,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("Bloc10");
     QCoreApplication::setOrganizationDomain("www.bloc10.com");
     QCoreApplication::setApplicationName("BlockPad");
-
+#ifdef __linux__
+    a.setWindowIcon(QIcon("://Icons/BlocPad.png"));
+#endif
     if(argc > 1)
         fileInit = QString(argv[1]);
     //create application files directories

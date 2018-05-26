@@ -4,6 +4,7 @@
 #include <QFontMetrics>
 #include <QDateTime>
 #include "global.h"
+#include <QStyle>
 ActivateWgt::ActivateWgt(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ActivateWgt)
