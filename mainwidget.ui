@@ -65,7 +65,7 @@
   <customwidget>
    <class>BlockPad</class>
    <extends>QWidget</extends>
-   <header>BlockPad.h</header>
+   <header>blockpad.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -1,5 +1,5 @@
 #include "blockpad.h"
-#include "ui_BlockPad.h"
+#include "ui_blockpad.h"
 #include "global.h"
 #include <QStringList>
 #include <QDebug>
