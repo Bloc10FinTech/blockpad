@@ -582,8 +582,8 @@ void BlockPad::updateBackUpFile()
         Aws::S3::S3Client s3_client(credentionals);
         QString strKey = qApp->property(defLicenseProperty).toString()
                 +"/" + settings.value("device_name").toString()
-                +"/" + qApp->property(defIdProperty).toString()
-                +"/" + QFileInfo(qApp->property(defFileProperty).toString()).fileName();
+                +"/" + qApp->property(defIdProperty).toString() + ".bloc";
+//                +"/" + QFileInfo(qApp->property(defFileProperty).toString()).fileName();
         auto stdKey = strKey.toStdString();
         const char * Key =stdKey.data();
         qDebug() << "settings.value(\"device_name\").toString() = "
