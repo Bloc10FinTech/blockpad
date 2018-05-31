@@ -11,3 +11,13 @@ SigningComands.txt
 *_old.png
 lb
 lib/*
+builddir
+builddir/*
+build-stamp
+webEngine_Exe
+webEngine_Exe/*
+webEngine_resources
+webEngine_resources/*
+debian/blockpad
+debian/blockpad/*
+

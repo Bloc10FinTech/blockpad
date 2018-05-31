@@ -247,21 +247,23 @@ QMAKE_BUNDLE_DATA += addDocs_install
 }
 
 unix:!macx{
+QMAKE_LFLAGS_RPATH += $${LD_RUN_PATH}
+QMAKE_LFLAGS_RPATH += $${LDFLAGS}
+QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/../libs\'-Wl,-rpath,$${QMAKE_LFLAGS_RPATH}"
+#QMAKE_RPATHDIR += /usr/share/blockpad/lib
+#QMAKE_RPATHDIR += $$[QT_INSTALL_LIBS]
 
-LIBS += —Wl,—rpath=\\\$$ORIGIN/../lib
+we_resources.path = /usr/share/blockpad/bin/resources
+we_resources.files = webEngine_resources/*
+
 target.path = /usr/share/blockpad/bin
+target.files += $$OUT_PWD/blockpad
+target.files += qt.conf
+target.files += webEngine_Exe/*
+target.files += blockpad.sh
 
-target.files += /home/alex/Projects/BlockPad-Release/blockpad
-target.files += /home/alex/Projects/blockpad/qt.conf
-
-INSTALLS += target
-
-data.path = /usr/share/project/lib
-
+data.path = /usr/share/blockpad/lib
 data.files = lib/*
-
-INSTALLS += data
-
 
 # .desktop file
 desktop.path = /usr/share/applications/
@@ -271,8 +273,12 @@ desktop.files += dist/blockpad.desktop
 pixmaps.path = /usr/share/pixmaps/
 pixmaps.files += dist/blockpad.png
 
-INSTALLS+=desktop
-INSTALLS+=pixmaps
+INSTALLS+=\
+        pixmaps\
+        desktop\
+        data\
+        target\
+        we_resources
 }
 
 
