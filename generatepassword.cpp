@@ -1,6 +1,8 @@
 #include "generatepassword.h"
 #include "ui_generatepassword.h"
 #include <QIntValidator>
+#include <QDesktopWidget>
+#include <QStyle>
 
 GeneratePassword::GeneratePassword(QWidget *parent) :
     QWidget(parent),
@@ -20,6 +22,16 @@ GeneratePassword::GeneratePassword(QWidget *parent) :
         val->setTop(32000);
         ui->lineEditPasswLength->setValidator(val);
     }
+#ifdef __linux__
+    setGeometry(
+        QStyle::alignedRect(
+            Qt::LeftToRight,
+            Qt::AlignCenter,
+            QSize(this->size()),
+            qApp->desktop()->availableGeometry()
+        )
+    );
+#endif
     //connect signals/slots
     {
         connect(ui->pushButtonGenerate, &QPushButton::clicked,

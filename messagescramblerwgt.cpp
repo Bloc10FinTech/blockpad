@@ -5,6 +5,8 @@
 #include <QRandomGenerator>
 #include <random>
 #include "global.h"
+#include <QDesktopWidget>
+#include <QStyle>
 
 MessageScramblerWgt::MessageScramblerWgt(QWidget *parent) :
     QWidget(parent),
@@ -14,6 +16,16 @@ MessageScramblerWgt::MessageScramblerWgt(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
     Utilities::setAppFamilyFont(ui->labelTitle, 16,QFont::Bold);
     slotEncryptDecryptChanged();
+#ifdef __linux__
+    setGeometry(
+        QStyle::alignedRect(
+            Qt::LeftToRight,
+            Qt::AlignCenter,
+            QSize(this->size()),
+            qApp->desktop()->availableGeometry()
+        )
+    );
+#endif
     //signals-slots connects
     {
         connect(ui->radioButtonDecrypt, &QRadioButton::clicked,

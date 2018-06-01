@@ -191,7 +191,7 @@ PRE_TARGETDEPS += $$PWD/../../openssl/openssl-1.0.2n/lib/libcrypto.a
 LIBS += -L$$PWD/../../openssl/openssl-1.0.2n/lib/ -lssl
 PRE_TARGETDEPS += $$PWD/../../openssl/openssl-1.0.2n/lib/libssl.a
 
-macx: LIBS += -L$$PWD/../../../../usr/local/lib/ -laws-cpp-sdk-s3 -laws-cpp-sdk-core -laws-cpp-sdk-transfer
+LIBS += -L$$PWD/../../../../usr/local/lib/ -laws-cpp-sdk-s3 -laws-cpp-sdk-core -laws-cpp-sdk-transfer
 
 INCLUDEPATH += $$PWD/../../../../usr/local/include
 DEPENDPATH += $$PWD/../../../../usr/local/include
@@ -247,6 +247,11 @@ QMAKE_BUNDLE_DATA += addDocs_install
 }
 
 unix:!macx{
+install.path += $$OUT_PWD
+install.files += BlockPadReadMe.rtf
+install.files += /home/alex/Projects/UpdateBlockPadRelease/UpdateBlockPad
+INSTALLS +=install
+
 QMAKE_LFLAGS_RPATH += $${LD_RUN_PATH}
 QMAKE_LFLAGS_RPATH += $${LDFLAGS}
 QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/../libs\'-Wl,-rpath,$${QMAKE_LFLAGS_RPATH}"
@@ -261,6 +266,7 @@ target.files += $$OUT_PWD/blockpad
 target.files += qt.conf
 target.files += webEngine_Exe/*
 target.files += blockpad.sh
+target.files += BlockPadReadMe.rtf
 
 data.path = /usr/share/blockpad/lib
 data.files = lib/*

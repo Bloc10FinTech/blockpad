@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include "global.h"
 #include <QStyle>
+#include <QDesktopWidget>
 ActivateWgt::ActivateWgt(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ActivateWgt)
@@ -51,6 +52,23 @@ ActivateWgt::ActivateWgt(QWidget *parent) :
     int widthMin = QFontMetrics(qApp->font()).width("WWWWWW-WWWWWW-WWWWWW-WWWWWW") +10;
     ui->lineEditDeviceName->setMinimumWidth(widthMin);
     ui->lineEditLicenseKey->setMinimumWidth(widthMin);
+
+#ifndef TEST_LICENSE
+    ui->widgetCheck->hide();
+    ui->widgetId->hide();
+#endif
+    adjustSize();
+#ifdef __linux__
+    setGeometry(
+        QStyle::alignedRect(
+            Qt::LeftToRight,
+            Qt::AlignCenter,
+            QSize(this->size()),
+            qApp->desktop()->availableGeometry()
+        )
+    );
+#endif
+
     //signals/slots connects
     {
         connect(ui->lineEditDeviceName, &QLineEdit::editingFinished,
@@ -70,11 +88,7 @@ ActivateWgt::ActivateWgt(QWidget *parent) :
         connect(ui->pushButtonCheck, &QPushButton::clicked,
                 this, &ActivateWgt::slotCheckClicked);
     }
-#ifndef TEST_LICENSE
-    ui->widgetCheck->hide();
-    ui->widgetId->hide();
-#endif
-    adjustSize();
+
 }
 
 void ActivateWgt::slotIdFinished()

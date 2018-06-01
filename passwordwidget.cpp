@@ -6,6 +6,8 @@
 #include "global.h"
 #include <QStyleFactory>
 #include <QStyle>
+#include <QDesktopWidget>
+
 PasswordWidget::PasswordWidget(QWidget *parent, bool noPassword) :
     QFrame(parent),
     ui(new Ui::PasswordWidget),
@@ -35,15 +37,6 @@ PasswordWidget::PasswordWidget(QWidget *parent, bool noPassword) :
         }
         setPalette(paletteEditable);
     }
-    //signals/slots connects
-    {
-        connect(ui->checkBoxVisible, &QCheckBox::toggled,
-                this, &PasswordWidget::slotVisibleClicked);
-        connect(ui->lineEditPassword, &QLineEdit::textEdited,
-                this, &PasswordWidget::slotTextEdited);
-        connect(ui->lineEditPassword, &QLineEdit::returnPressed,
-                this, &PasswordWidget::enterLineEditPressed);
-    }
     //event filters
     {
         ui->lineEditPassword->installEventFilter(this);
@@ -54,6 +47,15 @@ PasswordWidget::PasswordWidget(QWidget *parent, bool noPassword) :
         ui->checkBoxVisible->hide();
 
     ui->lineEditPassword->setAttribute(Qt::WA_MacShowFocusRect,0);
+    //signals/slots connects
+    {
+        connect(ui->checkBoxVisible, &QCheckBox::toggled,
+                this, &PasswordWidget::slotVisibleClicked);
+        connect(ui->lineEditPassword, &QLineEdit::textEdited,
+                this, &PasswordWidget::slotTextEdited);
+        connect(ui->lineEditPassword, &QLineEdit::returnPressed,
+                this, &PasswordWidget::enterLineEditPressed);
+    }
 }
 
 void PasswordWidget::slotVisibleClicked(bool bCheck)
@@ -151,13 +153,17 @@ bool PasswordWidget::eventFilter(QObject *obj, QEvent *event)
         if(event->type() == QEvent::FocusIn)
         {
             ui->checkBoxVisible->setChecked(true);
+#if defined(WIN32) || defined(WIN64)
             setFrameShape(QFrame::Box);
+#endif
             emit focusIn(this);
         }
         if(event->type() == QEvent::FocusOut)
         {
+#if defined(WIN32) || defined(WIN64)
             if(!ui->checkBoxVisible->hasFocus())
                 setFrameShape(QFrame::NoFrame);
+#endif
         }
         if(event->type() == QEvent::KeyPress)
         {

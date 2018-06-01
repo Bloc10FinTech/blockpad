@@ -187,6 +187,13 @@ QGraphicsTextItem * Ticker::addTextItem(QString html,
     else
         textItem->moveBy(0,6);
 #endif
+#ifdef __linux__
+    if(id != specialId::arrowId)
+        textItem->moveBy(0,fontSizeDefault - font.pointSize()+3);
+    else
+        textItem->moveBy(-5,6);
+#endif
+
     textItem->setFont(font);
     return textItem;
 }
@@ -250,23 +257,41 @@ void Ticker::RePaint()
                 {
                     if(cryptoPrices[name]["change_24"].toDouble() >=0)
                     {
+                    #ifdef __linux__
+                        arrowText = "&#8593;";
+                    #else
                         arrowText = "<b>&#8593;</b>";
+                    #endif
                         text = cryptoPrices[name]["change_24"];
                         bPlus = true;
                     }
                     else
                     {
+                    #ifdef __linux__
+                        arrowText = "&#8595;";
+                    #else
                         arrowText = "<b>&#8595;</b>";
+                    #endif
                         text = cryptoPrices[name]["change_24"];
                         bPlus = false;
                     }
                 }
+            #ifdef __linux__
+                auto firstItem = addTextItem(text,
+                                        QFont("Roboto", 13+shiftFontSize),
+                                        graphItems, specialId::firstId);
+                auto arrowItem = addTextItem(arrowText,
+                                             QFont("Roboto", 13+shiftFontSize),
+                                             graphItems, specialId::arrowId);
+            #else
                 auto firstItem = addTextItem(text,
                                         QFont("Roboto", 12+shiftFontSize, QFont::Bold),
                                         graphItems, specialId::firstId);
                 auto arrowItem = addTextItem(arrowText,
                                              QFont("Roboto", 12+shiftFontSize, QFont::Bold),
                                              graphItems, specialId::arrowId);
+
+            #endif
                 if(bPlus)
                 {
                     firstItem->setDefaultTextColor(Qt::green);

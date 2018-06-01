@@ -52,28 +52,44 @@ void MainWidget::showEvent(QShowEvent *event)
         ui->stackedWidget->setFixedSize(ui->regist->size());
         setFixedSize(ui->regist->size());
         bFirstShow = false;
+        #ifdef __linux__
+        setGeometry(
+            QStyle::alignedRect(
+                Qt::LeftToRight,
+                Qt::AlignCenter,
+                QSize(ui->regist->size()),
+                qApp->desktop()->availableGeometry()
+            )
+        );
+        #endif
     }
     QWidget::showEvent(event);
 }
 
+void MainWidget::updateUpdateTools()
+{
 #ifdef __APPLE__
-    void MainWidget::updateUpdateTools()
+    //clean
     {
-        //clean
-        {
-            QDir dir(Utilities::filesDirectory()+ "/UpdateBlockPad.app");
-            dir.removeRecursively();
-        }
-        //remove new version to appPath
-        {
-            QProcess pros;
-            pros.start("sh -c \"cp -R " +Utilities::applicationPath().replace(" ", "\\ ") +"/BlockPad.app/Contents/UpdateTools/UpdateBlockPad.app "
-                       + Utilities::filesDirectory().replace(" ", "\\ ")  + "/UpdateBlockPad.app\"");
-            pros.waitForFinished(10*60*1000);
-        }
-        settings.setValue("updateToolsVersion", defVersionApplication);
+        QDir dir(Utilities::filesDirectory()+ "/UpdateBlockPad.app");
+        dir.removeRecursively();
     }
+    //remove new version to appPath
+    {
+        QProcess pros;
+        pros.start("sh -c \"cp -R " +Utilities::applicationPath().replace(" ", "\\ ") +"/BlockPad.app/Contents/UpdateTools/UpdateBlockPad.app "
+                   + Utilities::filesDirectory().replace(" ", "\\ ")  + "/UpdateBlockPad.app\"");
+        pros.waitForFinished(10*60*1000);
+    }
+    settings.setValue("updateToolsVersion", defVersionApplication);
 #endif
+#ifdef __linux__
+    QFile::remove(Utilities::applicationPath() + "/UpdateBlockPad");
+    QFile::copy("UpdateBlockPad", Utilities::applicationPath() + "/UpdateBlockPad");
+    settings.setValue("updateToolsVersion", defVersionApplication);
+#endif
+}
+
 
 void MainWidget::closeEvent(QCloseEvent *event)
 {

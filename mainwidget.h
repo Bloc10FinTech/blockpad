@@ -23,9 +23,7 @@ private:
     Ui::MainWidget *ui;
     QSettings settings;
     bool bFirstShow{true};
-#ifdef __APPLE__
     void updateUpdateTools();
-#endif
 public slots:
     void slotLockScreen();
 private slots:

@@ -6,7 +6,8 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QtConcurrent>
-
+#include <QDesktopWidget>
+#include <QStyle>
 #define defSuccessEncrypt "Encryption completed successfully!"
 #define defSuccessDecrypt "Decryption completed successfully!"
 
@@ -23,7 +24,16 @@ FileEncryptionWgt::FileEncryptionWgt(QWidget *parent) :
         ui->groupBoxDeCrypt->hide();
         adjustSize();
     }
-
+#ifdef __linux__
+    setGeometry(
+        QStyle::alignedRect(
+            Qt::LeftToRight,
+            Qt::AlignCenter,
+            QSize(this->size()),
+            qApp->desktop()->availableGeometry()
+        )
+    );
+#endif
     //signals/slots connection
     {
         connect(ui->radioButtonEncrypt, &QRadioButton::clicked,
