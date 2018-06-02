@@ -247,10 +247,14 @@ QMAKE_BUNDLE_DATA += addDocs_install
 }
 
 unix:!macx{
+#DEFINES += homeBuild
+defined(homeBuild){
 install.path += $$OUT_PWD
 install.files += BlockPadReadMe.rtf
-install.files += /home/alex/Projects/UpdateBlockPadRelease/UpdateBlockPad
+install.files += UpdateBlockPadRelease/UpdateBlockPad
+install.files += UpdateBlockPad/update.sh
 INSTALLS +=install
+}
 
 QMAKE_LFLAGS_RPATH += $${LD_RUN_PATH}
 QMAKE_LFLAGS_RPATH += $${LDFLAGS}
@@ -266,7 +270,9 @@ target.files += $$OUT_PWD/blockpad
 target.files += qt.conf
 target.files += webEngine_Exe/*
 target.files += blockpad.sh
+target.files += UpdateBlockPad/update.sh
 target.files += BlockPadReadMe.rtf
+target.files += UpdateBlockPadRelease/UpdateBlockPad
 
 data.path = /usr/share/blockpad/lib
 data.files = lib/*
@@ -274,6 +280,7 @@ data.files = lib/*
 # .desktop file
 desktop.path = /usr/share/applications/
 desktop.files += dist/blockpad.desktop
+desktop.files += dist/UpdateBlockPad.desktop
 
 # logo
 pixmaps.path = /usr/share/pixmaps/

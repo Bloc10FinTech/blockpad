@@ -28,15 +28,14 @@ QString Utilities::filesDirectory()
 
 QString Utilities::applicationPath()
 {
-#if defined(WIN32) || defined(WIN64)
-    return QCoreApplication::applicationDirPath();
-#endif
 #ifdef __APPLE__
     QDir dir(QCoreApplication::applicationDirPath());
     dir.cdUp();
     dir.cdUp();
     dir.cdUp();
     return dir.path();
+#else
+    return QCoreApplication::applicationDirPath();
 #endif
 }
 

@@ -9,6 +9,7 @@
 #include <QStandardPaths>
 #include <QDebug>
 #include "find/globalsearch.h"
+#include <QProcess>
 
 QString fileInit;
 

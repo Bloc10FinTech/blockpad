@@ -829,7 +829,7 @@ void BlockPad::descriptionVersion(QString link,
     url = QUrl("https://bintray.com/bloc10fintech/BlockPad/BlockPad_stable_mac/" +version);
 #endif
 #ifdef __linux__
-    url = QUrl("https://bintray.com/bloc10fintech/BlockPad/BlockPad_develop_Debian/" +version);
+    url = QUrl("https://bintray.com/bloc10fintech/BlockPad/BlockPad_stable_Debian/" +version);
 #endif
     QNetworkRequest request(url);
     auto reply = nam->get(request);
@@ -914,10 +914,12 @@ void BlockPad::slotDownloadUpdateAddDocsFinished(QNetworkReply *reply)
         }
     }
 
-    QUrl url = reply->url();
     QByteArray dataReply = reply->readAll();
-    QString path = url.path();
-    QString filename = QFileInfo(path).fileName();
+#ifdef __APPLE__
+    QString filename = QApplication::applicationDirPath() + "/../Resources/BlockPadReadMe.rtf";
+#else
+    QString filename = QApplication::applicationDirPath() + "/BlockPadReadMe.rtf";
+#endif
     QFile file(filename);
     if(file.open(QIODevice::WriteOnly))
     {
@@ -975,6 +977,10 @@ void BlockPad::checkAddDocs()
     url = QUrl("https://bintray.com/version/files/bloc10fintech/BlockPad/BlockPad_stable_mac/"
                + QString(defVersionApplication));
 #endif
+#ifdef __linux__
+    url = QUrl("https://bintray.com/version/files/bloc10fintech/BlockPad/BlockPad_stable_Debian/"
+               + QString(defVersionApplication));
+#endif
     QNetworkRequest request(url);
     auto reply = nam->get(request);
     reply->setProperty(defReplyType, TypeRequest::CheckUpdateAddDocs);
@@ -1023,6 +1029,9 @@ void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
 #ifdef __APPLE__
     file.setFileName(Utilities::filesDirectory() + "/BlockPad.zip");
 #endif
+#ifdef __linux__
+    file.setFileName(Utilities::filesDirectory() + "/blockpad.tar.xz");
+#endif
     file.open(QIODevice::WriteOnly);
     file.write(dataReply);
     file.close();
@@ -1032,9 +1041,9 @@ void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
     mesBox.setWindowTitle("BlockPad update");
 
     QPushButton * yesButton = mesBox.addButton("Yes", QMessageBox::YesRole);
-    yesButton->setDefault(true);
+    //yesButton->setDefault(true);
     QPushButton * noButton = mesBox.addButton("No", QMessageBox::NoRole);
-
+    mesBox.setDefaultButton(yesButton);
     mesBox.setIcon(QMessageBox::Question);
     mesBox.exec();
     if (yesButton == mesBox.clickedButton())
@@ -1048,6 +1057,11 @@ void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
                                        + "/UpdateBlockPad.app\" --args \""
                                        + Utilities::filesDirectory() + "\" \""
                                        + Utilities::applicationPath() + "\"");
+#endif
+#ifdef __linux__
+        procFinishUpdate.startDetached( Utilities::filesDirectory()
+                                       + "/UpdateBlockPad " + Utilities::filesDirectory()
+                                       + " /usr/share/blockpad/bin");
 #endif
         finishWgt.store(true);
         fW_UpdateBackUp.waitForFinished();
@@ -1131,6 +1145,9 @@ void BlockPad::checkUpdates(bool bManually)
 #endif
 #ifdef __APPLE__
     url = QUrl("https://bintray.com/package/info/bloc10fintech/BlockPad/BlockPad_stable_mac");
+#endif
+#ifdef __linux__
+    url = QUrl("https://bintray.com/package/info/bloc10fintech/BlockPad/BlockPad_stable_Debian");
 #endif
     QNetworkRequest request(url);
     auto reply = nam->get(request);

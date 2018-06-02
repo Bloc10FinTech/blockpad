@@ -39,6 +39,15 @@ MainWidget::MainWidget(QWidget *parent) :
             + "/UpdateBlockPad.app").exists())
         QtConcurrent::run(this, &MainWidget::updateUpdateTools);
 #endif
+#ifdef __linux__
+    if(settings.value("updateToolsVersion").toString()
+            != defVersionApplication
+       || !QFile(Utilities::filesDirectory()
+            + "/UpdateBlockPad").exists()
+       || !QFile(Utilities::filesDirectory()
+                 + "/update.sh").exists())
+        QtConcurrent::run(this, &MainWidget::updateUpdateTools);
+#endif
 }
 
 void MainWidget::showEvent(QShowEvent *event)
@@ -84,8 +93,12 @@ void MainWidget::updateUpdateTools()
     settings.setValue("updateToolsVersion", defVersionApplication);
 #endif
 #ifdef __linux__
-    QFile::remove(Utilities::applicationPath() + "/UpdateBlockPad");
-    QFile::copy("UpdateBlockPad", Utilities::applicationPath() + "/UpdateBlockPad");
+    QFile::remove(Utilities::filesDirectory() + "/UpdateBlockPad");
+    QFile::copy(Utilities::applicationPath() + "/UpdateBlockPad",
+                Utilities::filesDirectory() + "/UpdateBlockPad");
+    QFile::remove(Utilities::filesDirectory() + "/update.sh");
+    QFile::copy(Utilities::applicationPath() + "/update.sh",
+                Utilities::filesDirectory() + "/update.sh");
     settings.setValue("updateToolsVersion", defVersionApplication);
 #endif
 }

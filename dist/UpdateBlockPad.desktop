@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=UpdateBlockPad
+Exec=UpdateBlockPad
+Version=0.8.3
+GenericName=Encrypted mutli-use notepad
+Comment=Encrypted mutli-use notepad
+Icon=/usr/share/pixmaps/BlocPad.png
+Terminal=false
+Categories=Qt;Engineering;
+Name[en_US]=UpdateBlockPad

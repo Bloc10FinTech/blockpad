@@ -20,4 +20,5 @@ webEngine_resources
 webEngine_resources/*
 debian/blockpad
 debian/blockpad/*
-
+UpdateBlockPadRelease
+UpdateBlockPadRelease/*

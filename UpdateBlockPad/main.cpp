@@ -63,7 +63,9 @@ using namespace QtConcurrent;
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-
+#ifdef __linux__
+    app.setWindowIcon(QIcon("://Resources/BlocPad.png"));
+#endif
     if(argc < 2)
     {
         QMessageBox::critical(nullptr, "BlockPad update error",
@@ -96,7 +98,7 @@ int main(int argc, char **argv)
         if(bSuccess.load())
         {
         #ifdef __linux__    
-            QString cmd = "open " + pathApp + "/blockpad";
+            QString cmd = "blockpad";
         #endif
         #ifdef __APPLE__
             QString cmd = "open " + pathApp + "/BlockPad.app";            
@@ -113,7 +115,8 @@ int main(int argc, char **argv)
     QObject::connect(&timer, &QTimer::timeout,
                      &app, [&]()
     {
-       dialog.setValue(dialog.value() + (100 - dialog.value())/10);
+        if(QFile::exists(pathFiles + "/startUpdate"))
+            dialog.setValue(dialog.value() + (100 - dialog.value())/10);
     });
     //function of copiing files
     auto update = [&]()
@@ -174,59 +177,91 @@ int main(int argc, char **argv)
     #endif
         
     #ifdef __linux__
-        //remove old files
+        //set permission update.sh
         {
-            QDir dir(pathFiles + "/new_package");
-            dir.removeRecursively();
+            QFile::setPermissions(pathFiles + "/update.sh",
+                                  QFileDevice::ReadOwner
+                                  | QFileDevice::WriteOwner
+                                  | QFileDevice::ExeOwner
+                                  | QFileDevice::ReadUser
+                                  | QFileDevice::WriteUser
+                                  | QFileDevice::ExeUser
+                                  | QFileDevice::ReadGroup
+                                  | QFileDevice::WriteGroup
+                                  | QFileDevice::ExeGroup
+                                  | QFileDevice::ReadOther
+                                  | QFileDevice::WriteOther
+                                  | QFileDevice::ExeOther);
         }
-        //un tar gz
+        //update.sh
         {
-            QString command = "tar";
-            QStringList args = QStringList() << "-xvzf blockpad.tar.gz --directory new_package";
             QProcess proc;
-            proc.setWorkingDirectory(pathFiles);
-            proc.start(command, args);
+            proc.start("pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY "
+                       + pathFiles + "/update.sh " + pathFiles);
             proc.waitForFinished(10*60*1000);
             bSuccess = !proc.exitCode();
             if(!bSuccess.load())
             {
-                strUnSuccess = "Can not extract new version";
-                return;
-            }
-            QFile(pathFiles + "/blockpad.tar.gz").remove();
-        }
-        //reinstall blockpad
-        {
-            QString debFile;
-            //find debFile
-            {
-                auto listFiles = QDir(pathFiles + "/new_package").entryInfoList();
-                foreach(auto infoFile, listFiles)
-                {
-                    if(infoFile.completeSuffix() == "tar.gz")
-                    {
-                        debFile = infoFile.fileName();
-                        break;
-                    }
-                }
-            }
-            QString dpkg_command = "pkexec dpkg -i " + debFile;
-            QProcess proc;
-            proc.setWorkingDirectory(pathFiles + "/new_package");
-            proc.start(dpkg_command);
-            proc.waitForFinished(10*60*1000);
-            bSuccess = !proc.exitCode();
-            if(!bSuccess.load())
-            {
-                strUnSuccess = "Can not reinstall blockpad";
+                strUnSuccess = "Can not update BlockPad";
                 return;
             }
         }
-        //remove update files
-        {
-            QDir dir(pathFiles + "/new_package");
-            dir.removeRecursively();
-        }
+//        //remove old files
+//        {
+//            QDir dir(pathFiles + "/new_package");
+//            dir.removeRecursively();
+//            QDir(pathFiles).mkdir("new_package");
+//        }
+//        //un tar gz
+//        {
+//            QString command = "tar -xf blockpad.tar.xz -C new_package";
+//            //QStringList args = QStringList() << "-xf blockpad.tar.xz -C new_package";
+//            QProcess proc;
+//            proc.setWorkingDirectory(pathFiles);
+//            //proc.start(command, args);
+//            proc.start(command);
+//            proc.waitForFinished(10*60*1000);
+//            bSuccess = !proc.exitCode();
+//            if(!bSuccess.load())
+//            {
+//                strUnSuccess = "Can not extract new version";
+//                return;
+//            }
+//            QFile(pathFiles + "/blockpad.tar.xz").remove();
+//        }
+//        //reinstall blockpad
+//        {
+//            QString debFile;
+//            //find debFile
+//            {
+//                auto listFiles = QDir(pathFiles + "/new_package").entryInfoList();
+//                foreach(auto infoFile, listFiles)
+//                {
+//                    if(infoFile.suffix()== "deb")
+//                    {
+//                        debFile = infoFile.filePath();
+//                        break;
+//                    }
+//                }
+//            }
+//            QString dpkg_command = "pkexec dpkg -i " + debFile;
+//            //QString dpkg_command = "dpkg -i " + debFile;
+//            QProcess proc;
+//            proc.setWorkingDirectory(pathFiles + "/new_package");
+//            proc.start(dpkg_command);
+//            proc.waitForFinished(10*60*1000);
+//            bSuccess = !proc.exitCode();
+//            if(!bSuccess.load())
+//            {
+//                strUnSuccess = "Can not reinstall blockpad";
+//                return;
+//            }
+//        }
+//        //remove update files
+//        {
+//            QDir dir(pathFiles + "/new_package");
+//            dir.removeRecursively();
+//        }
     #endif
     };
 
