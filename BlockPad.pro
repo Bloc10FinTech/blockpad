@@ -74,7 +74,8 @@ SOURCES += \
     searchwgt.cpp \
     find/searchresulttreeitemdelegate.cpp \
     find/findwidget.cpp \
-    find/treewidgetfindresults.cpp
+    find/treewidgetfindresults.cpp \
+    retreivecloudwgt.cpp
 
 HEADERS += \
     global.h \
@@ -127,7 +128,8 @@ HEADERS += \
     find/searchresulttreeitemdelegate.h \
     find/findwidget.h \
     find/globalsearch.h \
-    find/treewidgetfindresults.h
+    find/treewidgetfindresults.h \
+    retreivecloudwgt.h
 
 FORMS += \
     passwordwidget.ui \
@@ -146,7 +148,8 @@ FORMS += \
     onetimepadgenerator.ui \
     messagescramblerwgt.ui \
     searchwgt.ui \
-    find/findwidget.ui
+    find/findwidget.ui \
+    retreivecloudwgt.ui
 
 RESOURCES += \
     fonts.qrc \

@@ -557,8 +557,6 @@ void BlockPad::slotCheckResult(bool bSuccess,QString strError)
 
 void BlockPad::updateBackUpFile()
 {
-    //aws test
-    {
         Aws::SDKOptions options;
         options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Off;
         Aws::InitAPI(options);
@@ -631,8 +629,6 @@ void BlockPad::updateBackUpFile()
         }
 
         Aws::ShutdownAPI(options);
-    }
-
 }
 
 void BlockPad::checkLicense()

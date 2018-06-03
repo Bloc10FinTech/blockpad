@@ -4,6 +4,9 @@
 #include <QWidget>
 #include <QSettings>
 #include "crypt.h"
+#include "retreivecloudwgt.h"
+#include <QPointer>
+
 namespace Ui {
 class Register;
 }
@@ -34,6 +37,7 @@ private:
     int resendId {0};
     int resendTime{60}; //seconds
     QString currentEmail();
+    QPointer<RetreiveCloudWgt> retreiveCloudWgt;
 private slots:
     void slotCreateNewBlockPad();
     void slotLoginClicked();
@@ -42,6 +46,7 @@ private slots:
     void slotFinishEditingPassword();
     void slotFinishEditingCode2FA();
     void slotFinishChoosingId();
+    void slotRetreiveCloudClicked();
     void slotHelloLinkActivated(QString link);
 protected:
     void timerEvent(QTimerEvent *event);

@@ -18,11 +18,16 @@ class QWidget;
 //settings
 #define defCurrentFile "CurrentFile"
 #define defReadMeVersion "ReadMeVersion"
+
 #define defSearch "Search"
 #define defRegularExpressions defSearch + QString("/RegularExpressions")
 #define defCase defSearch + QString("/Case")
 #define defWholeWord defSearch + QString("/WholeWord")
 #define defWrapAround defSearch + QString("/WrapAround")
+
+#define defCloud "Cloud"
+#define defDownloadCloud defCloud + QString("/DownloadPath")
+#define defAutoOpen defCloud + QString("/AutoOpen")
 
 //properties qapplication
 #define defEmailProperty "email"

@@ -50,6 +50,9 @@ Register::Register(QWidget *parent) :
         connect(ui->pushButtonOpenFile, &QPushButton::clicked,
                 this, &Register::slotOpenFile);
 
+        connect(ui->pushButtonRetrieveFile, &QPushButton::clicked,
+                this, &Register::slotRetreiveCloudClicked);
+
         connect(ui->lineEditEmail, &QLineEdit::returnPressed,
                 this, &Register::slotFinishEditingLogin);
 
@@ -69,6 +72,17 @@ Register::Register(QWidget *parent) :
                 this, &Register::slotHelloLinkActivated);
     }
     ui->lineEditEmail->setVisible(false);
+}
+
+void Register::slotRetreiveCloudClicked()
+{
+    if(retreiveCloudWgt.isNull())
+    {
+        retreiveCloudWgt = new RetreiveCloudWgt();
+        retreiveCloudWgt->show();
+    }
+    else
+        retreiveCloudWgt->activateWindow();
 }
 
 void Register::slotFinishChoosingId()
@@ -327,8 +341,8 @@ void Register::setMode(ModeRegistr newMode)
     ui->widgetEmail->setEnabled(true);
     ui->widgetPassword->setEnabled(true);
     ui->widgetId->setEnabled(true);
-    ui->widgetCreate->show();
-    ui->widgetOpenFile->show();
+    ui->pushButtonCreateBlockPad->show();
+    ui->pushButtonOpenFile->show();
     ui->labelHello->show();
     ui->pushButtonGetCode->setEnabled(true);
     ui->widgetId->hide();
@@ -373,8 +387,8 @@ void Register::setMode(ModeRegistr newMode)
         {
         ui->groupBoxAuthorizeData->setTitle("Login");
         ui->pushButtonLogin->setText("Login");
-        ui->widgetCreate->hide();
-        ui->widgetOpenFile->hide();
+        ui->pushButtonCreateBlockPad->hide();
+        ui->pushButtonOpenFile->hide();
         ui->labelHello->hide();
         ui->labelStatus->clear();
         ui->comboBoxEmail->hide();
@@ -398,8 +412,8 @@ void Register::setMode(ModeRegistr newMode)
         {
             ui->comboBoxEmail->hide();
             ui->lineEditEmail->show();
-            ui->widgetCreate->hide();
-            ui->widgetOpenFile->hide();
+            ui->pushButtonCreateBlockPad->hide();
+            ui->pushButtonOpenFile->hide();
             ui->labelHello->hide();
         }
         if(mode == ModeRegistr::New)
