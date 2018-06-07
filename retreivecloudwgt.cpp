@@ -184,9 +184,12 @@ void RetreiveCloudWgt::slotDownloadClicked()
             local_file.open(chDownloadFile, std::ios::out | std::ios::binary);
             local_file << get_object_outcome.GetResult().GetBody().rdbuf();
 #if defined(WIN32) || defined(WIN64)
-            QProcess proc;
-            proc.startDetached(QCoreApplication::applicationFilePath(),
-                               QStringList() << downloadFile);
+            if(ui->checkBoxAutoOpenBlockPad->isChecked())
+            {
+                QProcess proc;
+                proc.startDetached(QCoreApplication::applicationFilePath(),
+                                   QStringList() << downloadFile);
+            }
 #endif
         }
         else

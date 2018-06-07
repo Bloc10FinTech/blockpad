@@ -35,7 +35,7 @@ void NetworkLicenseServer::sendCloudBlockPadsRequest(QString username, QString p
         //fill hash
         {
             QByteArray hashData;
-            hashData.append(object["username"].toString());
+            hashData.append(object["login"].toString());
             hashData.append(object["password"].toString());
             object["hash"] = QString(QCryptographicHash::hash(
                         hashData,QCryptographicHash::Sha256).toHex());
@@ -151,13 +151,15 @@ void NetworkLicenseServer::cloudBlockPadsFinished(QNetworkReply *reply)
     QMap<QString, QMap<QString, QStringList>> cloudBlockPads;
     if(bSuccess)
     {
-        auto blockpadsObject = object.value("BlockPads").toObject();
+        auto blockpadsObject = object.value("Blockpads").toObject();
         foreach(auto license, blockpadsObject.keys())
         {
             auto licenseObject = blockpadsObject.value(license).toObject();
-            foreach(auto device, licenseObject.keys())
+            foreach(auto macAddr, licenseObject.keys())
             {
-                auto idS = licenseObject.value(device).toArray().toVariantList();
+                auto macObject = licenseObject.value(macAddr).toObject();
+                auto device = macObject.value("devicename").toString();
+                auto idS = macObject.value("ids").toArray().toVariantList();
                 foreach(auto id, idS)
                 {
                     cloudBlockPads[license][device].append(id.toString());
