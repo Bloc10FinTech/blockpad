@@ -109,7 +109,7 @@ RetreiveCloudWgt::RetreiveCloudWgt(QWidget *parent) :
 
 #if defined(WIN32) || defined(WIN64)
 #else
-    ui->checkBoxAutoOpenBlockPad->hide();
+    ui->wgtOpenAfter->hide();
 #endif
 }
 
