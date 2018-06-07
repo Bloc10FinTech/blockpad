@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QMessageBox>
+#include <QDesktopWidget>
 
 SettingsWgt::SettingsWgt(QWidget *parent) :
     QWidget(parent),
@@ -80,6 +81,16 @@ SettingsWgt::SettingsWgt(QWidget *parent) :
 //                                          Qt::SmoothTransformation));
 //    }
     ui->labelVersion->setText(defVersionApplication + QString(" (Qt 5.10)"));
+#ifdef __linux__
+    setGeometry(
+        QStyle::alignedRect(
+            Qt::LeftToRight,
+            Qt::AlignCenter,
+            QSize(this->size()),
+            qApp->desktop()->availableGeometry()
+        )
+    );
+#endif
     //signals-slots connects
     {
         connect(ui->comboBoxFonts, SIGNAL(currentIndexChanged(QString)),

@@ -5,6 +5,7 @@
 #include "global.h"
 #include <QDebug>
 #include <QMetaEnum>
+#include <QDesktopWidget>
 
 SearchWgt::SearchWgt(QWidget *parent) :
     QWidget(parent),
@@ -12,7 +13,7 @@ SearchWgt::SearchWgt(QWidget *parent) :
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose);
-#if defined(WIN32) || defined(WIN64)
+#if defined(WIN32) || defined(WIN64) || defined(__linux__)
     setWindowFlags(Qt::Window);
     setWindowFlag(Qt::WindowMinimizeButtonHint, false);
     setWindowFlag(Qt::WindowMaximizeButtonHint, false);
@@ -85,6 +86,16 @@ SearchWgt::SearchWgt(QWidget *parent) :
         connect(ui->radioButtonFind, &QRadioButton::clicked,
                 this, &SearchWgt::slotFindRadButClicked);
     }
+#ifdef __linux__
+    setGeometry(
+        QStyle::alignedRect(
+            Qt::LeftToRight,
+            Qt::AlignCenter,
+            QSize(this->size()),
+            qApp->desktop()->availableGeometry()
+        )
+    );
+#endif
 }
 
 void SearchWgt::slotReplace()

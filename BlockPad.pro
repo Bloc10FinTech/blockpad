@@ -194,7 +194,7 @@ PRE_TARGETDEPS += $$PWD/../../openssl/openssl-1.0.2n/lib/libcrypto.a
 LIBS += -L$$PWD/../../openssl/openssl-1.0.2n/lib/ -lssl
 PRE_TARGETDEPS += $$PWD/../../openssl/openssl-1.0.2n/lib/libssl.a
 
-macx: LIBS += -L$$PWD/../../../../usr/local/lib/ -laws-cpp-sdk-s3 -laws-cpp-sdk-core -laws-cpp-sdk-transfer
+LIBS += -L$$PWD/../../../../usr/local/lib/ -laws-cpp-sdk-s3 -laws-cpp-sdk-core -laws-cpp-sdk-transfer
 
 INCLUDEPATH += $$PWD/../../../../usr/local/include
 DEPENDPATH += $$PWD/../../../../usr/local/include
@@ -250,32 +250,51 @@ QMAKE_BUNDLE_DATA += addDocs_install
 }
 
 unix:!macx{
+#DEFINES += homeBuild
+defined(homeBuild){
+install.path += $$OUT_PWD
+install.files += BlockPadReadMe.rtf
+install.files += UpdateBlockPadRelease/UpdateBlockPad
+install.files += UpdateBlockPad/update.sh
+INSTALLS +=install
+}
 
-LIBS += —Wl,—rpath=\\\$$ORIGIN/../lib
+QMAKE_LFLAGS_RPATH += $${LD_RUN_PATH}
+QMAKE_LFLAGS_RPATH += $${LDFLAGS}
+QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/../libs\'-Wl,-rpath,$${QMAKE_LFLAGS_RPATH}"
+#QMAKE_RPATHDIR += /usr/share/blockpad/lib
+#QMAKE_RPATHDIR += $$[QT_INSTALL_LIBS]
+
+we_resources.path = /usr/share/blockpad/bin/resources
+we_resources.files = webEngine_resources/*
+
 target.path = /usr/share/blockpad/bin
+target.files += $$OUT_PWD/blockpad
+target.files += qt.conf
+target.files += webEngine_Exe/*
+target.files += blockpad.sh
+target.files += UpdateBlockPad/update.sh
+target.files += BlockPadReadMe.rtf
+target.files += UpdateBlockPadRelease/UpdateBlockPad
 
-target.files += /home/alex/Projects/BlockPad-Release/blockpad
-target.files += /home/alex/Projects/blockpad/qt.conf
-
-INSTALLS += target
-
-data.path = /usr/share/project/lib
-
+data.path = /usr/share/blockpad/lib
 data.files = lib/*
-
-INSTALLS += data
-
 
 # .desktop file
 desktop.path = /usr/share/applications/
 desktop.files += dist/blockpad.desktop
+desktop.files += dist/UpdateBlockPad.desktop
 
 # logo
 pixmaps.path = /usr/share/pixmaps/
 pixmaps.files += dist/blockpad.png
 
-INSTALLS+=desktop
-INSTALLS+=pixmaps
+INSTALLS+=\
+        pixmaps\
+        desktop\
+        data\
+        target\
+        we_resources
 }
 
 

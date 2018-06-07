@@ -39,6 +39,15 @@ MainWidget::MainWidget(QWidget *parent) :
             + "/UpdateBlockPad.app").exists())
         QtConcurrent::run(this, &MainWidget::updateUpdateTools);
 #endif
+#ifdef __linux__
+    if(settings.value("updateToolsVersion").toString()
+            != defVersionApplication
+       || !QFile(Utilities::filesDirectory()
+            + "/UpdateBlockPad").exists()
+       || !QFile(Utilities::filesDirectory()
+                 + "/update.sh").exists())
+        QtConcurrent::run(this, &MainWidget::updateUpdateTools);
+#endif
 }
 
 void MainWidget::showEvent(QShowEvent *event)
@@ -52,28 +61,48 @@ void MainWidget::showEvent(QShowEvent *event)
         ui->stackedWidget->setFixedSize(ui->regist->size());
         setFixedSize(ui->regist->size());
         bFirstShow = false;
+        #ifdef __linux__
+        setGeometry(
+            QStyle::alignedRect(
+                Qt::LeftToRight,
+                Qt::AlignCenter,
+                QSize(ui->regist->size()),
+                qApp->desktop()->availableGeometry()
+            )
+        );
+        #endif
     }
     QWidget::showEvent(event);
 }
 
+void MainWidget::updateUpdateTools()
+{
 #ifdef __APPLE__
-    void MainWidget::updateUpdateTools()
+    //clean
     {
-        //clean
-        {
-            QDir dir(Utilities::filesDirectory()+ "/UpdateBlockPad.app");
-            dir.removeRecursively();
-        }
-        //remove new version to appPath
-        {
-            QProcess pros;
-            pros.start("sh -c \"cp -R " +Utilities::applicationPath().replace(" ", "\\ ") +"/BlockPad.app/Contents/UpdateTools/UpdateBlockPad.app "
-                       + Utilities::filesDirectory().replace(" ", "\\ ")  + "/UpdateBlockPad.app\"");
-            pros.waitForFinished(10*60*1000);
-        }
-        settings.setValue("updateToolsVersion", defVersionApplication);
+        QDir dir(Utilities::filesDirectory()+ "/UpdateBlockPad.app");
+        dir.removeRecursively();
     }
+    //remove new version to appPath
+    {
+        QProcess pros;
+        pros.start("sh -c \"cp -R " +Utilities::applicationPath().replace(" ", "\\ ") +"/BlockPad.app/Contents/UpdateTools/UpdateBlockPad.app "
+                   + Utilities::filesDirectory().replace(" ", "\\ ")  + "/UpdateBlockPad.app\"");
+        pros.waitForFinished(10*60*1000);
+    }
+    settings.setValue("updateToolsVersion", defVersionApplication);
 #endif
+#ifdef __linux__
+    QFile::remove(Utilities::filesDirectory() + "/UpdateBlockPad");
+    QFile::copy(Utilities::applicationPath() + "/UpdateBlockPad",
+                Utilities::filesDirectory() + "/UpdateBlockPad");
+    QFile::remove(Utilities::filesDirectory() + "/update.sh");
+    QFile::copy(Utilities::applicationPath() + "/update.sh",
+                Utilities::filesDirectory() + "/update.sh");
+    settings.setValue("updateToolsVersion", defVersionApplication);
+#endif
+}
+
 
 void MainWidget::closeEvent(QCloseEvent *event)
 {

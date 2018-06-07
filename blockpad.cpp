@@ -93,6 +93,9 @@ BlockPad::BlockPad(QWidget *parent) :
         #ifdef __APPLE__
             fontSize = 14;
         #endif
+        #ifdef __linux__
+            fontSize = 12;
+        #endif
         }
         slotFontSizeChanged(fontSize);
     }
@@ -115,6 +118,191 @@ BlockPad::BlockPad(QWidget *parent) :
         layout->addWidget(web_browserWindow);
         ui->WebBrowser->setLayout(layout);
     }
+    //shortcuts
+    {
+        //save
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+S")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotSaveEncrypt);
+            #if defined(WIN32) || defined(WIN64)
+                ui->pushButtonSave->setToolTip(
+                            ui->pushButtonSave->toolTip() + " (Ctrl+S)");
+            #endif
+            #ifdef __APPLE__
+                ui->pushButtonSave->setToolTip(
+                            ui->pushButtonSave->toolTip() + " (Cmd+S)");
+            #endif
+        }
+        //search
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+F")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotSearchClicked);
+            #if defined(WIN32) || defined(WIN64)
+                ui->pushButtonSearch->setToolTip(
+                            ui->pushButtonSearch->toolTip() + " (Ctrl+F)");
+            #endif
+            #ifdef __APPLE__
+                ui->pushButtonSearch->setToolTip(
+                            ui->pushButtonSearch->toolTip() + " (Cmd+F)");
+            #endif
+        }
+        //print
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+P")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotPrintClicked);
+            #if defined(WIN32) || defined(WIN64)
+                ui->pushButtonPrint->setToolTip(
+                            ui->pushButtonPrint->toolTip() + " (Ctrl+P)");
+            #endif
+            #ifdef __APPLE__
+                ui->pushButtonPrint->setToolTip(
+                            ui->pushButtonPrint->toolTip() + " (Cmd+P)");
+            #endif
+        }
+        //help
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("F1")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotReadMeClicked);
+            ui->pushButtonReadMe->setToolTip(
+                        ui->pushButtonReadMe->toolTip() + " (F1)");
+        }
+        //add blockpad/row
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+N")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotAddNewShortcut);
+
+            #if defined(WIN32) || defined(WIN64)
+                ui->pushButtonAddFile->setToolTip(
+                            ui->pushButtonAddFile->toolTip() + " (Ctrl+N)");
+                ui->pushButtonCompleteRow->setToolTip(
+                            ui->pushButtonCompleteRow->toolTip() + " (Ctrl+N)");
+            #endif
+            #ifdef __APPLE__
+                ui->pushButtonAddFile->setToolTip(
+                            ui->pushButtonAddFile->toolTip() + " (Cmd+N)");
+                ui->pushButtonCompleteRow->setToolTip(
+                            ui->pushButtonCompleteRow->toolTip() + " (Cmd+N)");
+            #endif
+        }
+        //delete row
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Del")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotDeleteShortcut);
+            ui->pushButtonRemoveRow->setToolTip(
+                        ui->pushButtonRemoveRow->toolTip() + " (Del)");
+
+        }
+
+        //settings
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+S")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotSettingsClicked);
+            ui->pushButtonSettings->setToolTip(
+                        ui->pushButtonSettings->toolTip() + " (Alt+S)");
+        }
+        //generate password
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+G")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotPasswGenClicked);
+            ui->pushButtonGeneratePassword->setToolTip(
+                        ui->pushButtonGeneratePassword->toolTip() + " (Alt+G)");
+        }
+        //single file encryption system
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+E")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotFileEncryptionClicked);
+            ui->pushButtonSingleFileEncryptionSystem->setToolTip(
+                        ui->pushButtonSingleFileEncryptionSystem->toolTip() + " (Alt+E)");
+        }
+        //update
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+U")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotUpdateClicking);
+            ui->pushButtonUpdate->setToolTip(
+                        ui->pushButtonUpdate->toolTip() + " (Alt+U)");
+        }
+        //backup
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+B")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotBackUpClicked);
+            ui->pushButtonBackUp->setToolTip(
+                        ui->pushButtonBackUp->toolTip() + " (Alt+B)");
+        }
+        //pro
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+P")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotPremiumVersionClicked);
+            ui->pushButtonProVersion->setToolTip(
+                        ui->pushButtonProVersion->toolTip() + " (Alt+P)");
+        }
+        //one time pad generator
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+O")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotOneTimePadGeneratorClicked);
+            ui->pushButtonOneTimePadGenerator->setToolTip(
+                        ui->pushButtonOneTimePadGenerator->toolTip() + " (Alt+O)");
+        }
+        //one time pad generator
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+M")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotMessageScramblerClicked);
+            ui->pushButtonMessageScrambler->setToolTip(
+                        ui->pushButtonMessageScrambler->toolTip() + " (Alt+M)");
+        }
+        //license activation
+        {
+            QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+L")),
+                                                 this);
+            connect(shortcut, &QShortcut::activated,
+                    this, &BlockPad::slotActivateClicked);
+            ui->pushButtonLicenseActivate->setToolTip(
+                        ui->pushButtonLicenseActivate->toolTip() + " (Alt+L)");
+        }
+        //undo - redo
+        {
+            #if defined(WIN32) || defined(WIN64)
+                ui->pushButtonUndo->setToolTip(
+                            ui->pushButtonUndo->toolTip() + " (Ctrl+Z)");
+                ui->pushButtonRedo->setToolTip(
+                            ui->pushButtonRedo->toolTip() + " (Ctrl+Y)");
+            #endif
+            #ifdef __APPLE__
+                ui->pushButtonUndo->setToolTip(
+                            ui->pushButtonUndo->toolTip() + " (Cmd+Z)");
+                ui->pushButtonRedo->setToolTip(
+                            ui->pushButtonRedo->toolTip() + " (Cmd+Y)");
+            #endif
+        }
+    }
+    ui->wgtFindResults->hide();
     //signals-slots connects
     {
         connect(ui->pushButtonCompleteRow, &QPushButton::clicked,
@@ -194,194 +382,8 @@ BlockPad::BlockPad(QWidget *parent) :
                 ui->codeEdit, &CodeEditor::slotCurrentFindResultChanged);
         connect(ui->wgtFindResults, &FindWidget::sigFindResultChoosed,
                 this, &BlockPad::slotFindResultChoosed);
-
-        //shortcuts
-        {
-            //save
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+S")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotSaveEncrypt);
-                #if defined(WIN32) || defined(WIN64)
-                    ui->pushButtonSave->setToolTip(
-                                ui->pushButtonSave->toolTip() + " (Ctrl+S)");
-                #endif
-                #ifdef __APPLE__
-                    ui->pushButtonSave->setToolTip(
-                                ui->pushButtonSave->toolTip() + " (Cmd+S)");
-                #endif
-            }
-            //search
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+F")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotSearchClicked);
-                #if defined(WIN32) || defined(WIN64)
-                    ui->pushButtonSearch->setToolTip(
-                                ui->pushButtonSearch->toolTip() + " (Ctrl+F)");
-                #endif
-                #ifdef __APPLE__
-                    ui->pushButtonSearch->setToolTip(
-                                ui->pushButtonSearch->toolTip() + " (Cmd+F)");
-                #endif
-            }
-            //print
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+P")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotPrintClicked);
-                #if defined(WIN32) || defined(WIN64)
-                    ui->pushButtonPrint->setToolTip(
-                                ui->pushButtonPrint->toolTip() + " (Ctrl+P)");
-                #endif
-                #ifdef __APPLE__
-                    ui->pushButtonPrint->setToolTip(
-                                ui->pushButtonPrint->toolTip() + " (Cmd+P)");
-                #endif
-            }
-            //help
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("F1")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotReadMeClicked);
-                ui->pushButtonReadMe->setToolTip(
-                            ui->pushButtonReadMe->toolTip() + " (F1)");
-            }
-            //add blockpad/row
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Ctrl+N")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotAddNewShortcut);
-
-                #if defined(WIN32) || defined(WIN64)
-                    ui->pushButtonAddFile->setToolTip(
-                                ui->pushButtonAddFile->toolTip() + " (Ctrl+N)");
-                    ui->pushButtonCompleteRow->setToolTip(
-                                ui->pushButtonCompleteRow->toolTip() + " (Ctrl+N)");
-                #endif
-                #ifdef __APPLE__
-                    ui->pushButtonAddFile->setToolTip(
-                                ui->pushButtonAddFile->toolTip() + " (Cmd+N)");
-                    ui->pushButtonCompleteRow->setToolTip(
-                                ui->pushButtonCompleteRow->toolTip() + " (Cmd+N)");
-                #endif
-            }
-            //delete row
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Del")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotDeleteShortcut);
-                ui->pushButtonRemoveRow->setToolTip(
-                            ui->pushButtonRemoveRow->toolTip() + " (Del)");
-
-            }
-
-            //settings
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+S")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotSettingsClicked);
-                ui->pushButtonSettings->setToolTip(
-                            ui->pushButtonSettings->toolTip() + " (Alt+S)");
-            }
-            //generate password
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+G")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotPasswGenClicked);
-                ui->pushButtonGeneratePassword->setToolTip(
-                            ui->pushButtonGeneratePassword->toolTip() + " (Alt+G)");
-            }
-            //single file encryption system
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+E")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotFileEncryptionClicked);
-                ui->pushButtonSingleFileEncryptionSystem->setToolTip(
-                            ui->pushButtonSingleFileEncryptionSystem->toolTip() + " (Alt+E)");
-            }
-            //update
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+U")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotUpdateClicking);
-                ui->pushButtonUpdate->setToolTip(
-                            ui->pushButtonUpdate->toolTip() + " (Alt+U)");
-            }
-            //backup
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+B")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotBackUpClicked);
-                ui->pushButtonBackUp->setToolTip(
-                            ui->pushButtonBackUp->toolTip() + " (Alt+B)");
-            }
-            //pro
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+P")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotPremiumVersionClicked);
-                ui->pushButtonProVersion->setToolTip(
-                            ui->pushButtonProVersion->toolTip() + " (Alt+P)");
-            }
-            //one time pad generator
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+O")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotOneTimePadGeneratorClicked);
-                ui->pushButtonOneTimePadGenerator->setToolTip(
-                            ui->pushButtonOneTimePadGenerator->toolTip() + " (Alt+O)");
-            }
-            //one time pad generator
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+M")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotMessageScramblerClicked);
-                ui->pushButtonMessageScrambler->setToolTip(
-                            ui->pushButtonMessageScrambler->toolTip() + " (Alt+M)");
-            }
-            //license activation
-            {
-                QShortcut * shortcut = new QShortcut(QKeySequence(tr("Alt+L")),
-                                                     this);
-                connect(shortcut, &QShortcut::activated,
-                        this, &BlockPad::slotActivateClicked);
-                ui->pushButtonLicenseActivate->setToolTip(
-                            ui->pushButtonLicenseActivate->toolTip() + " (Alt+L)");
-            }
-            //undo - redo
-            {
-                #if defined(WIN32) || defined(WIN64)
-                    ui->pushButtonUndo->setToolTip(
-                                ui->pushButtonUndo->toolTip() + " (Ctrl+Z)");
-                    ui->pushButtonRedo->setToolTip(
-                                ui->pushButtonRedo->toolTip() + " (Ctrl+Y)");
-                #endif
-                #ifdef __APPLE__
-                    ui->pushButtonUndo->setToolTip(
-                                ui->pushButtonUndo->toolTip() + " (Cmd+Z)");
-                    ui->pushButtonRedo->setToolTip(
-                                ui->pushButtonRedo->toolTip() + " (Cmd+Y)");
-                #endif
-            }
-        }
     }
 
-    ui->wgtFindResults->hide();
 }
 
 void BlockPad::slotDeleteShortcut()
@@ -470,11 +472,15 @@ void BlockPad::slotReadMeClicked()
     QString readMeFile;
 #ifdef __APPLE__
     readMeFile = QApplication::applicationDirPath() + "/../Resources/BlockPadReadMe.rtf";
-#endif
-#if defined(WIN32) || defined(WIN64)
+#else
     readMeFile = "BlockPadReadMe.rtf";
 #endif
+
+#ifdef __linux__
+    bool success = QDesktopServices::openUrl(readMeFile);
+#else
     bool success = QDesktopServices::openUrl(QUrl::fromLocalFile(readMeFile));
+#endif
     if(!success)
         QMessageBox::critical(this, windowTitle(),
                               "Error while opening file - BlockPadReadMe.rtf ! Please check that you have rtf editor !");
@@ -818,6 +824,9 @@ void BlockPad::descriptionVersion(QString link,
 #ifdef __APPLE__
     url = QUrl("https://bintray.com/bloc10fintech/BlockPad/BlockPad_stable_mac/" +version);
 #endif
+#ifdef __linux__
+    url = QUrl("https://bintray.com/bloc10fintech/BlockPad/BlockPad_stable_Debian/" +version);
+#endif
     QNetworkRequest request(url);
     auto reply = nam->get(request);
     reply->setProperty("Manually", bManually);
@@ -901,10 +910,12 @@ void BlockPad::slotDownloadUpdateAddDocsFinished(QNetworkReply *reply)
         }
     }
 
-    QUrl url = reply->url();
     QByteArray dataReply = reply->readAll();
-    QString path = url.path();
-    QString filename = QFileInfo(path).fileName();
+#ifdef __APPLE__
+    QString filename = QApplication::applicationDirPath() + "/../Resources/BlockPadReadMe.rtf";
+#else
+    QString filename = QApplication::applicationDirPath() + "/BlockPadReadMe.rtf";
+#endif
     QFile file(filename);
     if(file.open(QIODevice::WriteOnly))
     {
@@ -962,6 +973,10 @@ void BlockPad::checkAddDocs()
     url = QUrl("https://bintray.com/version/files/bloc10fintech/BlockPad/BlockPad_stable_mac/"
                + QString(defVersionApplication));
 #endif
+#ifdef __linux__
+    url = QUrl("https://bintray.com/version/files/bloc10fintech/BlockPad/BlockPad_stable_Debian/"
+               + QString(defVersionApplication));
+#endif
     QNetworkRequest request(url);
     auto reply = nam->get(request);
     reply->setProperty(defReplyType, TypeRequest::CheckUpdateAddDocs);
@@ -1010,6 +1025,9 @@ void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
 #ifdef __APPLE__
     file.setFileName(Utilities::filesDirectory() + "/BlockPad.zip");
 #endif
+#ifdef __linux__
+    file.setFileName(Utilities::filesDirectory() + "/blockpad.tar.xz");
+#endif
     file.open(QIODevice::WriteOnly);
     file.write(dataReply);
     file.close();
@@ -1019,9 +1037,9 @@ void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
     mesBox.setWindowTitle("BlockPad update");
 
     QPushButton * yesButton = mesBox.addButton("Yes", QMessageBox::YesRole);
-    yesButton->setDefault(true);
+    //yesButton->setDefault(true);
     QPushButton * noButton = mesBox.addButton("No", QMessageBox::NoRole);
-
+    mesBox.setDefaultButton(yesButton);
     mesBox.setIcon(QMessageBox::Question);
     mesBox.exec();
     if (yesButton == mesBox.clickedButton())
@@ -1035,6 +1053,11 @@ void BlockPad::slotDownloadUpdateFinished(QNetworkReply *reply)
                                        + "/UpdateBlockPad.app\" --args \""
                                        + Utilities::filesDirectory() + "\" \""
                                        + Utilities::applicationPath() + "\"");
+#endif
+#ifdef __linux__
+        procFinishUpdate.startDetached( Utilities::filesDirectory()
+                                       + "/UpdateBlockPad " + Utilities::filesDirectory()
+                                       + " /usr/share/blockpad/bin");
 #endif
         finishWgt.store(true);
         fW_UpdateBackUp.waitForFinished();
@@ -1118,6 +1141,9 @@ void BlockPad::checkUpdates(bool bManually)
 #endif
 #ifdef __APPLE__
     url = QUrl("https://bintray.com/package/info/bloc10fintech/BlockPad/BlockPad_stable_mac");
+#endif
+#ifdef __linux__
+    url = QUrl("https://bintray.com/package/info/bloc10fintech/BlockPad/BlockPad_stable_Debian");
 #endif
     QNetworkRequest request(url);
     auto reply = nam->get(request);

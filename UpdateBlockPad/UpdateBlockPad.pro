@@ -3,5 +3,11 @@ CONFIG += console
 
 SOURCES += main.cpp
 
-target.path = $$[QT_INSTALL_EXAMPLES]/qtconcurrent/progressdialog
-INSTALLS += target
+RESOURCES += \
+    res.qrc
+
+unix:!macx{
+install.path += $$OUT_PWD
+install.files += update.sh
+INSTALLS +=install
+}

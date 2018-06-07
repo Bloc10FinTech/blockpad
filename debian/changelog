@@ -1,0 +1,5 @@
+blockpad (0.8.3-1) unstable; urgency=medium
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- bloc10 <info@bloc10.com>  Sat, 26 May 2018 21:07:00 +0300

@@ -9,6 +9,7 @@
 #include <QCryptographicHash>
 #include <QPrinter>
 #include <QPrintDialog>
+#include <QDesktopWidget>
 
 OneTimePadGenerator::OneTimePadGenerator(QWidget *parent) :
     QWidget(parent),
@@ -37,7 +38,16 @@ OneTimePadGenerator::OneTimePadGenerator(QWidget *parent) :
             edit->setValidator(val);
         }
     }
-
+#ifdef __linux__
+    setGeometry(
+        QStyle::alignedRect(
+            Qt::LeftToRight,
+            Qt::AlignCenter,
+            QSize(this->size()),
+            qApp->desktop()->availableGeometry()
+        )
+    );
+#endif
     //signals-slots connects
     {
         connect(ui->pushButtonGenerate, &QPushButton::clicked,
