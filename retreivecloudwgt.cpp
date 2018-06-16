@@ -231,7 +231,7 @@ void RetreiveCloudWgt::slotLoginClicked()
 
         return;
     }
-
+    ui->tableWidgetCloudBlockPads->setRowCount(0);
     netwLicenseServer.sendCloudBlockPadsRequest(ui->lineEditUsername->text(),
                                                 ui->lineEditPassword->text());
 }
@@ -315,6 +315,16 @@ void RetreiveCloudWgt::slotBlockPadsFinished(bool bSuccess,
                     }
                 }
             }
+        }
+        if(ui->tableWidgetCloudBlockPads->rowCount() == 0)
+        {
+            QMessageBox msgBox;
+            msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
+            msgBox.setText("You have not bought any licenses yet. To purchase, go to "
+                           "<a href='https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1'>Premium Version</a>");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.exec();
         }
     }
 }
