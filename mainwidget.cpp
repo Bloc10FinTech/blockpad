@@ -59,7 +59,11 @@ void MainWidget::showEvent(QShowEvent *event)
         ui->regist->Init();
         ui->regist->adjustSize();
         ui->stackedWidget->setFixedSize(ui->regist->size());
+        #ifdef __linux__
+        adjustSize();
+        #else
         setFixedSize(ui->regist->size());
+        #endif
         bFirstShow = false;
         #ifdef __linux__
         setGeometry(

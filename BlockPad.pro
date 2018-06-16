@@ -202,12 +202,12 @@ ICON = BlockPad.icns
 }
 
 unix:!macx{
-LIBS += -L$$PWD/../../OpenSSl/build/lib/ -lcrypto -lssl
+#LIBS += -L$$PWD/../../OpenSSl/build/lib/ -lcrypto -lssl
 
-INCLUDEPATH += $$PWD/../../OpenSSl/build/include/openssl
-DEPENDPATH += $$PWD/../../OpenSSl/build/include/openssl
+#INCLUDEPATH += $$PWD/../../OpenSSl/build/include/openssl
+#DEPENDPATH += $$PWD/../../OpenSSl/build/include/openssl
 
-LIBS += -L$$PWD/../../aws/build/lib/ -laws-cpp-sdk-s3 -laws-cpp-sdk-core -laws-cpp-sdk-transfer
+LIBS += -L/usr/local/lib/ -laws-cpp-sdk-s3 -laws-cpp-sdk-core -laws-cpp-sdk-transfer
 
 INCLUDEPATH += $$PWD/../../aws/build/include
 DEPENDPATH += $$PWD/../../aws/build/include
@@ -262,8 +262,8 @@ INSTALLS +=install
 QMAKE_LFLAGS_RPATH += $${LD_RUN_PATH}
 QMAKE_LFLAGS_RPATH += $${LDFLAGS}
 QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/../libs\'-Wl,-rpath,$${QMAKE_LFLAGS_RPATH}"
-#QMAKE_RPATHDIR += /usr/share/blockpad/lib
-#QMAKE_RPATHDIR += $$[QT_INSTALL_LIBS]
+QMAKE_RPATHDIR += /usr/share/blockpad/lib
+QMAKE_RPATHDIR += $$[QT_INSTALL_LIBS]
 
 we_resources.path = /usr/share/blockpad/bin/resources
 we_resources.files = webEngine_resources/*
@@ -299,3 +299,14 @@ INSTALLS+=\
 
 
 
+
+unix:!macx: LIBS += -L$$PWD/../../OpenSSl/build/lib/ -lcrypto
+
+INCLUDEPATH += $$PWD/../../OpenSSl/build/include
+DEPENDPATH += $$PWD/../../OpenSSl/build/include
+
+unix:!macx: PRE_TARGETDEPS += $$PWD/../../OpenSSl/build/lib/libcrypto.a
+
+unix:!macx: LIBS += -L$$PWD/../../OpenSSl/build/lib/ -lssl
+
+unix:!macx: PRE_TARGETDEPS += $$PWD/../../OpenSSl/build/lib/libssl.a
