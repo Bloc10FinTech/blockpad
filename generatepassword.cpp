@@ -36,6 +36,31 @@ GeneratePassword::GeneratePassword(QWidget *parent) :
     {
         connect(ui->pushButtonGenerate, &QPushButton::clicked,
                 this, &GeneratePassword::slotGeneratePassword);
+
+        auto boxes = findChildren<QCheckBox *>();
+        foreach(auto box, boxes)
+        {
+            connect(box, &QCheckBox::clicked,
+                    this, &GeneratePassword::slotCheckBoxesChanged);
+        }
+    }
+}
+
+void GeneratePassword::slotCheckBoxesChanged()
+{
+    if(!ui->checkBoxLowercase->isChecked()
+            &&
+       !ui->checkBoxNumbers->isChecked()
+            &&
+       !ui->checkBoxSymbols->isChecked()
+            &&
+       !ui->checkBoxUppercase->isChecked())
+    {
+        ui->pushButtonGenerate->setEnabled(false);
+    }
+    else
+    {
+        ui->pushButtonGenerate->setEnabled(true);
     }
 }
 
@@ -48,6 +73,8 @@ void GeneratePassword::slotGeneratePassword()
         allowables.append(ambiguouses);
     if(ui->checkBoxLowercase->isChecked())
         allowables.append(lowercases);
+    if(ui->checkBoxUppercase->isChecked())
+        allowables.append(uppercases);
     if(ui->checkBoxNumbers->isChecked())
         allowables.append(numbers);
     if(!ui->checkBoxSimilar->isChecked())

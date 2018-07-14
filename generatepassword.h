@@ -27,6 +27,7 @@ private:
     QString ambiguouses {"{}[]()/'\"\\`~,;:.!?<>^+-=_"};
 private slots:
     void slotGeneratePassword();
+    void slotCheckBoxesChanged();
 };
 
 #endif // GENERATEPASSWORD_H

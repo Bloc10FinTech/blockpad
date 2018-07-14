@@ -218,7 +218,7 @@ void Register::Init()
         ui->comboBoxEmail->setToolTip(nameFiles[ui->comboBoxEmail->currentIndex()]);
 }
 
-QString Register::currentEmail ()
+QString Register::currentEmail()
 {
     QString res;
     if(ui->comboBoxEmail->currentIndex() >= 0)

@@ -120,8 +120,9 @@ QGroupBox::title {
       <item>
        <widget class="QLabel" name="labelOurDescription">
         <property name="text">
-         <string>To encrypt some file you will needing other file. We will create encrypt key using this file of computer (text, audio, video, any other). File will not change - you can use it further! And hacker will never think that your favorite song - is your encrypt key!
-Program will also decrypt file that was encrypting here. To decrypt file you will provide encrypted file and key-file.</string>
+         <string>     To encrypt some file you will needing other file (any file in your computer). We will create encrypt key using this file of computer (text, audio, video, any other). File will not change - you can use it further! And hacker will never think that your favorite song - is your encrypt key!
+     Please dont change key file, because it can make impossible decryption in future.
+     Program will also decrypt file that was encrypting here. To decrypt file you will provide encrypted file and key-file.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -293,6 +294,9 @@ max-height:30;
             </item>
             <item>
              <widget class="QPushButton" name="pushButtonKeyFileEncrypt">
+              <property name="toolTip">
+               <string>any file in your computer</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -582,6 +586,9 @@ QPushButton:default {
             </item>
             <item>
              <widget class="QPushButton" name="pushButtonKeyFileDecrypt">
+              <property name="toolTip">
+               <string>any file in your computer</string>
+              </property>
               <property name="text">
                <string/>
               </property>

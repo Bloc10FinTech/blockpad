@@ -45,7 +45,7 @@ background-color: white
       <string notr="true"/>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="Development">
       <attribute name="title">
@@ -572,7 +572,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/settings.png</normaloff>:/Icons/settings.png</iconset>
            </property>
            <property name="iconSize">
@@ -595,7 +595,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/Password.png</normaloff>:/Icons/Password.png</iconset>
            </property>
            <property name="iconSize">
@@ -615,7 +615,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/1TimePad.png</normaloff>:/Icons/1TimePad.png</iconset>
            </property>
            <property name="iconSize">
@@ -638,7 +638,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/UpdateIcon.png</normaloff>:/Icons/UpdateIcon.png</iconset>
            </property>
            <property name="iconSize">
@@ -658,7 +658,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/backup.png</normaloff>:/Icons/backup.png</iconset>
            </property>
            <property name="iconSize">
@@ -678,7 +678,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/Pro_Version.png</normaloff>:/Icons/Pro_Version.png</iconset>
            </property>
            <property name="iconSize">
@@ -698,7 +698,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/NewOneTimePadGenerator.png</normaloff>:/Icons/NewOneTimePadGenerator.png</iconset>
            </property>
            <property name="iconSize">
@@ -718,7 +718,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/encrypted-email.png</normaloff>:/Icons/encrypted-email.png</iconset>
            </property>
            <property name="iconSize">
@@ -738,7 +738,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/Readme.png</normaloff>:/Icons/Readme.png</iconset>
            </property>
           </widget>
@@ -781,7 +781,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/Printer.png</normaloff>:/Icons/Printer.png</iconset>
            </property>
            <property name="iconSize">
@@ -801,7 +801,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/find.png</normaloff>:/Icons/find.png</iconset>
            </property>
           </widget>
@@ -815,7 +815,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/Save.png</normaloff>:/Icons/Save.png</iconset>
            </property>
            <property name="iconSize">
@@ -835,7 +835,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/AddFile.png</normaloff>:/Icons/AddFile.png</iconset>
            </property>
            <property name="iconSize">
@@ -855,7 +855,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/undo.png</normaloff>:/Icons/undo.png</iconset>
            </property>
           </widget>
@@ -869,7 +869,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/redo.png</normaloff>:/Icons/redo.png</iconset>
            </property>
           </widget>
@@ -904,7 +904,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/addRow.png</normaloff>:/Icons/addRow.png</iconset>
            </property>
            <property name="iconSize">
@@ -927,7 +927,7 @@ qproperty-text:&quot;&quot;
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="icons.qrc">
+            <iconset>
              <normaloff>:/Icons/removeRow.png</normaloff>:/Icons/removeRow.png</iconset>
            </property>
            <property name="iconSize">
@@ -992,8 +992,6 @@ qproperty-text:&quot;&quot;
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -134,30 +134,44 @@ bool TablePrinter::printTable(QTableWidget * wgt, const QVector<int> columnStret
         // --------------------------- row height counting ----------------------------
 
         int maxHeight = 0; // max row Height
+        int coeff = 1;
+        bool isEmpty = true;
+        int lineHeigth = 0;
         for(int i = 0; i < columnCount; i++) { // for each column
             QString str;
-            if(j >= 0) {
+            if(j >= 0)
+            {
                 str = model->data(model->index(j,i), Qt::DisplayRole).toString();
+                if(webColumn == i)
+                    str = RichItemDelegate::nameWebSite(str);
             } else {
                 str = headers.at(i);
-            }
+            }       
+            if(!str.isEmpty())
+                isEmpty = false;
             QRect rect(0, 0, columnWidth[i] - rightMargin - leftMargin, maxRowHeight);
             QRect realRect;
             QFontMetrics fm(contentFont);
             realRect = fm.boundingRect(str);
-            int coeff = 1;
+            int curCoeff = 1;
             while(1)
             {
-                if(coeff* rect.width() >= realRect.width())
+                if(curCoeff* rect.width() >= realRect.width())
                     break;
-                coeff++;
+                curCoeff++;
             }
-            if(str.isEmpty())
-                maxHeight = prevMaxHeight;
-            if (realRect.height() > maxHeight && columnStretch[i] != 0) {
-                 realRect.height() > maxRowHeight ? maxHeight = maxRowHeight : maxHeight = coeff*(realRect.height()+5);
-            }
+            if(curCoeff > coeff)
+                coeff = curCoeff;
+            if(realRect.height()+5 > lineHeigth)
+                lineHeigth = realRect.height()+5;
+//            if (realRect.height() > maxHeight && columnStretch[i] != 0)
+//            {
+//                 realRect.height() > maxRowHeight ? maxHeight = maxRowHeight : maxHeight = coeff*(realRect.height()+5);
+//            }
         }
+        maxHeight = coeff*lineHeigth;
+        if(isEmpty)
+            maxHeight = prevMaxHeight;
         prevMaxHeight = maxHeight;
 
         if(painter->transform().dy() + maxHeight + topMargin

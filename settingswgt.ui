@@ -593,7 +593,7 @@ QGroupBox::title {
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="icons.qrc">:/Icons/Block10_Logo.png</pixmap>
+        <pixmap>:/Icons/Block10_Logo.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -994,8 +994,6 @@ QGroupBox::title {
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
