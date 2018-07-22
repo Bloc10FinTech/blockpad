@@ -4,7 +4,7 @@
 
 class QWidget;
 
-#define defVersionApplication "0.8.4"
+#define defVersionApplication "0.8.4.1"
 #define defVersionEncryptProtocol 2
 
 #define appFontWeight QFont::Normal
