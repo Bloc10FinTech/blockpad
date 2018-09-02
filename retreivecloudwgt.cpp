@@ -321,7 +321,7 @@ void RetreiveCloudWgt::slotBlockPadsFinished(bool bSuccess,
             QMessageBox msgBox;
             msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
             msgBox.setText("You have not bought any licenses yet. To purchase, go to "
-                           "<a href='https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1'>Premium Version</a>");
+                           "<a href='https://portal.totalcryptos.com/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1'>Premium Version</a>");
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.exec();

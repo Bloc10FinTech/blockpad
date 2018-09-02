@@ -1480,8 +1480,8 @@ void BlockPad::slotAddBlockPadFile()
 
 void BlockPad::slotPremiumVersionClicked()
 {
-    slotOpenUrlWebTab(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
-    //QDesktopServices::openUrl(QUrl("https://fxbot.market/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
+    slotOpenUrlWebTab(QUrl("https://portal.totalcryptos.com/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
+    //QDesktopServices::openUrl(QUrl("https://portal.totalcryptos.com/marketplace/fx-trade-bot-product/software/blockpad-detail?blockpad_source=1"));
 }
 
 void BlockPad::slotCurrentWgtChanged()

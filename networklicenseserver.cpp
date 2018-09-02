@@ -9,7 +9,7 @@
 #include <QMessageAuthenticationCode>
 #include <QCryptographicHash>
 
-#define defLicenseWebSite "https://fxbot.market/blockpad/blockpad.php"
+#define defLicenseWebSite "https://portal.totalcryptos.com/blockpad/blockpad.php"
 
 NetworkLicenseServer::NetworkLicenseServer(QObject *parent):
     QObject(parent)

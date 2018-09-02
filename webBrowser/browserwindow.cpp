@@ -171,21 +171,21 @@ void BrowserWindow::slotCookieRemoved(const QNetworkCookie &cookie)
         //allCookies.removeAll(cookie);
         //allCookies.removeOne(cookie);
         emit newChanges();
-        if(cookie.domain() == "fxbot.market")
-        {
-            qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Removed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
-            for(int i=0; i<allCookies.size(); i++)
-            {
-                if(allCookies[i].domain() == "fxbot.market")
-                {
-                    qDebug() << "i = " << i;
-                    qDebug() << "name: " << allCookies[i].name();
-                    qDebug() << "domain: " << allCookies[i].domain();
-                    qDebug() << "path: " << allCookies[i].path();
-                    qDebug() << "value: " << allCookies[i].value();
-                }
-            }
-        }
+//        if(cookie.domain() == "portal.totalcryptos.com")
+//        {
+//            qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Removed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+//            for(int i=0; i<allCookies.size(); i++)
+//            {
+//                if(allCookies[i].domain() == "portal.totalcryptos.com")
+//                {
+//                    qDebug() << "i = " << i;
+//                    qDebug() << "name: " << allCookies[i].name();
+//                    qDebug() << "domain: " << allCookies[i].domain();
+//                    qDebug() << "path: " << allCookies[i].path();
+//                    qDebug() << "value: " << allCookies[i].value();
+//                }
+//            }
+//        }
     }
 }
 
@@ -197,21 +197,21 @@ void BrowserWindow::slotCookieAdded(const QNetworkCookie &cookie)
     {
         allCookies.append(cookie);
         emit newChanges();
-        if(cookie.domain() == "fxbot.market")
-        {
-            qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Added!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
-            for(int i=0; i<allCookies.size(); i++)
-            {
-                if(allCookies[i].domain() == "fxbot.market")
-                {
-                    qDebug() << "i = " << i;
-                    qDebug() << "name: " << allCookies[i].name();
-                    qDebug() << "domain: " << allCookies[i].domain();
-                    qDebug() << "path: " << allCookies[i].path();
-                    qDebug() << "value: " << allCookies[i].value();
-                }
-            }
-        }
+//        if(cookie.domain() == "fxbot.market")
+//        {
+//            qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Added!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+//            for(int i=0; i<allCookies.size(); i++)
+//            {
+//                if(allCookies[i].domain() == "fxbot.market")
+//                {
+//                    qDebug() << "i = " << i;
+//                    qDebug() << "name: " << allCookies[i].name();
+//                    qDebug() << "domain: " << allCookies[i].domain();
+//                    qDebug() << "path: " << allCookies[i].path();
+//                    qDebug() << "value: " << allCookies[i].value();
+//                }
+//            }
+//        }
     }
 }
 
