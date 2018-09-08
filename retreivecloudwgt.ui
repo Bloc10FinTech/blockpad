@@ -85,7 +85,7 @@ QLabel{
    <item>
     <widget class="QGroupBox" name="groupBoxFxbotAccount">
      <property name="title">
-      <string>Fxbot account</string>
+      <string>TotalCryptos.com account</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
