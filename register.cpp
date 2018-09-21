@@ -297,7 +297,13 @@ void Register::OpenFile(QString blockpad)
                     extBlocksFile.close();
                 }
             }
+            if(nameFiles.contains(QString(blockpad).replace("/", "\\")))
+                blockpad.replace("/", "\\");
+            if(nameFiles.contains(QString(blockpad).replace("\\", "/")))
+                blockpad.replace("\\", "/");
             ui->comboBoxEmail->setCurrentIndex(nameFiles.indexOf(blockpad));
+            if(ui->comboBoxId->findText(id) == -1)
+                ui->comboBoxId->addItem(id);
             ui->comboBoxId->setCurrentText(id);
         }
     }
